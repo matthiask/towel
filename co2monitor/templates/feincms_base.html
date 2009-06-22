@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load feincms_tags feincms_page_tags %}
+
+{% block title %}{{ feincms_page.title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h1>{{ feincms_page.title }}</h1>
+
+    {% feincms_render_region feincms_page "main" request %}
+{% endblock %}
+
+
+{% comment %}
+    <div class="header">
+        <div class="logo">
+            <a href="{% feincms_parentlink of feincms_page level=1 %}"></a>
+        </div>
+        <div class="navigation">
+            {% feincms_navigation of feincms_page as nav level=2 %}
+            {% mark_current %}
+            {% for p in nav %}
+                <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            {% endfor %}
+            {% endmark_current %}
+        </div>
+        <div class="subnavigation">
+            {% feincms_navigation of feincms_page as nav level=3 %}
+            {% mark_current %}
+            {% for p in nav %}
+                <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            {% endfor %}
+            {% endmark_current %}
+        </div>
+    </div>
+{% endcomment %}

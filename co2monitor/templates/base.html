@@ -1,0 +1,60 @@
+{% load i18n navigation_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="{% block meta-keywords %}{% endblock %}" />
+    <meta name="description" content="{% block meta-description %}{% endblock %}" />
+    <meta name="robots" content="index,follow,noodp" />
+    <meta name="language" content="de" />
+    <meta name="country" content="Switzerland" />
+    <meta name="geo.placename" content="Zurich" />
+    <meta name="geo.region" content="CH" />
+
+    <link rel="stylesheet" href="{{ MEDIA_URL }}css/global.css" type="text/css" media="screen, projection" />
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/global.js"></script>
+
+	<!--[if IE 6]>
+	<style type="text/css">
+	</style>
+	<![endif]-->
+
+    <title>
+    {% block title %}{% endblock %}
+    </title>
+
+    {% block extra-head %}{% endblock %}
+</head>
+
+<body class="{{ LANGUAGE_CODE|slice:"0:2" }}">
+
+<div id="wrapper">
+
+    <div class="main">
+    {% block content %}{% endblock content %}
+    </div>
+
+</div>
+
+<a title="FEINHEIT Grafik Zürich" id="feinheit" href="http://www.feinheit.ch/">FEINHEIT Grafik Zürich – CI/CD, Webdesign, Flash, Webshop, XHTML/CSS</a>
+
+{% comment %}
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("{{ GOOGLE_ANALYTICS }}");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+{% endcomment %}
+
+{# % feincms_frontend_editing feincms_page request % #}
+</body>
+</html>

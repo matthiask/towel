@@ -1,0 +1,219 @@
+/*------------------------------------------------------------------
+ form styling
+-------------------------------------------------------------------*/
+
+input,select, textarea {
+    font-size: 12px;
+    border: 1px solid #ccc;
+    padding: 2px 10px;
+    color: #1e3061;
+}
+
+textarea {
+    height: 200px;
+}
+
+select {
+	width: 185px;
+}
+
+.boxed-input {
+    width: 190px;
+    margin: 10px 20px 10px 22px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.boxed-input select {
+    width: 120px;
+}
+
+.boxed-input input {
+   text-align: right;
+}
+
+a.button, a.buttonDis {
+	display: block;
+	background-color: transparent;
+	background-image: url(../img/design/button-gold.jpg);
+	background-repeat: no-repeat;
+	width: 200px;
+	height: 30px;
+	margin: 5px auto;
+	padding: 5px 0 0 0;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+    color: #fff;
+	font-size: 12px;
+}
+html body form table#form td.button-left {
+	padding: 15px 0;
+	text-align: left;
+}
+html body form table#form td.button-left a.button {
+	margin: 0 auto 0 0;
+	text-align: center;
+}
+a.button:link, a.button:visited {
+
+}
+a.button:hover, a.button:active {
+	background-position: 0 -36px;
+}
+
+#size-reminder {
+    text-align: left;
+}
+
+#size-reminder-checkbox input {
+    text-align: left;
+    width:20px;
+    border: 1px solid #fff;
+    padding-top: 5px;
+}
+
+#size-reminder-checkbox {
+    list-style-type: none;
+    width: 200px;
+    height: 20px;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+#size-reminder-checkbox li {
+    float: left;
+    padding: 0 3px 0 0;
+}
+
+.size-reminder-mail {
+    width: 175px;
+}
+
+#size-reminder-box {
+    width: 20px;
+    border: none;
+}
+
+#size-reminder table {
+    width: 20px;
+}
+
+#size-selection #options #quantity {
+    width: 44px;
+}
+
+.label_field_pair {
+    margin: 0 3px;
+    float: left;
+    padding: 0;
+    width: 20px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+
+
+
+
+
+/*-------------------------------------------------------------------
+ TTT formular
+------------------------------------------------------------------*/
+
+table#form, table#form th,table#form td,table#form tr{
+
+}
+
+.invalid th {
+	color: red;
+}
+
+.error{
+	color: red;
+}
+
+.jserror {
+	padding:0 24px 12px 24px;
+	text-align:center;
+}
+
+table#form th{
+	font-weight: normal;
+	padding: 0 5px 0 0;
+	vertical-align: top;
+	width: 100px;
+	text-align:right;
+}
+
+table#form td{
+	padding-bottom:5px;
+	text-align: left;
+}
+
+table#form td input, table#form td textarea{
+	vertical-align:middle;
+	width:300px;
+	border: 1px solid #e1e1e1;
+	margin:2px 0;
+	padding:5px 5px;
+    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Helvetica,sans-serif;
+    font-size: 12px;
+
+}
+table#form td textarea {
+    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Helvetica,sans-serif;
+	 vertical-align:top !important;
+}
+
+table#form th label {
+	margin: 0;
+	padding: 8px 0 3px 0;
+	display:block;
+}
+
+
+table#form td select {
+	width: 312px;
+	padding: 4px 0 0 0;
+	height: 25px;
+}
+
+.invalid th {
+	font-weight:bold;
+}
+
+
+table#form .invalid input, table#form .invalid textarea {
+	border-left: 4px solid red;
+	width:296px;
+}
+
+table#form td.submit-btn input {
+	width: 150px;
+	border: none;
+	background-color: #999999;
+	margin-top: 10px;
+}
+
+table#form td.submit-btn input:hover {
+	color: white;
+	background-color: #444;
+}
+
+.radio-btn, html body table#form .radio-btn input { width: auto; margin:0px 5px 0 0;}
+.radio-label, .radio-btn label {width:250px; padding-right: 30px; vertical-align:middle;}
+
+.suchen input {
+	font-size: 14px;
+	width:274px;
+	padding: 10px 5px;
+	margin-bottom: 10px;
+}
+.suchen .submit-btn {
+	width:286px;
+}
+
+html body table#form td input.auto_w {
+	width: 30px;
+}

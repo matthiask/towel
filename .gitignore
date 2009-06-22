@@ -1,0 +1,10 @@
+*.pyc
+*~
+.*.swp
+\#*#
+/secrets.py
+/django
+/feincms
+/feinheit
+/modules
+/mptt

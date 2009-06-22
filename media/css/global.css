@@ -1,0 +1,77 @@
+* {margin: 0; padding: 0;}
+
+table,table th,table td,table tr {
+	border:none;
+	border-collapse:collapse;
+	vertical-align:top;
+	text-align:left;
+	padding:0px;
+	margin:0px;
+}
+
+html, body
+{
+    margin: 0;
+    padding: 0;
+    min-width: 960px;
+    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Helvetica,sans-serif;
+    font-size: 13px;
+    color: #282a31;
+}
+
+h1
+{
+	font-size: 22px;
+	font-weight: normal;
+	text-transform: uppercase;
+	color: #2d8aad;
+}
+h2
+{
+	line-height:24px;
+}
+
+h1 strong
+{
+	font-size: 14px;
+	text-transform: none;
+}
+h2 {
+	font-size: 16px;
+}
+
+h3 {
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+a {
+	color: #2d8aad;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+a img {
+	border: none;
+}
+
+/*------------------------------------------------------------------
+IE6 pngfix
+-------------------------------------------------------------------*/
+img, div { behavior: url(/media/lib/pngfix/iepngfix.htc) }
+
+/*------------------------------------------------------------------
+feinheit standard
+-------------------------------------------------------------------*/
+a#feinheit {
+	background:transparent url(/media/img/design/feinheit.gif) no-repeat scroll 0 0;
+	display:block;
+	height:53px;
+	position:absolute;
+	right:0;
+	text-indent:-7777px;
+	top:0;
+	width:16px;
+}
