@@ -6,6 +6,7 @@ git clone /var/cache/git/django/django.git
 git clone /var/cache/git/django/feincms.git
 git clone /var/cache/git/django/mptt.git
 cd ..
+git clone /var/cache/git/django/feinheit.git
 ln -s lib/django/django django
 ln -s lib/feincms/feincms feincms
 ln -s lib/mptt/mptt mptt
