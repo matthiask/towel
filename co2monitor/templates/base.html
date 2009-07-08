@@ -56,5 +56,11 @@ pageTracker._trackPageview();
 {% endcomment %}
 
 {# % feincms_frontend_editing feincms_page request % #}
+
+{% if feincms_page and request.user.is_authenticated %}
+    <a href="{% block admin-link %}/admin/page/page/{{ feincms_page.id }}/{% endblock %}" target="_blank"
+        style="display:table-cell;background:black;color:white;width:50px;height:10px;position:fixed;bottom:0;right:0;padding:10px 10px 13px 10px;margin:0;text-align:center;">EDIT</a>
+{% endif %}
+
 </body>
 </html>
