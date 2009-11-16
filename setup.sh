@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "Creating folders and cloning git repositories..."
 mkdir lib
 cd lib
 git clone /var/cache/git/django/django.git
@@ -11,25 +12,15 @@ ln -s lib/django/django django
 ln -s lib/feincms/feincms feincms
 ln -s lib/mptt/mptt mptt
 
+echo "Setting ACLs..."
 sudo setfacl -R -d -m u:www-data:rwx media
 sudo setfacl -R -m u:www-data:rwx media
 
-cat > secrets.py << "EOD"
-DATABASE_ENGINE = 'mysql'
-DATABASE_HOST = 'whale.internal'
-DATABASE_PORT = ''
-DATABASE_NAME = 'dbname'
-DATABASE_USER = 'dbname'
-DATABASE_PASSWORD = 'dbpasswd'
-SECRET_KEY = ''
-APP_MODULE = 'co2monitor'
-FORCE_DOMAIN = 'www.co2monitor.ch'
+echo "Setting up Django environment..."
+python setuphelper.py
 
-"""
-CREATE DATABASE dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-CREATE USER dbname@lemur.internal IDENTIFIED BY 'dbpasswd';
-GRANT ALL PRIVILEGES ON dbname.* TO dbname@lemur.internal;
-"""
-EOD
-
+echo "Copy-paste the following command to open a MySQL connection"
 echo "mysql -uroot -p -hwhale.internal"
+
+echo "You should remove setup.sh and setuphelper.py now"
+echo "rm setup.sh setuphelper.py"
