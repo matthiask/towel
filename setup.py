@@ -30,7 +30,7 @@ database_name = raw_input()
 print 'Google Apps CNAME id [googleffffffff937e66ed]:'
 google_cname = raw_input()
 
-domain_components = 'dc=%s' % ',dc='.join(reversed(domain_name.split('.')))
+domain_components = 'dc=%s' % ',dc='.join(domain_name.split('.'))
 
 dic = {
     'customer_name': customer_name,
