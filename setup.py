@@ -74,7 +74,7 @@ DATABASE_USER = '%(database_name)s'
 DATABASE_PASSWORD = '%(database_password)s'
 SECRET_KEY = '%(secret_key)s'
 APP_MODULE = '%(module_name)s'
-FORCE_%(domain_name)s = 'www.co2monitor.ch'
+FORCE_DOMAIN = 'www.%(domain_name)s'
 ''' % dic
 secrets.close()
 
