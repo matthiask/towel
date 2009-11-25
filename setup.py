@@ -46,22 +46,23 @@ dic = {
 
 
 print 'Creating folders and cloning git repositories...'
-shell('''mkdir lib
-cd lib
-git clone /var/cache/git/django/django.git
+os.mkdir('lib')
+os.chdir('lib')
+
+shell('''git clone /var/cache/git/django/django.git
 git clone /var/cache/git/django/feincms.git
-git clone /var/cache/git/django/mptt.git
-cd ..
-git clone /var/cache/git/django/feinheit.git
-ln -s lib/django/django django
-ln -s lib/feincms/feincms feincms
-ln -s lib/mptt/mptt mptt
-''')
+git clone /var/cache/git/django/mptt.git''')
+
+os.chdir('..')
+shell('git clone /var/cache/git/django/feinheit.git')
+
+os.symlink('lib/django/django', 'django')
+os.symlink('lib/feincms/feincms', 'feincms')
+os.symlink('lib/mptt/mptt', 'mptt')
 
 print 'Setting ACLs'
 shell('''sudo setfacl -R -d -m u:www-data:rwx media
-sudo setfacl -R -m u:www-data:rwx media
-''')
+sudo setfacl -R -m u:www-data:rwx media''')
 
 print 'Setting up Django environment...'
 
