@@ -55,6 +55,9 @@ git clone /var/cache/git/django/mptt.git''')
 
 os.chdir('..')
 shell('git clone /var/cache/git/django/feinheit.git')
+os.chdir('feinheit/media')
+shell('git clone /var/cache/git/tinymce.git')
+os.chdir('../..')
 
 os.symlink('lib/django/django', 'django')
 os.symlink('lib/feincms/feincms', 'feincms')
