@@ -96,3 +96,5 @@ TINYMCE_JS_URL = '/media/sys/feinheit/tinymce/tiny_mce.js'
 #PINGING_WEBLOG_NAME = 'Nein zu neuen AKW!'
 #PINGING_WEBLOG_URL = 'http://www.nein-zu-neuen-akw.ch/'
 
+SERVER_EMAIL = 'root@oekohosting.ch'
+
