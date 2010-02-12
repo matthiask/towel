@@ -1,77 +1,126 @@
-* {margin: 0; padding: 0;}
+/**
+ * 
+ * FEINHEIT kreativ studio // www.feinheit.ch
+ * 
+ */
 
-table,table th,table td,table tr {
+body {
+	margin: 0;
+	font-family: Tahoma, sans-serif;
+	font-size:10pt;
+	background-color: #f0f0f0;
+}
+
+a{ 
+	color:#000;
+	outline:none;
 	border:none;
-	border-collapse:collapse;
-	vertical-align:top;
-	text-align:left;
-	padding:0px;
-	margin:0px;
 }
 
-html, body
-{
-    margin: 0;
-    padding: 0;
-    min-width: 960px;
-    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Helvetica,sans-serif;
-    font-size: 13px;
-    color: #282a31;
+a img{border:none;}
+
+h1 {
+	font-family: Trebuchet MS, sans-serif;
 }
 
-h1
-{
-	font-size: 22px;
-	font-weight: normal;
-	text-transform: uppercase;
-	color: #2d8aad;
-}
-h2
-{
-	line-height:24px;
+html, body, #wrapper {
+	height:100%;
 }
 
-h1 strong
-{
-	font-size: 14px;
-	text-transform: none;
-}
-h2 {
-	font-size: 16px;
+hr {
+	border: 1px solid black;
+	margin: 4px 0 4px 0;
 }
 
-h3 {
-	text-transform: uppercase;
-	font-weight: normal;
-	font-size: 14px;
+hr.thick {
+	border: 2px solid black;
 }
 
-a {
-	color: #2d8aad;
-	text-decoration: none;
-}
-a:hover {
-	text-decoration: underline;
-}
-a img {
-	border: none;
+#wrapper {
+	width: 960px;
+	margin: 0 auto;
+	background-color: white;
+/*
+	border-left: 1px dashed #aaaaaa;
+	border-right: 1px dashed #aaaaaa;
+*/
+	height: auto;
+	min-height: 100%
 }
 
-/*------------------------------------------------------------------
-IE6 pngfix
--------------------------------------------------------------------*/
-img, div { behavior: url(/media/lib/pngfix/iepngfix.htc) }
+#spacer {
+	height:20px;
+}
 
-/*------------------------------------------------------------------
-feinheit standard
--------------------------------------------------------------------*/
-a#feinheit {
-	background:transparent url(/media/img/design/feinheit.gif) no-repeat scroll 0 0;
-	display:block;
-	height:53px;
-	position:absolute;
-	right:0;
-	text-indent:-7777px;
-	top:0;
-	width:16px;
+#titlebar {
+	height: 60px;
+	max-height: 60px;
+	background-color: #75b6de;
+	padding: 10px 20px 10px 20px;
+}
+
+#title {
+	float:left;
+}
+
+#userpanel {
+	float:right;
+	text-align:right;
+	line-height:1.5em;
+	margin:6px;
+}
+
+#username {
+	color: white;
+}
+
+#title h1 {
+	color: white;
+	font-weight:normal;
+	font-size:40px;
+	margin: 0;
+	padding-top:8px;
+}
+
+#titlebar a {
+	text-decoration:none;
+}
+
+#content {
+	padding: 20px;
+}
+
+#navbar {
+/*
+	bottom:0px;
+	line-height:4em;
+	background-color:grey;
+*/
+	height:40px;
+}
+
+#navbar td {
+	vertical-align:bottom;
+	padding: 0;
+}
+
+#navbar a {
+	font-size: 20px;
+	text-decoration:none;
+	font-family: Trebuchet MS, sans-serif;
+	padding: 0 20px 0 0px;
+	color: #666666;
+}
+
+/*#navbar a:hover, */
+#navbar a.mark {
+	font-weight:bolder;
+	color: black;
+}
+
+
+@media print {
+	*{background: #fff; color: #000;}
+	html {font: 100%/1.5 Arial, Helvetica, sans-serif;}
+	/*#nav, #about { display: none; }*/
 }
