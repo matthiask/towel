@@ -44,37 +44,37 @@ class BaseModel(CreatorModel):
     def __unicode__(self):
         return self.name
     
-class ContentTypeMixin(models.Model):
-    """
-    Simplify some of the needed boilerplate code for objects which can
-    have a foreign key to any other object.
-    """
-
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class ContentTypeManager(models.Manager):
-    def for_object_and_profile(self, obj, profile):
-        return self._for_object(obj, self.for_profile(profile))
-
-    def for_object(self, obj):
-        return self._for_object(obj, self.all())
-
-    def _for_object(self, obj, queryset):
-        """
-        Helper function which helps following reverse generic relations.
-        """
-
-        if isinstance(obj, models.Model):
-            return self.filter(
-                content_type=ContentType.objects.get_for_model(obj),
-                object_id=obj.pk)
-
-        # it's probably a model class, not an instance
-        return self.filter(
-            content_type=ContentType.objects.get_for_model(obj))
+#class ContentTypeMixin(models.Model):
+#    """
+#    Simplify some of the needed boilerplate code for objects which can
+#    have a foreign key to any other object.
+#    """
+#
+#    content_type = models.ForeignKey(ContentType)
+#    object_id = models.PositiveIntegerField()
+#    content_object = generic.GenericForeignKey()
+#
+#    class Meta:
+#        abstract = True
+#
+#
+#class ContentTypeManager(models.Manager):
+#    def for_object_and_profile(self, obj, profile):
+#        return self._for_object(obj, self.for_profile(profile))
+#
+#    def for_object(self, obj):
+#        return self._for_object(obj, self.all())
+#
+#    def _for_object(self, obj, queryset):
+#        """
+#        Helper function which helps following reverse generic relations.
+#        """
+#
+#        if isinstance(obj, models.Model):
+#            return self.filter(
+#                content_type=ContentType.objects.get_for_model(obj),
+#                object_id=obj.pk)
+#
+#        # it's probably a model class, not an instance
+#        return self.filter(
+#            content_type=ContentType.objects.get_for_model(obj))

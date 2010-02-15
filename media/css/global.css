@@ -118,6 +118,17 @@ hr.thick {
 	color: black;
 }
 
+#id_username {
+	font-size: 18px;
+}
+
+label {
+	font-size: 18px;
+}
+
+#id_password {
+	font-size: 18px;
+}
 
 @media print {
 	*{background: #fff; color: #000;}

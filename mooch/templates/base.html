@@ -25,12 +25,13 @@
 				<h1>NGO<strong>INFO</strong></h1>
 			</div>		
 			<div id="userpanel">
-				<span id="username">Tobias Widmer</span> <br/>
-				<a href="/logout/">Logout</a>
+				<span id="username">{{ request.user.get_full_name }}</span> <br/>
+				<a href="/accounts/logout/">Logout</a>
 			</div>
 		</div>
 		
 		<div id="content">
+			{% block navigation %}
 			<table id="navbar">
 				<tr>
 					<td><a class="nav_element" id="projects" href="#">PROJECTS</a></td>
@@ -39,8 +40,12 @@
 					<td><a class="nav_element" id="admin"    href="#">ADMIN</a></td>
 				</tr>
 			</table>
-			
 			<hr />
+			{% endblock %}
+			
+			{% block content %}
+			<p>Content goes here!</p>
+			{% endblock %}
 		</div>
 	</div>
 	

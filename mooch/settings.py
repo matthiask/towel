@@ -73,8 +73,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'countries',
     'feinheit',
     APP_MODULE,
+    APP_MODULE + '.organisation',
+    APP_MODULE + '.accounts',
 
     #'feincms',
     #'feincms.module.medialibrary',
