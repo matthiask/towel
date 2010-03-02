@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load feinheit_forms %}
+{% block content %}
+	<br/>
+	
+	{% if form.errors %}
+	<div id="validation_errors" class="roundbox">
+		<h3>{% trans "Please check the following erros before saving:" %}</h3>
+		<br/>
+		{{ form.errors }}
+	</div>
+	{% endif %}
+	
+	<div id="project_detail" class="roundbox">	
+		
+		{% form_render_start form 'plain' %}
+		
+		<h2>{% form_render_input form.name 'plain' %}</h2>
+		
+		<div id="edit_buttons" >
+			<a href="{% if project %}{{ project.get_absolute_url }}
+					 {% else %}/projects/list/{% endif%}" 
+			class="button"><span>Cancel</span></a>
+			<a id="submit_button" class="button"><span>Save</span></a>
+		</div>
+		
+		<hr />
+	
+		<div id="project_form">
+			
+			<div id="figures">
+				<p id="general_info">
+					<label>Manager</label>
+						{% form_render_input form.manager 'plain' %}<br/>	
+					<label>Status</label> 
+						{% form_render_input form.state 'plain' %}<br/>
+				</p>
+				
+				<p id="location_info">
+					<label>Country</label> 
+						{% form_render_input form.country 'plain' %}<br/>
+					<label>Location</label> 
+						{% form_render_input form.location 'plain' %}<br/>
+				</p>
+				
+				<p id="duration_info">
+					<label>Start</label> 
+						{% form_render_input form.start 'plain' %}<br/>
+					<label>End</label> 
+						{% form_render_input form.end 'plain' %}<br/>
+				</p>
+				
+				<p id="budget_info">
+					<label>Budget</label> 
+						{% form_render_input form.budget 'plain' %} CHF<br/>
+				</p>
+			</div>
+			
+			<div id="facts">
+				<div id="description" class="clear">
+					<label>Description</label>
+					<p>{{ form.description }}</p>
+				</div>
+				<div id="files" class="clear">
+					<label>Files</label>
+					{% with project.files.all as files %}
+					<div id="project_files">
+						{% include "organisation/project_files.html" %}
+					</div>
+					{% endwith %}
+					
+				</div>
+			</div>
+			
+			<div style="display:none;">
+				{{ form.ngo }}  {{ form.donated }}
+			</div>
+		</div>
+		
+		{% form_render_end form 'plain' %}
+		
+	</div>
+{% endblock %}

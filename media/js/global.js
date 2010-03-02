@@ -1,15 +1,56 @@
 $(function() {
-	$('.nav_element').hover(function(event) {
+	// Navigation
+	$('#navbar a.nav_element').hover(function(event) {
 		target = event.target;
-		
+
 		$(target).animate({fontSize: "30px"}, {queue:false, duration:100});
 		//$(target).switchClass('normal', 'mark',3000);
-		
+
 	}, function(event) {
 		target = event.target;
 		$(target).animate({fontSize: "20px"}, {queue:false, duration:100});
 		//$(target).switchClass('mark', 'normal',3000);
 	})
+
+	// Date Picking elemenets
+	$('span.datefield input').datepicker({ dateFormat: 'dd.mm.yy' });
+
+
+	// Delete confirm dialog
+	$("#delete_dialog").dialog({
+		bgiframe: true,
+		autoOpen: false,
+		resizable: false,
+		height:200,
+		width:400,
+		modal: true,
+		overlay: {
+			backgroundColor: '#000',
+			opacity: 0.9
+		},
+		buttons: {
+			Ok: function() {
+				$(this).dialog('close');
+				window.location.href = $("a.deleteconfirm").attr('href');
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+				return false
+			}
+		}
+	});
+
+	$("a.deleteconfirm").click(function(event) {
+		$("#delete_dialog").dialog('open');
+		return false;
+	});
+
+
+	// Submit link function. This pretty fucking ugly and should be placed elsewhere
+	$('#submit_button').click(function() {
+	  $('#model_form').submit();
+	});
+
 });
 
 /**

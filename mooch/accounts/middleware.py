@@ -25,11 +25,11 @@ class ThreadLocals(object):
 class UserMiddleware(object):
     def process_request(self, request):
         if hasattr(request, 'user') and isinstance(request.user, User):
-            profile = request.user.get_profile()
-            if not profile.language:
-                profile.language = translation.get_language_from_request(request)
-                profile.save()
-            translation.activate(profile.language)
+#            profile = request.user.get_profile()
+#            if not profile.language:
+#                profile.language = translation.get_language_from_request(request)
+#                profile.save()
+#            translation.activate(profile.language)
 
             request.user.last_login = datetime.now()
             request.user.save()

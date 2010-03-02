@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<div id="header_buttons" >
+		<a href="../new/" class="button"><span>New Project</span></a>
+	</div>
+
+	{% for project in object_list %}
+		<div id="item{{project.id}}" class="object {% cycle 'odd' 'even' %}">
+			<a href="{{ project.get_absolute_url }}">{{ project }}</a>
+		</div>
+	{% endfor %}
+{% endblock %}

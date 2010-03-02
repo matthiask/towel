@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block navigation %}{% endblock %}
+
+{% block content %}
+
+<center>
+<div id="login">
+
+    <script type="text/javascript">
+    $(function(){
+        $('#id_username').focus().select();
+    });
+    </script>
+
+    <h2>{% trans "Login" %}</h2>
+
+    <form action="." method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next|default:"/" }}" />
+        <table>
+            {{ form }}
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <a href="#" class="button" onclick="$('form').submit();return false"><span>{% trans "Login" %}</span></a>
+                </td>
+            </tr>
+        </table>
+
+        <input type="submit" style="display:none;"/>
+    </form>
+    
+</div>
+</center>
+{% endblock %}

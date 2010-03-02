@@ -1,3 +1,5 @@
+{% load navigation_extras %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -12,42 +14,65 @@
 		<meta name="geo.placename" content="Zurich" />
 		<meta name="geo.region" content="CH" />
 		<link rel="stylesheet" href="/media/css/global.css" media="all" type="text/css" />
+		<link rel="stylesheet" href="/media/css/jquery-ui-1.7.2.custom.css" media="all" type="text/css" />
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="/media/js/global.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}lib/ajax-upload/ajaxupload.js"></script>
+		<script type="text/javascript" src="{{ MEDIA_URL }}js/global.js"></script>
+		{% block extrahead %}{% endblock %}
 	</head>
 	<body>
-	
+
 	<div id="wrapper">
-		<div id="spacer"></div>
 		<div id="titlebar">
 			<div id="title">
-				<h1>NGO<strong>INFO</strong></h1>
-			</div>		
+				<a href="/"><h1>NGO<strong>INFO</strong></h1></a>
+			</div>
 			<div id="userpanel">
-				<span id="username">{{ request.user.get_full_name }}</span> <br/>
-				<a href="/accounts/logout/">Logout</a>
+				<span id="username">{{ request.user }}</span> <br/>
+				{% if request.user.is_authenticated %}
+					<a href="{% url django.contrib.auth.views.logout %}">Logout</a>
+				{% else %}
+					<a href="{% url django.contrib.auth.views.login %}">Login</a>
+				{% endif %}
 			</div>
 		</div>
-		
+
 		<div id="content">
 			{% block navigation %}
 			<table id="navbar">
 				<tr>
-					<td><a class="nav_element" id="projects" href="#">PROJECTS</a></td>
-					<td><a class="nav_element" id="contacts" href="#">CONTACTS</a></td>
-					<td><a class="nav_element" id="search"   href="#">SEARCH</a></td>
-					<td><a class="nav_element" id="admin"    href="#">ADMIN</a></td>
+					{% mark_current %}
+					<td><a class="nav_element" id="projects" href="/projects/">PROJECTS</a></td>
+					<td><a class="nav_element" id="contacts" href="#/contacts/">CONTACTS</a></td>
+					<td><a class="nav_element" id="search"   href="#/search/">SEARCH</a></td>
+					{% if user.is_staff %}
+					<td><a class="nav_element" id="admin"    href="/admin/">ADMIN</a></td>
+					{% endif %}
+					{% endmark_current %}
 				</tr>
 			</table>
-			<hr />
+			<hr class="thick" />
 			{% endblock %}
-			
+
+			{% block messages %}
+			{% if messages %}
+				<div id="messages" class="roundbox">
+				    {% for message in messages %}
+				   		<p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+				    {% endfor %}
+				</div>
+			{% endif %}
+			{% endblock %}
+
 			{% block content %}
 			<p>Content goes here!</p>
 			{% endblock %}
 		</div>
 	</div>
-	
+
+	{% block postbody %}{% endblock %}
+
 	</body>
+
 </html>

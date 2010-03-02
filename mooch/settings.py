@@ -12,6 +12,7 @@ execfile(os.path.join(APP_BASEDIR, 'secrets.py'))
 
 CONTACT_FORM_EMAIL = [
     'mk@feinheit.ch',
+    'sr@feinheit.ch',
     #'ll@feinheit.ch',
     ]
 
@@ -19,6 +20,7 @@ GOOGLE_ANALYTICS = 'UA-xxxxxxx-xx'
 
 ADMINS = (
     ('Matthias Kestenholz', 'mk@feinheit.ch'),
+    ('Stefan Reinhard', 'sr@feinheit.ch'),
     #('Livio Lunin', 'll@feinheit.ch'),
 )
 MANAGERS = ADMINS
@@ -43,12 +45,15 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 
-    #'feinheit.middleware.ThreadLocals',
+    'feinheit.middleware.ThreadLocals',
     #'feinheit.middleware.AutoTemplateFallback',
     #'feinheit.middleware.ForceDomainMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 
+    'mooch.accounts.middleware.ThreadLocals',
+    'mooch.accounts.middleware.UserMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 )
 
@@ -64,7 +69,7 @@ ROOT_URLCONF = APP_MODULE+'.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(APP_BASEDIR, APP_MODULE, 'templates'),
-    os.path.join(APP_BASEDIR, 'feinheit', 'templates'),
+    #os.path.join(APP_BASEDIR, 'feinheit', 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -79,10 +84,10 @@ INSTALLED_APPS = (
     APP_MODULE + '.organisation',
     APP_MODULE + '.accounts',
 
-    #'feincms',
-    #'feincms.module.medialibrary',
-    #'feincms.module.page',
-    #'mptt',
+    'feincms',
+    'feincms.module.medialibrary',
+    'feincms.module.page',
+    'mptt',
 
     #'django.contrib.comments',
 )
@@ -96,8 +101,16 @@ LANGUAGES = (
 FEINCMS_ADMIN_MEDIA = '/media/sys/feincms/'
 TINYMCE_JS_URL = '/media/sys/feinheit/tinymce/tiny_mce.js'
 
+# Activate this to check out the split pane editor
+#FEINCMS_PAGE_USE_SPLIT_PANE_EDITOR = True
+
+FEINCMS_TREE_EDITOR_INCLUDE_ANCESTORS = True
+
 #PINGING_WEBLOG_NAME = 'Nein zu neuen AKW!'
 #PINGING_WEBLOG_URL = 'http://www.nein-zu-neuen-akw.ch/'
 
 SERVER_EMAIL = 'root@oekohosting.ch'
+
+AUTH_PROFILE_MODULE = 'accounts.Profile'
+
 
