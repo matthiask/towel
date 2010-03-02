@@ -90,20 +90,18 @@ def project_edit(request, object_id, profile):
         form = ProjectForm(instance=project)
 
     return render(request, 'organisation/project_form.html', locals())
-#    return render_to_response('organisation/project_form.html', {
-#        'form': form,
-#        'project': project,
-#    }, context_instance=RequestContext(request))
 
 
 @access_level_required(Profile.ADMINISTRATION)
-def project_delete(request,object_id):
+def project_delete(request, object_id, profile):
     project = get_object_or_404(Project,id=object_id)
     project.delete()
     request.user.message_set.create(message='%s was deleted.' % project.name )
     return HttpResponseRedirect("/projects/list/")
 
-def project_add_file(request, object_id):
+
+@access_level_required(Profile.ADMINISTRATION)
+def project_add_file(request, object_id, profile):
     project = get_object_or_404(Project.objects.all(), pk=object_id)
 
     if request.method == 'POST':
@@ -118,12 +116,15 @@ def project_add_file(request, object_id):
     files = project.files.all()
     return render(request, 'organisation/project_files.html', locals())
 
-def project_delete_file(request, object_id):
+
+@access_level_required(Profile.ADMINISTRATION)
+def project_delete_file(request, object_id, profile):
     file = get_object_or_404(ProjectFile.objects.all(), pk=object_id)
     project = file.project
     file.delete()
     files = ProjectFile.objects.filter(project=project)
     return render(request, 'organisation/project_files.html', locals())
+
 
 def save_uploaded_file(file, path):
     if not os.path.isdir(path):

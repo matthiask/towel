@@ -10,11 +10,15 @@ class NGO(BaseModel):
     full_name = models.CharField(_('Elaborate name'), max_length=100)
     logo = models.ImageField(_('Logo'), upload_to='img/upload/logos')
     homepage = models.URLField(_('Homepage'), verify_exists=False)
-    
+
     # maybe we need some kind of overall contact person?
-    
-    # payment account? 
-    
+
+    # payment account?
+
+    class Meta:
+        verbose_name = _('Organisation')
+        verbose_name_plural = _('Organisations')
+
 
 def get_current_ngo():
     try:
@@ -25,14 +29,15 @@ def get_current_ngo():
 
 class Project(CreateUpdateModel):
     STATES = (
-        ('PLANING', _('In planing')),
-        ('FUNDRAISING', _('Found raising')),
+        ('PLANNING', _('In planning')),
+        ('FUNDRAISING', _('Fund raising')),
         ('REALISATION', _('In realisation')),
         ('FINISHED', _('Finished')),
     )
-    
+
     name = models.CharField(_('Name'), max_length=100)
-    ngo = models.ForeignKey(NGO, default=get_current_ngo )
+    ngo = models.ForeignKey(NGO, default=get_current_ngo,
+        verbose_name=_('NGO'))
     manager = models.ForeignKey(User, related_name="managed_projects")
 
     state = models.CharField(_('Project state'), choices=STATES, max_length=20)
@@ -43,28 +48,39 @@ class Project(CreateUpdateModel):
     budget = models.DecimalField(_('Project budget'), max_digits=10, decimal_places=2)
     donated = models.DecimalField(_('Donations currently totaling'), max_digits=10, decimal_places=2)
     description = models.TextField(_('Description'))
-    
+
+    class Meta:
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
+
     def __unicode__(self):
         return self.name
-    
+
     @models.permalink
     def get_absolute_url(self):
         return ('organisation_project_detail', (), {'object_id': self.id, })
-    
+
     def get_funding_rate(self):
         return ( self.donated * 100 ) / (self.budget)
-    
+
+
 class ProjectFile(CreateUpdateModel):
-    
     def upload_path(self, filename):
         return 'uploads/projects/%s/files/%s' % (self.project.name.lower(), filename)
-    
+
     project = models.ForeignKey(Project, related_name='files')
     file = models.FileField(_('file'), upload_to=upload_path)
-                            
+
+    class Meta:
+        verbose_name = _('Project file')
+        verbose_name_plural = _('Project files')
+
+    def __unicode__(self):
+        return self.file.name
+
     def get_filename(self):
         return self.file.name.split('/')[-1]
-    
+
     @models.permalink
     def get_delete_url(self):
         return ('organisation_project_delete_file', (), {'object_id': self.id, })

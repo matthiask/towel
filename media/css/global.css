@@ -1,7 +1,7 @@
 /**
- * 
+ *
  * FEINHEIT kreativ studio // www.feinheit.ch
- * 
+ *
  */
 
 body {
@@ -11,7 +11,7 @@ body {
 	background-color: #f0f0f0;
 }
 
-a{ 
+a{
 	color:#000;
 	outline:none;
 	border:none;
@@ -73,7 +73,7 @@ a.button span {
     display: inline-block;
     line-height: 14px;
     padding: 5px 0 5px 18px;
-} 
+}
 
 a.button:active {
     background-position: bottom right;
@@ -84,7 +84,7 @@ a.button:active {
 a.button:active span {
     background-position: bottom left;
     padding: 6px 0 4px 18px; /* push text down 1px */
-} 
+}
 
 textarea {
 	font-family: Arial, Helvetica, sans-serif;
@@ -116,6 +116,10 @@ ul.errorlist {
 
 ul.errorlist li {
 	display:inline;
+}
+
+ul.errorlist > li {
+    display: block;
 }
 
 ul.errorlist ul {
@@ -279,7 +283,7 @@ div.roundbox {
 	margin-bottom:7px;
 }
 
-#project_infos { 
+#project_infos {
 	display:inline-block;
 	padding-top:10px;
 }

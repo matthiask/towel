@@ -12,5 +12,5 @@ urlpatterns = patterns('mooch.organisation.views',
 
 urlpatterns += patterns('django.views.generic.simple',
     url(r'^$', 'redirect_to', {'url': 'list/'}),
-    
+
 )
