@@ -1,5 +1,3 @@
-
-"""
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms.formsets import all_valid
@@ -7,11 +5,12 @@ from django.forms.models import modelform_factory
 from django.http import Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
-"""
+
 
 class ModelView(object):
-    view_decorator = lambda f: f
+    view_decorator = lambda self, f: f
     template_object_list_name = 'object_list'
     template_object_name = 'object'
 
@@ -28,7 +27,7 @@ class ModelView(object):
         return '%s/%s_%s.html' % (opts.app_label, opts.module_name, action)
 
     def get_urls(self):
-        from django.conf.urls.default import patterns, url
+        from django.conf.urls.defaults import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
 
         return patterns('',
@@ -92,7 +91,9 @@ class ModelView(object):
     # VIEWS
 
     def list_view(self, request):
-        pass
+        return self.render_list(request, {
+            self.template_object_list_name: self.get_queryset(request),
+            })
 
     def detail_view(self, request, object_pk):
         obj = self.get_object(request, object_pk)
