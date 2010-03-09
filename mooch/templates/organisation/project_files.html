@@ -1,36 +1,37 @@
+{% load i18n %}
 
 {% for file in files %}
 	<a href="{{file.file.url}}" target="_blank">
 		{{ file.get_filename }}
-	</a> 
+	</a>
 	<a href="{{ file.get_delete_url }}" class="ajax">
-		<img class="smallicon" 
+		<img class="smallicon"
 			src="{{ MEDIA_URL }}img/icons/small/delete_item.png" />
 	</a>
 	{% if not forloop.last %} | {% endif %}
 {% endfor %}
 
 <a id="add_file" style="margin-left:10px">
-<img class="smallicon" 
-	src="{{ MEDIA_URL }}img/icons/small/add_item.png" />
-	 Add File
+<img class="smallicon"
+    src="{{ MEDIA_URL }}img/icons/small/add_item.png" />
+    {% trans "Add file" %}
 </a>
 
 <script type="text/javascript">
 	$(document).ready(function(){
-		
+
 		new AjaxUpload('add_file', {
 			action: '/projects/{{ project.id }}/add_file',
 			onComplete: function(file, response) {
 				$('#project_files').html(response)
 			}
 		});
-		
+
 		$('a.ajax').bind('click',function(event){
 			event.preventDefault();
-		    $.get(this.href,{},function(response){ 
+		    $.get(this.href,{},function(response){
 		 	   $('#project_files').html(response)
-		    })	
+		    })
 		})
 	});
 

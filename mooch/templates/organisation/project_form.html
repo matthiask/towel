@@ -31,39 +31,42 @@
 
 			<div id="figures">
 				<p id="general_info">
-					<label>Manager</label>
-						{% form_render_input form.manager 'plain' %}<br/>
-					<label>Status</label>
-						{% form_render_input form.state 'plain' %}<br/>
+                    {{ form.manager.label_tag }}
+                    {% form_render_input form.manager 'plain' %}<br/>
+
+                    {{ form.state.label_tag }}
+                    {% form_render_input form.state 'plain' %}<br/>
 				</p>
 
 				<p id="location_info">
-					<label>Country</label>
-						{% form_render_input form.country 'plain' %}<br/>
-					<label>Location</label>
-						{% form_render_input form.location 'plain' %}<br/>
+                    {{ form.country.label_tag }}
+                    {% form_render_input form.country 'plain' %}<br/>
+
+                    {{ form.location.label_tag }}
+                    {% form_render_input form.location 'plain' %}<br/>
 				</p>
 
 				<p id="duration_info">
-					<label>Start</label>
-						{% form_render_input form.start 'plain' %}<br/>
-					<label>End</label>
-						{% form_render_input form.end 'plain' %}<br/>
+				    {{ form.start.label_tag }}
+                    {% form_render_input form.start 'plain' %}<br/>
+
+                    {{ form.end.label_tag }}
+                    {% form_render_input form.end 'plain' %}<br/>
 				</p>
 
 				<p id="budget_info">
-					<label>Budget</label>
-						{% form_render_input form.budget 'plain' %} CHF<br/>
+				    {{ form.budget.label_tag }}
+                    {% form_render_input form.budget 'plain' %} CHF<br/>
 				</p>
 			</div>
 
 			<div id="facts">
 				<div id="description" class="clear">
-					<label>Description</label>
+				    {{ form.description.label_tag }}
 					<p>{{ form.description }}</p>
 				</div>
 				<div id="files" class="clear">
-					<label>Files</label>
+					<label>{% trans "project files"|capfirst %}</label>
 					{% with project.files.all as files %}
 					<div id="project_files">
 						{% include "organisation/project_files.html" %}

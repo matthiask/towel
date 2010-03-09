@@ -1,0 +1,274 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-09 14:14+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: models.py:16
+msgid "Main content area"
+msgstr "Hauptinhaltsbereich"
+
+#: models.py:17
+msgid "Sidebar"
+msgstr "Seite"
+
+#: models.py:18
+msgid "Moodboard"
+msgstr "Moodboard"
+
+#: abstract/models.py:12
+msgid "created"
+msgstr "erstellt"
+
+#: abstract/models.py:13
+msgid "modified"
+msgstr "verändert"
+
+#: abstract/models.py:26
+msgid "created by"
+msgstr "erstellt von"
+
+#: abstract/models.py:37 organisation/models.py:38
+#: templates/organisation/project_list.html:15
+msgid "name"
+msgstr "name"
+
+#: abstract/models.py:38
+msgid "notes"
+msgstr "Notizen"
+
+#: accounts/models.py:27
+msgid "Administration"
+msgstr "Administration"
+
+#: accounts/models.py:29
+msgid "Field Reporter"
+msgstr ""
+
+#: accounts/models.py:30
+msgid "Donator"
+msgstr ""
+
+#: accounts/models.py:33
+msgid "Worker"
+msgstr ""
+
+#: accounts/models.py:38
+msgid "Notes"
+msgstr "Notizen"
+
+#: accounts/models.py:40
+msgid "Access level"
+msgstr "Zugangsniveau"
+
+#: accounts/models.py:42
+msgid "API Key"
+msgstr "API Schlüssel"
+
+#: accounts/models.py:45
+msgid "Language"
+msgstr "Sprache"
+
+#: logging/models.py:20
+msgid "title"
+msgstr "Titel"
+
+#: logging/models.py:21
+msgid "text"
+msgstr "Text"
+
+#: logging/models.py:22
+msgid "origin"
+msgstr "Herkunft"
+
+#: logging/models.py:23
+msgid "reported"
+msgstr ""
+
+#: logging/models.py:26
+msgid "Log Entry"
+msgstr ""
+
+#: logging/models.py:27
+msgid "Log Entries"
+msgstr ""
+
+#: organisation/models.py:10
+msgid "elaborate name"
+msgstr ""
+
+#: organisation/models.py:11
+msgid "logo"
+msgstr "Logo"
+
+#: organisation/models.py:12
+msgid "homepage"
+msgstr "Homepage"
+
+#: organisation/models.py:19
+msgid "organisation"
+msgstr "Organisation"
+
+#: organisation/models.py:20
+msgid "organisations"
+msgstr "Organisationen"
+
+#: organisation/models.py:32
+msgid "In planning"
+msgstr "In Planung"
+
+#: organisation/models.py:33
+msgid "Fund raising"
+msgstr "Fundraisinmg"
+
+#: organisation/models.py:34
+msgid "In realisation"
+msgstr "In Realisierung begriffen"
+
+#: organisation/models.py:35
+msgid "Finished"
+msgstr "Abgeschlossen"
+
+#: organisation/models.py:40
+msgid "NGO"
+msgstr "NGO"
+
+#: organisation/models.py:42 templates/organisation/project_detail.html:26
+#: templates/organisation/project_list.html:17
+msgid "manager"
+msgstr "Kapitän"
+
+#: organisation/models.py:44 templates/organisation/project_detail.html:27
+#: templates/organisation/project_list.html:18
+msgid "state"
+msgstr "Status"
+
+#: organisation/models.py:45 templates/organisation/project_detail.html:31
+#: templates/organisation/project_list.html:16
+msgid "country"
+msgstr "Land"
+
+#: organisation/models.py:46 templates/organisation/project_detail.html:32
+msgid "location"
+msgstr "Ort"
+
+#: organisation/models.py:47 templates/organisation/project_detail.html:36
+#: templates/organisation/project_list.html:20
+msgid "start date"
+msgstr "Startdatum"
+
+#: organisation/models.py:48 templates/organisation/project_detail.html:37
+#: templates/organisation/project_list.html:21
+msgid "end date"
+msgstr "Enddatum"
+
+#: organisation/models.py:49 templates/organisation/project_detail.html:41
+msgid "budget"
+msgstr "Budget"
+
+#: organisation/models.py:50
+msgid "donations currently totaling"
+msgstr "Aktuelles Spendentotal"
+
+#: organisation/models.py:51 templates/organisation/project_detail.html:49
+msgid "description"
+msgstr "Beschreibung"
+
+#: organisation/models.py:54 organisation/models.py:73
+msgid "project"
+msgstr "Projekt"
+
+#: organisation/models.py:55
+msgid "projects"
+msgstr "Projekte"
+
+#: organisation/models.py:74
+msgid "file"
+msgstr "Datei"
+
+#: organisation/models.py:77
+msgid "project file"
+msgstr "Projektdatei"
+
+#: organisation/models.py:78 templates/organisation/project_form.html:69
+msgid "project files"
+msgstr "Projektdateien"
+
+#: organisation/views.py:43
+msgid "Please contact us for projects over 10'000 bucks."
+msgstr "Bitte kontaktieren Sie uns für Projekte über 10'000 Stutz."
+
+#: organisation/views.py:63
+msgid "The project has been created."
+msgstr "Das Projekt wurde erstellt."
+
+#: organisation/views.py:88
+msgid "The project has been updated!"
+msgstr "Das Projekt wurde aktualisiert!"
+
+#: templates/organisation/project_detail.html:6
+#, python-format
+msgid "Delete project %(project_name)s?"
+msgstr "Projekt %(project_name)s löschen?"
+
+#: templates/organisation/project_detail.html:8
+#, python-format
+msgid "Project %(project_name)s will be deleted permanently!"
+msgstr "Projekt %(project_name)s wird permanent gelöscht!"
+
+#: templates/organisation/project_detail.html:17
+msgid "edit"
+msgstr "Bearbeiten"
+
+#: templates/organisation/project_detail.html:18
+msgid "delete"
+msgstr "Löschen"
+
+#: templates/organisation/project_detail.html:42
+#: templates/organisation/project_list.html:19
+msgid "funding"
+msgstr "Finanzierungsgrad"
+
+#: templates/organisation/project_files.html:17
+msgid "Add file"
+msgstr "Datei hinzufügen"
+
+#: templates/organisation/project_form.html:9
+msgid "Please check the following errors before saving:"
+msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
+
+#: templates/organisation/project_list.html:8
+msgid "New project"
+msgstr "Projekt erstellen"
+
+#: templates/organisation/project_list.html:14
+msgid "new"
+msgstr "Neu"
+
+#: templates/organisation/project_list.html:22
+msgid "online"
+msgstr "Online"
+
+#: templates/registration/logged_out.html:9
+msgid "You have been logged out"
+msgstr "Sie wurden abgemeldet"
+
+#: templates/registration/logged_out.html:12
+msgid "Log in again"
+msgstr "Erneut anmelden"
+
+#: templates/registration/login.html:18 templates/registration/login.html:28
+msgid "Login"
+msgstr "Anmelden"
