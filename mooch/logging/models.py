@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from mooch.accounts.models import Profile
-from mooch.accounts.middleware import get_current_user, get_current_profile
+from mooch.accounts.middleware import get_current_user
 from mooch.abstract.models import BaseModel, CreateUpdateModel
 
 LOG_SOURCES = (
@@ -16,7 +16,7 @@ LOG_SOURCES = (
 )
 
 class LogEntry(CreateUpdateModel):
-    account = models.ForeignKey(Profile, default=get_current_profile)
+    account = models.ForeignKey(Profile)
     title = models.CharField(_('title'), max_length=150)
     message = models.TextField(_('text'))
     source = models.CharField(_('origin'), choices=LOG_SOURCES, max_length=10)
