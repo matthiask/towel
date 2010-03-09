@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load i18n %}
+{% load i18n mooch_tags %}
 
 {% block content %}
 
@@ -30,7 +30,9 @@
                 <td>{{ project.country }}</td>
                 <td>{{ project.manager }}</td>
                 <td>{{ project.get_state_display }}</td>
-                <td>{{ project.get_funding_rate }}%</td>
+                <td>
+                    {% bar project.get_funding_rate %}
+                </td>
                 <td>{{ project.start|date:"d.m.Y" }}</td>
                 <td>{{ project.end|date:"d.m.Y" }}</td>
                 <td>-</td>

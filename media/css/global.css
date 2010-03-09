@@ -396,3 +396,25 @@ div.roundbox {
 	/*#nav, #about { display: none; }*/
 }
 
+
+/* BAR */
+
+div.bar {
+    position: relative;
+    width: 90%;
+    border: 1px solid #888;
+    padding: 2px;
+}
+
+div.bar div.text {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+    height: 16px;
+    width: 50px
+}
+
+div.bar div.completed {
+    background: #0091F7
+}
+
