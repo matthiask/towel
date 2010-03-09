@@ -29,6 +29,7 @@ def project_list(request, profile):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
+        exclude = ('ngo', 'donated')
 
     start = forms.DateField(input_formats=['%d.%m.%Y'],
                             widget=forms.DateInput(format='%d.%m.%Y'))
