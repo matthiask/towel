@@ -7,53 +7,52 @@
 		</p>
 	</div>
 
-	<br/>
 	<div id="project_detail" class="roundbox">
-		
+
 		<h2>{{ project.name }}</h2>
-		
+
 		<div id="edit_buttons" >
 			<a href="edit/"class="button"><span>Edit</span></a>
 			<a href="delete/" class="button deleteconfirm"><span>Delete</span></a>
 		</div>
-		
+
 		<hr />
-		
+
 		<div id="project_infos">
 			<div id="figures">
 				<p id="general_info">
-					<label>Manager</label> {{ project.manager }}<br/>	
+					<label>Manager</label> {{ project.manager }}<br/>
 					<label>Status</label> {{ project.get_state_display }}<br/>
 				</p>
-				
+
 				<p id="location_info">
 					<label>Country</label> {{ project.country }}<br/>
 					<label>Location</label> {{ project.location }}<br/>
 				</p>
-				
+
 				<p id="duration_info">
 					<label>Start</label> {{ project.start|date:"d.m.Y" }}<br/>
 					<label>End</label> {{ project.end|date:"d.m.Y" }}<br/>
 				</p>
-				
+
 				<div id="budget_info">
 					<label>Budget</label> {{ project.budget }} CHF<br/>
 					<label>Funding-Rate</label>
-				
+
 						<div style="width:100px;background-color:#ccccff; height:20px; -moz-border-radius:3px; display:inline-block">
-							<div style="width:{{ project.get_funding_rate }}%; background-color:#666eee ; 
+							<div style="width:{{ project.get_funding_rate }}%; background-color:#666eee ;
 							height:20px;-moz-border-radius:3px; color:white; text-align:center;">
 								<span style="position:relative;top:2px;">{{ project.get_funding_rate }}%</span>
 							</div>
-						</div>	
+						</div>
 				</div>
-				
+
 			</div>
-			
+
 			<div id="facts">
 				<label>Description</label>
 				{{ project.description|linebreaks }}
-				
+
 				<div class="clear"></div>
 			</div>
 		</div>

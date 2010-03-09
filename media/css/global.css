@@ -50,6 +50,7 @@ hr {
 
 hr.thick {
   	border-top: 2px solid black;
+  	margin-bottom: 15px;
 }
 
 img.smallicon {
@@ -265,8 +266,39 @@ div.object {
 	padding: 5px;
 }
 
-div.object.odd {
-	background:#eeeeee;
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+thead {
+    border-bottom: 1px solid #c4c4c4;
+}
+
+tbody tr:first-child td,
+tbody tr:first-child th {
+    padding-top: 10px;
+}
+
+table th {
+    text-align: left;
+}
+
+table td {
+    padding: 5px 0;
+}
+
+table th a {
+    text-decoration: none;
+}
+
+table th a:hover {
+    text-decoration: underline;
+}
+
+div.object.even,
+tr.even {
+	background: #eeeeee;
 }
 
 div.roundbox {
@@ -363,3 +395,4 @@ div.roundbox {
 	html {font: 100%/1.5 Arial, Helvetica, sans-serif;}
 	/*#nav, #about { display: none; }*/
 }
+
