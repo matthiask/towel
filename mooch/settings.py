@@ -83,6 +83,7 @@ INSTALLED_APPS = (
     APP_MODULE,
     APP_MODULE + '.organisation',
     APP_MODULE + '.accounts',
+    APP_MODULE + '.logging',
 
     'feincms',
     'feincms.module.medialibrary',
