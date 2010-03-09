@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load i18n mooch_tags %}
+
 {% block content %}
 	<div id="delete_dialog" title="Delete project {{project.name }}?">
 		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 30px 0;"></span>
@@ -38,13 +40,7 @@
 				<div id="budget_info">
 					<label>Budget</label> {{ project.budget }} CHF<br/>
 					<label>Funding-Rate</label>
-
-						<div style="width:100px;background-color:#ccccff; height:20px; -moz-border-radius:3px; display:inline-block">
-							<div style="width:{{ project.get_funding_rate }}%; background-color:#666eee ;
-							height:20px;-moz-border-radius:3px; color:white; text-align:center;">
-								<span style="position:relative;top:2px;">{{ project.get_funding_rate }}%</span>
-							</div>
-						</div>
+                    {% bar project.get_funding_rate %}
 				</div>
 
 			</div>

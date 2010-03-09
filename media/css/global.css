@@ -404,6 +404,8 @@ div.bar {
     width: 90%;
     border: 1px solid #888;
     padding: 2px;
+	-moz-border-radius: 2px;
+ 	-webkit-border-radius: 2px;
 }
 
 div.bar div.text {
@@ -415,6 +417,8 @@ div.bar div.text {
 }
 
 div.bar div.completed {
-    background: #0091F7
+    background: #0091F7;
+	-moz-border-radius: 2px;
+ 	-webkit-border-radius: 2px;
 }
 
