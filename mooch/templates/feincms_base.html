@@ -13,7 +13,7 @@
 				<td><a class="nav_element" id="projects" href="{{ p.get_absolute_url }}">{{ p.title }}</a></td>
 			{% endfor %}			
 			{% if request.user.is_authenticated %}
-				<td><a href="/projects/list/">AdminPanel</a></td> {% comment %} Stupid URL, better link to the dashboard or some kind a stuff {% endcomment %}
+				<td><a href="/projects/">AdminPanel</a></td> {% comment %} Stupid URL, better link to the dashboard or some kind a stuff {% endcomment %}
 			{% endif %}
 		</tr>
 	</table>
