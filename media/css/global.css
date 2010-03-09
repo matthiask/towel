@@ -288,6 +288,10 @@ table td {
     padding: 5px 0;
 }
 
+table tr>*:first-child {
+    padding-left: 3px;
+}
+
 table th a {
     text-decoration: none;
 }
