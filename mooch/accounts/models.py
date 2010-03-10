@@ -52,7 +52,7 @@ class Profile(CreateUpdateModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('accounts_profile_detail', (self.pk,), {})
+        return ('accounts_profile_detail', (self.user.username,), {})
 
     @property
     def is_administration(self):

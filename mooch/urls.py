@@ -55,8 +55,14 @@ project_view = generic.ModelView(Project,
     view_decorator=model_view_access_level_required(Profile.ADMINISTRATION),
     )
 
-profile_view = generic.ModelView(Profile,
-    )
+
+class ProfileModelView(generic.ModelView):
+    def get_object(self, request, **kwargs):
+        return super(ProfileModelView, self).get_object(request,
+            user__username=kwargs.pop('pk'),
+            **kwargs)
+
+profile_view = ProfileModelView(Profile)
 
 urlpatterns += patterns('',
     url(r'^projects/', include(project_view.urls)),
