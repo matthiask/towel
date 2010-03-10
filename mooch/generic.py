@@ -50,20 +50,19 @@ class ModelView(object):
 
     # HELPERS
 
-    def get_object(self, request, object_pk):
+    def get_object(self, request, **kwargs):
         queryset = self.get_queryset(request)
         model = queryset.model
 
         try:
-            object_pk = model._meta.pk.to_python(object_pk)
-            return queryset.get(pk=object_pk)
-        except (model.DoesNotExist, ValidationError):
+            return queryset.get(**kwargs)
+        except (model.DoesNotExist, ValueError, ValidationError):
             raise self.model.DoesNotExist
 
     def get_object_or_404(self, request, **kwargs):
         try:
-            return get_object_or_404(self.get_queryset(request), **kwargs)
-        except ValidationError:
+            return self.get_object(request, **kwargs)
+        except self.model.DoesNotExist:
             raise Http404
 
     def get_form(self, request, **kwargs):
