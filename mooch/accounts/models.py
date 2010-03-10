@@ -50,6 +50,10 @@ class Profile(CreateUpdateModel):
     def regenerate_apikey(self):
         self.apikey = generate_apikey()
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('accounts_profile_detail', (self.pk,), {})
+
     @property
     def is_administration(self):
         return self.access_level>=self.ADMINISTRATION
