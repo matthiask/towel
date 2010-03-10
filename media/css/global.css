@@ -67,6 +67,7 @@ a.button {
     margin-right: 6px;
     padding-right: 18px; /* sliding doors padding */
     text-decoration: none;
+    float: right;
 }
 
 a.button span {
@@ -161,10 +162,10 @@ span.invalid {
 
 #header_buttons {
 	height:50px;
-	right:110px;
+	right:220px;
 	margin:0 100%;
 	position:relative;
-	width:110px;
+	width:220px;
 }
 
 #wrapper {
