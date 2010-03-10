@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
@@ -103,11 +103,11 @@ class ModelView(object):
 
     def response_add(self, request, instance, form, formsets):
         self.message(request, _('The new object has been successfully created.'))
-        return HttpResponseRedirect(instance.get_absolute_url())
+        return redirect(instance)
 
     def response_edit(self, request, instance, form, formsets):
         self.message(request, _('The object has been successfully updated.'))
-        return HttpResponseRedirect(instance.get_absolute_url())
+        return redirect(instance)
 
     # VIEWS
 
@@ -192,5 +192,10 @@ class ModelView(object):
         return self.render_form(request, context, change=True)
 
     def delete_view(self, request, object_pk):
-        pass
+        obj = self.get_object_or_404(request, pk=object_pk)
+        obj.delete()
 
+        self.message(request, _('The object has been successfully deleted.'))
+
+        info = self.model._meta.app_label, self.model._meta.module_name
+        return redirect('%s_%s_list' % info)
