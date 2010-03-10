@@ -1,6 +1,8 @@
+from django.forms.models import inlineformset_factory
+
 from mooch import generic
 from mooch.accounts.utils import Profile, access_level_required
-from mooch.organisation.models import Project
+from mooch.organisation.models import Project, ProjectFile
 
 
 def model_view_access_level_required(access_level):
@@ -17,6 +19,7 @@ def model_view_access_level_required(access_level):
         return access_level_required(access_level)(_fn)
     return dec
 
+ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
 class ProjectModelView(generic.ModelView):
     template_object_name = 'project'
@@ -26,6 +29,16 @@ class ProjectModelView(generic.ModelView):
         kwargs['exclude'] = ('donated', 'ngo')
         return super(ProjectModelView, self).get_form(request, **kwargs)
 
+    def get_formset_instances(self, request, instance=None, **kwargs):
+        args = []
+        kwargs['instance'] = instance
+
+        if request.method == 'POST':
+            args.extend([request.POST, request.FILES])
+
+        return {
+            'files': ProjectFileInlineFormset(*args, **kwargs),
+            }
 
 project_view = ProjectModelView(Project)
 
