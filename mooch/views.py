@@ -1,7 +1,10 @@
+from django import forms
 from django.forms.models import inlineformset_factory
+from django.utils.translation import ugettext_lazy as _
 
 from mooch import generic
 from mooch.accounts.utils import Profile, access_level_required
+from mooch.forms import DateField
 from mooch.organisation.models import Project, ProjectFile
 
 
@@ -21,13 +24,29 @@ def model_view_access_level_required(access_level):
 
 ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        exclude = ('ngo', 'donated')
+
+    start = DateField(label=_('start date'))
+    end = DateField(label=_('end date'))
+
+    def clean_budget(self):
+        value = self.cleaned_data['budget']
+        if  value > 10000:
+            raise forms.ValidationError(
+                _('Please contact us for projects over 10\'000 bucks.'))
+        return value
+
+
 class ProjectModelView(generic.ModelView):
     template_object_name = 'project'
     view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
 
     def get_form(self, request, **kwargs):
-        kwargs['exclude'] = ('donated', 'ngo')
-        return super(ProjectModelView, self).get_form(request, **kwargs)
+        return ProjectForm
 
     def get_formset_instances(self, request, instance=None, **kwargs):
         args = []
