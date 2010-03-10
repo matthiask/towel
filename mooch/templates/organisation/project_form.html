@@ -20,7 +20,7 @@
 
 		<div id="edit_buttons" >
 			<a href="{% if project %}{{ project.get_absolute_url }}
-					 {% else %}/projects/list/{% endif%}"
+					 {% else %}{% url organisation_project_list %}{% endif%}"
 			class="button"><span>Cancel</span></a>
 			<a id="submit_button" class="button"><span>Save</span></a>
 		</div>
