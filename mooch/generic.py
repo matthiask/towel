@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
@@ -59,6 +59,12 @@ class ModelView(object):
         except (model.DoesNotExist, ValidationError):
             raise self.model.DoesNotExist
 
+    def get_object_or_404(self, request, **kwargs):
+        try:
+            return get_object_or_404(self.get_queryset(request), **kwargs)
+        except ValidationError:
+            raise Http404
+
     def get_form(self, request, **kwargs):
         return modelform_factory(self.model, **kwargs)
 
@@ -88,6 +94,14 @@ class ModelView(object):
             self.get_template(request, 'form'),
             context, context_instance=RequestContext(request))
 
+    def response_add(request, instance):
+        self.message(request, _('The new object has been successfully created.'))
+        return HttpResponseRedirect(instance.get_absolute_url())
+
+    def response_edit(request, instance):
+        self.message(request, _('The object has been successfully updated.'))
+        return HttpResponseRedirect(instance.get_absolute_url())
+
     # VIEWS
 
     def list_view(self, request):
@@ -96,10 +110,7 @@ class ModelView(object):
             })
 
     def detail_view(self, request, object_pk):
-        obj = self.get_object(request, object_pk)
-
-        if not obj:
-            raise Http404
+        obj = self.get_object_or_404(request, pk=object_pk)
 
         return self.render_detail(request, {
             self.template_object_name: obj,
@@ -138,13 +149,9 @@ class ModelView(object):
 
         return self.render_form(request, context, change=False)
 
-    def response_add(request, new_object):
-        self.message(request, _('The new object has been successfully created.'))
-        return HttpResponseRedirect(new_object.get_absolute_url())
-
     def edit_view(self, request, object_pk):
         ModelForm = self.get_form(request)
-        obj = self.get_object(request, object_pk)
+        obj = self.get_object_or_404(request, pk=object_pk)
 
         opts = self.model._meta
 
@@ -153,8 +160,7 @@ class ModelView(object):
             if form.is_valid():
                 obj = form.save()
 
-                self.message(request, _('The object has been successfully updated.'))
-                return HttpResponseRedirect(obj.get_absolute_url())
+                return self.response_edit(request, obj)
         else:
             form = ModelForm(instance=obj)
 
