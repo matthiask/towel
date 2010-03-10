@@ -5,15 +5,22 @@ from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
 
 class ModelView(object):
+
+    # Every view is wrapped with this decorator. Use this if you need
+    # f.e. a simple way of ensuring a user is logged in before accessing
+    # any view here.
     view_decorator = lambda self, f: f
-    template_object_list_name = 'object_list'
+
+    # Used for detail and edit views
     template_object_name = 'object'
+
+    # Used for list views
+    template_object_list_name = 'object_list'
 
     def __init__(self, model, **kwargs):
         self.model = model
@@ -24,6 +31,10 @@ class ModelView(object):
         return self.model.objects.all()
 
     def get_template(self, request, action):
+        """
+        Construct and return a template name for the given action.
+        """
+
         opts = self.model._meta
         return '%s/%s_%s.html' % (opts.app_label, opts.module_name, action)
 
@@ -66,18 +77,39 @@ class ModelView(object):
             raise Http404
 
     def get_form(self, request, **kwargs):
+        """
+        Return a form class for further use by add and edit views.
+        """
+
         return modelform_factory(self.model, **kwargs)
 
     def get_formset_instances(self, request, instance=None, **kwargs):
-        return SortedDict()
+        """
+        Return a dict of formset instances. You may freely choose the
+        keys for this dict, use a SortedDict or something else as long
+        as it has a 'itervalues()' method.
+
+        Please note that the instance passed here has not necessarily
+        been saved to the database yet.
+        """
+
+        return {}
 
     def message(self, request, message):
         messages.info(request, message)
 
     def save_form(self, request, form, change):
+        """
+        Return an unsaved instance when editing an object.
+        """
+
         return form.save(commit=False)
 
     def save_model(self, request, obj, form, change):
+        """
+        Save an object to the database.
+        """
+
         obj.save()
 
     def save_formset(self, request, form, formset, change):
