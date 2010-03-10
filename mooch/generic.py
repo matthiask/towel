@@ -5,6 +5,7 @@ from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
@@ -68,10 +69,16 @@ class ModelView(object):
     def get_form(self, request, **kwargs):
         return modelform_factory(self.model, **kwargs)
 
+    def get_formset_instances(self, request, instance=None, **kwargs):
+        return SortedDict()
+
     def message(self, request, message):
         messages.info(request, message)
 
-    def save(self, request, obj, form, change):
+    def save_form(self, request, form, change):
+        return form.save(commit=False)
+
+    def save_model(self, request, obj, form, change):
         obj.save()
 
     def save_formset(self, request, form, formset, change):
@@ -94,11 +101,11 @@ class ModelView(object):
             self.get_template(request, 'form'),
             context, context_instance=RequestContext(request))
 
-    def response_add(request, instance):
+    def response_add(self, request, instance, form, formsets):
         self.message(request, _('The new object has been successfully created.'))
         return HttpResponseRedirect(instance.get_absolute_url())
 
-    def response_edit(request, instance):
+    def response_edit(self, request, instance, form, formsets):
         self.message(request, _('The object has been successfully updated.'))
         return HttpResponseRedirect(instance.get_absolute_url())
 
@@ -131,14 +138,14 @@ class ModelView(object):
                 new_object = self.model()
                 form_validated = False
 
-            # TODO create and validate formsets (with instance=new_object)
-            if all_valid([]) and form_validated:
+            formsets = self.get_formset_instances(request, instance=new_object)
+            if all_valid(formsets.itervalues()) and form_validated:
                 self.save_model(request, new_object, form, change=False)
                 form.save_m2m()
-                for formset in []:
+                for formset in formsets.itervalues():
                     self.save_formset(request, form, formset, change=False)
 
-                return response_add(request, new_object)
+                return self.response_add(request, new_object, form, formsets)
         else:
             form = ModelForm()
 
@@ -157,10 +164,23 @@ class ModelView(object):
 
         if request.method == 'POST':
             form = ModelForm(request.POST, request.FILES, instance=obj)
-            if form.is_valid():
-                obj = form.save()
+            formsets = self.get_formset_instances(request, instance=obj)
 
-                return self.response_edit(request, obj)
+            if form.is_valid() and all_valid(formsets):
+                new_object = self.save_form(request, form, change=True)
+                form_validated = True
+            else:
+                new_object = obj
+                form_validated = False
+
+            formsets = self.get_formset_instances(request, instance=new_object)
+            if all_valid(formsets.itervalues()) and form_validated:
+                self.save_model(request, new_object, form, change=True)
+                form.save_m2m()
+                for formset in formsets.itervalues():
+                    self.save_Formset(request, form, formset, change=False)
+
+                return self.response_edit(request, new_object, form, formsets)
         else:
             form = ModelForm(instance=obj)
 
