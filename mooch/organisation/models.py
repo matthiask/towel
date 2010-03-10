@@ -59,7 +59,7 @@ class Project(CreateUpdateModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('organisation_project_detail', (), {'object_id': self.id, })
+        return ('organisation_project_detail', (self.id,), {})
 
     def get_funding_rate(self):
         return ( self.donated * 100 ) / (self.budget)

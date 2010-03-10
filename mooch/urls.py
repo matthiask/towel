@@ -33,6 +33,10 @@ urlpatterns += patterns('',
 from mooch import generic
 from mooch.organisation.models import Project
 
+project_view = generic.ModelView(Project,
+    template_object_name='project',
+    )
+
 urlpatterns += patterns('',
-    url(r'^projects/', include(generic.ModelView(Project).urls)),
+    url(r'^projects/', include(project_view.urls)),
 )

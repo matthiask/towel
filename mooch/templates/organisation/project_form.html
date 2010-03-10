@@ -65,6 +65,10 @@
 				    {{ form.description.label_tag }}
 					<p>{{ form.description }}</p>
 				</div>
+
+				{% comment %}
+
+				Oops. Deactivate temporarily
 				<div id="files" class="clear">
 					<label>{% trans "project files"|capfirst %}</label>
 					{% with project.files.all as files %}
@@ -74,8 +78,12 @@
 					{% endwith %}
 
 				</div>
+
+				{% endcomment %}
 			</div>
 		</div>
+
+		{{ form.ngo }} {{ form.donated }}
 
 		{% form_render_end form 'plain' %}
 

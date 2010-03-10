@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
@@ -35,12 +35,12 @@ class ModelView(object):
                 name='%s_%s_list' % info),
             url(r'^add/$', self.view_decorator(self.add_view),
                 name='%s_%s_add' % info),
-            url(r'^(.+)/$', self.view_decorator(self.detail_view),
-                name='%s_%s_detail' % info),
             url(r'^(.+)/edit/$', self.view_decorator(self.edit_view),
                 name='%s_%s_edit' % info),
             url(r'^(.+)/delete/$', self.view_decorator(self.delete_view),
                 name='%s_%s_delete' % info),
+            url(r'^(.+)/$', self.view_decorator(self.detail_view),
+                name='%s_%s_detail' % info),
             )
 
     @property
@@ -76,17 +76,17 @@ class ModelView(object):
     def render_list(self, request, context):
         return render_to_response(
             self.get_template(request, 'list'),
-            context)
+            context, context_instance=RequestContext(request))
 
     def render_detail(self, request, context):
         return render_to_response(
             self.get_template(request, 'detail'),
-            context)
+            context, context_instance=RequestContext(request))
 
     def render_form(self, request, context, change):
         return render_to_response(
             self.get_template(request, 'form'),
-            context)
+            context, context_instance=RequestContext(request))
 
     # VIEWS
 
@@ -143,7 +143,27 @@ class ModelView(object):
         return HttpResponseRedirect(new_object.get_absolute_url())
 
     def edit_view(self, request, object_pk):
-        pass
+        ModelForm = self.get_form(request)
+        obj = self.get_object(request, object_pk)
+
+        opts = self.model._meta
+
+        if request.method == 'POST':
+            form = ModelForm(request.POST, request.FILES, instance=obj)
+            if form.is_valid():
+                obj = form.save()
+
+                self.message(request, _('The object has been successfully updated.'))
+                return HttpResponseRedirect(obj.get_absolute_url())
+        else:
+            form = ModelForm(instance=obj)
+
+        context = {
+            'title': _('Change %s') % force_unicode(opts.verbose_name),
+            'form': form,
+            }
+
+        return self.render_form(request, context, change=True)
 
     def delete_view(self, request, object_pk):
         pass
