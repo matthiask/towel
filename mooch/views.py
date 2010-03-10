@@ -35,7 +35,7 @@ class ProjectModelView(generic.ModelView):
 
         if request.method == 'POST':
             # Prepend POST and FILES to array
-            args[:0] = [request.POST, request.FILES])
+            args[:0] = [request.POST, request.FILES]
 
         return {
             'files': ProjectFileInlineFormset(*args, **kwargs),
