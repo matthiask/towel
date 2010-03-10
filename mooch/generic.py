@@ -186,6 +186,7 @@ class ModelView(object):
         context = {
             'title': _('Change %s') % force_unicode(opts.verbose_name),
             'form': form,
+            self.template_object_name: obj,
             }
 
         return self.render_form(request, context, change=True)
