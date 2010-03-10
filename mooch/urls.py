@@ -2,6 +2,7 @@ import sys
 import settings
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.shortcuts import redirect
 
 from mooch.views import project_view, profile_view
 
@@ -13,11 +14,7 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^projects/', include(project_view.urls)),
     url(r'^profiles/', include(profile_view.urls)),
-)
-
-urlpatterns += patterns('django.views.generic.simple',
-    #url(r'^$', 'direct_to_template', {'template': 'base.html'}),
-    url(r'^$', 'redirect_to', {'url': '/projects/'}),
+    url(r'^$', lambda request: redirect('organisation_project_list')),
 )
 
 if 'runserver' in sys.argv:
@@ -31,6 +28,3 @@ urlpatterns += patterns('',
     url(r'^(.*)$', 'feincms.views.base.handler'),
 )
 """
-
-
-
