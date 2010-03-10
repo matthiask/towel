@@ -199,7 +199,7 @@ class ModelView(object):
             form = ModelForm(request.POST, request.FILES, instance=obj)
             formsets = self.get_formset_instances(request, instance=obj)
 
-            if form.is_valid() and all_valid(formsets):
+            if form.is_valid():
                 new_object = self.save_form(request, form, change=True)
                 form_validated = True
             else:
@@ -211,7 +211,7 @@ class ModelView(object):
                 self.save_model(request, new_object, form, change=True)
                 form.save_m2m()
                 for formset in formsets.itervalues():
-                    self.save_Formset(request, form, formset, change=False)
+                    self.save_formset(request, form, formset, change=False)
 
                 return self.response_edit(request, new_object, form, formsets)
         else:
