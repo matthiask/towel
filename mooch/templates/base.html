@@ -43,10 +43,10 @@
 			<table id="navbar">
 				<tr>
 					{% mark_current %}
-					<td><a class="nav_element" id="projects" href="/projects/">PROJECTS</a></td>
+					<td><a class="nav_element" id="projects" href="{% url organisation_project_list %}">PROJECTS</a></td>
 					<td><a class="nav_element" id="contacts" href="#/contacts/">CONTACTS</a></td>
 					<td><a class="nav_element" id="search"   href="#/search/">SEARCH</a></td>
-					<td><a class="nav_element" id="search"   href="/profiles/">PROFILES</a></td>
+					<td><a class="nav_element" id="search"   href="{% url accounts_profile_list %}">PROFILES</a></td>
 					{% if user.is_staff %}
 					<td><a class="nav_element" id="admin"    href="/admin/">ADMIN</a></td>
 					{% endif %}
