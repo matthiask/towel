@@ -19,10 +19,10 @@
 		<h2>{% form_render_input form.name 'plain' %}</h2>
 
 		<div id="edit_buttons" >
-			<a id="submit_button" class="button"><span>Save</span></a>
+			<a id="submit_button" class="button"><span>{% trans "save"|capfirst %}</span></a>
 			<a href="{% if project %}{{ project.get_absolute_url }}
 					 {% else %}{% url organisation_project_list %}{% endif%}"
-			class="button"><span>Cancel</span></a>
+			class="button"><span>{% trans "cancel"|capfirst %}</span></a>
 		</div>
 
 		<hr />

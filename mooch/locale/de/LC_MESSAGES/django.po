@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-09 14:14+0100\n"
+"POT-Creation-Date: 2010-03-10 14:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,17 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: models.py:16
-msgid "Main content area"
-msgstr "Hauptinhaltsbereich"
+#: generic.py:136
+msgid "The new object has been successfully created."
+msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: models.py:17
-msgid "Sidebar"
-msgstr "Seite"
+#: generic.py:140
+msgid "The object has been successfully updated."
+msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: models.py:18
-msgid "Moodboard"
-msgstr "Moodboard"
+#: generic.py:185
+#, python-format
+msgid "Add %s"
+msgstr "%s hinzufügen"
+
+#: generic.py:222
+#, python-format
+msgid "Change %s"
+msgstr "%s ändern"
+
+#: generic.py:234
+msgid "The object has been successfully deleted."
+msgstr "Das Objekt wurde erfolgreich gelöscht."
 
 #: abstract/models.py:12
 msgid "created"
@@ -41,6 +51,7 @@ msgid "created by"
 msgstr "erstellt von"
 
 #: abstract/models.py:37 organisation/models.py:38
+#: templates/accounts/profile_list.html:15
 #: templates/organisation/project_list.html:15
 msgid "name"
 msgstr "name"
@@ -55,15 +66,15 @@ msgstr "Administration"
 
 #: accounts/models.py:29
 msgid "Field Reporter"
-msgstr ""
+msgstr "Berichtersteller"
 
 #: accounts/models.py:30
 msgid "Donator"
-msgstr ""
+msgstr "Spender"
 
 #: accounts/models.py:33
 msgid "Worker"
-msgstr ""
+msgstr "Mitarbeiter"
 
 #: accounts/models.py:38
 msgid "Notes"
@@ -145,36 +156,43 @@ msgstr "Abgeschlossen"
 msgid "NGO"
 msgstr "NGO"
 
-#: organisation/models.py:42 templates/organisation/project_detail.html:26
+#: organisation/models.py:42 templates/accounts/profile_detail.html:26
+#: templates/organisation/project_detail.html:26
 #: templates/organisation/project_list.html:17
 msgid "manager"
 msgstr "Kapitän"
 
-#: organisation/models.py:44 templates/organisation/project_detail.html:27
+#: organisation/models.py:44 templates/accounts/profile_detail.html:27
+#: templates/organisation/project_detail.html:27
 #: templates/organisation/project_list.html:18
 msgid "state"
 msgstr "Status"
 
-#: organisation/models.py:45 templates/organisation/project_detail.html:31
+#: organisation/models.py:45 templates/accounts/profile_detail.html:31
+#: templates/organisation/project_detail.html:31
 #: templates/organisation/project_list.html:16
 msgid "country"
 msgstr "Land"
 
-#: organisation/models.py:46 templates/organisation/project_detail.html:32
+#: organisation/models.py:46 templates/accounts/profile_detail.html:32
+#: templates/organisation/project_detail.html:32
 msgid "location"
 msgstr "Ort"
 
-#: organisation/models.py:47 templates/organisation/project_detail.html:36
+#: organisation/models.py:47 templates/accounts/profile_detail.html:36
+#: templates/organisation/project_detail.html:36
 #: templates/organisation/project_list.html:20
 msgid "start date"
 msgstr "Startdatum"
 
-#: organisation/models.py:48 templates/organisation/project_detail.html:37
+#: organisation/models.py:48 templates/accounts/profile_detail.html:37
+#: templates/organisation/project_detail.html:37
 #: templates/organisation/project_list.html:21
 msgid "end date"
 msgstr "Enddatum"
 
-#: organisation/models.py:49 templates/organisation/project_detail.html:41
+#: organisation/models.py:49 templates/accounts/profile_detail.html:41
+#: templates/organisation/project_detail.html:41
 msgid "budget"
 msgstr "Budget"
 
@@ -182,7 +200,8 @@ msgstr "Budget"
 msgid "donations currently totaling"
 msgstr "Aktuelles Spendentotal"
 
-#: organisation/models.py:51 templates/organisation/project_detail.html:49
+#: organisation/models.py:51 templates/accounts/profile_detail.html:48
+#: templates/organisation/project_detail.html:49
 msgid "description"
 msgstr "Beschreibung"
 
@@ -190,7 +209,7 @@ msgstr "Beschreibung"
 msgid "project"
 msgstr "Projekt"
 
-#: organisation/models.py:55
+#: organisation/models.py:55 templates/base.html:46
 msgid "projects"
 msgstr "Projekte"
 
@@ -202,7 +221,7 @@ msgstr "Datei"
 msgid "project file"
 msgstr "Projektdatei"
 
-#: organisation/models.py:78 templates/organisation/project_form.html:69
+#: organisation/models.py:78 templates/organisation/project_form.html:77
 msgid "project files"
 msgstr "Projektdateien"
 
@@ -218,6 +237,70 @@ msgstr "Das Projekt wurde erstellt."
 msgid "The project has been updated!"
 msgstr "Das Projekt wurde aktualisiert!"
 
+#: templates/base.html:47
+msgid "contacts"
+msgstr "Kontakte"
+
+#: templates/base.html:48
+msgid "search"
+msgstr "Suche"
+
+#: templates/base.html:49
+msgid "profiles"
+msgstr "Profile"
+
+#: templates/base.html:51
+msgid "admin"
+msgstr "Admin"
+
+#: templates/accounts/profile_detail.html:6
+#, python-format
+msgid "Delete profile %(profile_name)s?"
+msgstr "Profil %(profile_name)s löschen?"
+
+#: templates/accounts/profile_detail.html:8
+#, python-format
+msgid "Projekt %(profile_name)s will be deleted permanently!"
+msgstr "Profil %(profile_name)s wird permanent gelöscht!"
+
+#: templates/accounts/profile_detail.html:17
+#: templates/organisation/project_detail.html:18
+msgid "edit"
+msgstr "bearbeiten"
+
+#: templates/accounts/profile_detail.html:18
+#: templates/organisation/project_detail.html:17
+msgid "delete"
+msgstr "löschen"
+
+#: templates/accounts/profile_detail.html:42
+#: templates/organisation/project_detail.html:42
+#: templates/organisation/project_list.html:19
+msgid "funding"
+msgstr "Finanzierungsgrad"
+
+#: templates/accounts/profile_form.html:12
+#: templates/organisation/project_form.html:9
+msgid "Please check the following errors before saving:"
+msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
+
+#: templates/accounts/profile_list.html:8
+msgid "New profile"
+msgstr "Projekt erstellen"
+
+#: templates/accounts/profile_list.html:14
+#: templates/organisation/project_list.html:14
+msgid "new"
+msgstr "neu"
+
+#: templates/accounts/profile_list.html:16
+msgid "access level"
+msgstr "Zugangsniveau"
+
+#: templates/accounts/profile_list.html:17
+msgid "is active"
+msgstr "Ist aktiv"
+
 #: templates/organisation/project_detail.html:6
 #, python-format
 msgid "Delete project %(project_name)s?"
@@ -228,34 +311,21 @@ msgstr "Projekt %(project_name)s löschen?"
 msgid "Project %(project_name)s will be deleted permanently!"
 msgstr "Projekt %(project_name)s wird permanent gelöscht!"
 
-#: templates/organisation/project_detail.html:17
-msgid "edit"
-msgstr "Bearbeiten"
-
-#: templates/organisation/project_detail.html:18
-msgid "delete"
-msgstr "Löschen"
-
-#: templates/organisation/project_detail.html:42
-#: templates/organisation/project_list.html:19
-msgid "funding"
-msgstr "Finanzierungsgrad"
-
 #: templates/organisation/project_files.html:17
 msgid "Add file"
 msgstr "Datei hinzufügen"
 
-#: templates/organisation/project_form.html:9
-msgid "Please check the following errors before saving:"
-msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
+#: templates/organisation/project_form.html:22
+msgid "save"
+msgstr "sichern"
+
+#: templates/organisation/project_form.html:25
+msgid "cancel"
+msgstr "abbrechen"
 
 #: templates/organisation/project_list.html:8
 msgid "New project"
 msgstr "Projekt erstellen"
-
-#: templates/organisation/project_list.html:14
-msgid "new"
-msgstr "Neu"
 
 #: templates/organisation/project_list.html:22
 msgid "online"
