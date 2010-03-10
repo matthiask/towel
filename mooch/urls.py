@@ -55,6 +55,10 @@ project_view = generic.ModelView(Project,
     view_decorator=model_view_access_level_required(Profile.ADMINISTRATION),
     )
 
+profile_view = generic.ModelView(Profile,
+    )
+
 urlpatterns += patterns('',
     url(r'^projects/', include(project_view.urls)),
+    url(r'^profiles/', include(profile_view.urls)),
 )
