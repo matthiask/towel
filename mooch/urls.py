@@ -3,18 +3,21 @@ import settings
 from django.conf.urls.defaults import *
 from django.contrib import admin
 
+from mooch.views import project_view, profile_view
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    #url(r'^projects/', include('mooch.organisation.urls')),
+    url(r'^projects/', include(project_view.urls)),
+    url(r'^profiles/', include(profile_view.urls)),
 )
 
 urlpatterns += patterns('django.views.generic.simple',
     #url(r'^$', 'direct_to_template', {'template': 'base.html'}),
-    #url(r'^$', 'redirect_to', {'url': '/where/do/you/want/to/go/today/'}),
+    url(r'^$', 'redirect_to', {'url': '/projects/'}),
 )
 
 if 'runserver' in sys.argv:
@@ -30,9 +33,4 @@ urlpatterns += patterns('',
 """
 
 
-from mooch.views import project_view, profile_view
 
-urlpatterns += patterns('',
-    url(r'^projects/', include(project_view.urls)),
-    url(r'^profiles/', include(profile_view.urls)),
-)
