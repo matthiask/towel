@@ -156,7 +156,7 @@ span.invalid {
 #messages {
 	background-color:#FFFFDD;
 	border:1px solid #cccc00;
-	margin:13px 0 0 0;
+	margin: 13px 0 10px 0;
 	padding: 4px 10px 4px 10px;
 }
 
