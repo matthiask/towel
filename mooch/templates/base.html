@@ -1,4 +1,4 @@
-{% load navigation_extras %}
+{% load i18n navigation_extras %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -43,12 +43,12 @@
 			<table id="navbar">
 				<tr>
 					{% mark_current %}
-					<td><a class="nav_element" id="projects" href="{% url organisation_project_list %}">PROJECTS</a></td>
-					<td><a class="nav_element" id="contacts" href="#/contacts/">CONTACTS</a></td>
-					<td><a class="nav_element" id="search"   href="#/search/">SEARCH</a></td>
-					<td><a class="nav_element" id="search"   href="{% url accounts_profile_list %}">PROFILES</a></td>
+					<td><a class="nav_element" id="projects" href="{% url organisation_project_list %}">{% trans "projects"|upper %}</a></td>
+					<td><a class="nav_element" id="contacts" href="#/contacts/">{% trans "contacts"|upper %}</a></td>
+					<td><a class="nav_element" id="search"   href="#/search/">{% trans "search"|upper %}</a></td>
+					<td><a class="nav_element" id="search"   href="{% url accounts_profile_list %}">{% trans "profiles"|upper %}</a></td>
 					{% if user.is_staff %}
-					<td><a class="nav_element" id="admin"    href="/admin/">ADMIN</a></td>
+					<td><a class="nav_element" id="admin"    href="/admin/">{% trans "admin"|upper %}</a></td>
 					{% endif %}
 					{% endmark_current %}
 				</tr>
