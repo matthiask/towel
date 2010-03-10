@@ -179,10 +179,12 @@ class ModelView(object):
                 return self.response_add(request, new_object, form, formsets)
         else:
             form = ModelForm()
+            formsets = self.get_formset_instances(request)
 
         context = {
             'title': _('Add %s') % force_unicode(opts.verbose_name),
             'form': form,
+            'formsets': formsets,
             }
 
         return self.render_form(request, context, change=False)
@@ -214,10 +216,12 @@ class ModelView(object):
                 return self.response_edit(request, new_object, form, formsets)
         else:
             form = ModelForm(instance=obj)
+            formsets = self.get_formset_instances(request, instance=obj)
 
         context = {
             'title': _('Change %s') % force_unicode(opts.verbose_name),
             'form': form,
+            'formsets': formsets,
             self.template_object_name: obj,
             }
 
