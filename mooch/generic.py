@@ -287,6 +287,7 @@ def querystring(data):
     values = []
 
     try:
+        # Handle MultiValueDicts
         items = data.lists()
     except AttributeError:
         items = data.items()
