@@ -1,6 +1,10 @@
+import datetime
+import urllib
+
 from django.contrib import messages
 from django.core import paginator
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import models
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
@@ -268,3 +272,33 @@ class ModelView(object):
 
         info = self.model._meta.app_label, self.model._meta.module_name
         return redirect('%s_%s_list' % info)
+
+
+def querystring(data):
+    def _v(v):
+        if isinstance(v, models.Model):
+            return v.pk
+        elif isinstance(v, bool):
+            return v and 1 or ''
+        elif isinstance(v, datetime.date):
+            return v.strftime('%Y-%m-%d')
+        return v.encode('utf-8')
+
+    values = []
+
+    try:
+        items = data.lists()
+    except AttributeError:
+        items = data.items()
+
+    for k, v in items:
+        if v is None:
+            continue
+
+        if isinstance(v, list):
+            for v2 in v:
+                values.append((k, _v(v2)))
+        else:
+            values.append((k, _v(v)))
+
+    return urllib.urlencode(values)
