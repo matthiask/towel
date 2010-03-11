@@ -52,12 +52,8 @@ class ProjectModelView(generic.ModelView):
         return ProjectForm
 
     def get_formset_instances(self, request, instance=None, **kwargs):
-        args = []
+        args = self.extend_args_if_post(request, [])
         kwargs['instance'] = instance
-
-        if request.method == 'POST':
-            # Prepend POST and FILES to array
-            args[:0] = [request.POST, request.FILES]
 
         return {
             'files': ProjectFileInlineFormset(*args, **kwargs),
@@ -85,5 +81,13 @@ contact_view = ContactModelView(Contact)
 
 class LogEntryModelView(generic.ModelView):
     view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
+
+    def get_form_instance(self, request, form_class, instance=None, **kwargs):
+        return super(LogEntryModelView, self).get_form_instance(
+            request, form_class, instance,
+            initial={
+                'account': request.user.get_profile().pk,
+                'source': 'WEB',
+            }, **kwargs)
 
 logentry_view = LogEntryModelView(LogEntry)
