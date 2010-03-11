@@ -57,10 +57,15 @@ class TextSearchFilter(django_filters.Filter):
     field_class = forms.CharField
 
     def filter(self, qs, value):
-        return qs & self.model.objects.filter(
+        searcher = self.model.objects.filter(
             Q(name__icontains=value)
             | Q(description__icontains=value)
-            ).distinct()
+            )
+
+        # Cannot combine a unique query with a non-unique query
+        if qs.query.distinct:
+            return qs & searcher.distinct()
+        return qs & searcher
 
 
 class ProjectFilterSet(django_filters.FilterSet):
@@ -70,7 +75,7 @@ class ProjectFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Project
-        fields = ['manager', 'state', 'start', 'end']
+        fields = ['query', 'manager', 'state', 'start', 'end']
         order_by = ['manager', 'state', 'start', 'anything']
 
     def __init__(self, *args, **kwargs):
