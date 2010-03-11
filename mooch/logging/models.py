@@ -27,7 +27,7 @@ class LogEntry(CreateUpdateModel):
     class Meta:
         verbose_name = _('log entry')
         verbose_name_plural = _('log entries')
-        ordering = ('-reported',)
+        ordering = ('-reported', '-id')
 
     def __unicode__(self):
         return self.title
