@@ -4,8 +4,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from mooch import generic
 from mooch.accounts.utils import Profile, access_level_required
-from mooch.forms import DateField
 from mooch.contacts.models import Contact
+from mooch.forms import DateField
+from mooch.logging.models import LogEntry
 from mooch.organisation.models import Project, ProjectFile
 
 
@@ -80,3 +81,9 @@ class ContactModelView(generic.ModelView):
     view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
 
 contact_view = ContactModelView(Contact)
+
+
+class LogEntryModelView(generic.ModelView):
+    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
+
+logentry_view = LogEntryModelView(LogEntry)
