@@ -50,6 +50,6 @@ def ordering_link(request, field, title):
     return tmpl % (
         c[2],
         u'&o=%s' % field,
-        'asc',
+        '',
         title,
         )

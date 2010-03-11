@@ -22,14 +22,11 @@
                 <th>{% trans "new"|capfirst %}</th>
                 <th>{% trans "name"|capfirst %}</th>
                 <th>{% trans "country"|capfirst %}</th>
-                <th>{% trans "manager"|capfirst %}</th>
+                <th>{% ordering_link request "manager__username" _("manager") %}</th>
                 <th>{% trans "state"|capfirst %}</th>
                 <th>{% trans "funding"|capfirst %}</th>
-                {# <th>{% trans "start date"|capfirst %}</th> #}
-                <th>
-                    {% ordering_link request "start" _("start date") %}
-                </th>
-                <th>{% trans "end date"|capfirst %}</th>
+                <th>{% ordering_link request "start" _("start date") %}</th>
+                <th>{% ordering_link request "end" _("end date") %}</th>
                 <th>{% trans "online"|capfirst %}</th>
             </tr>
         </thead>
