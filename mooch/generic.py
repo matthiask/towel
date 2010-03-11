@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core import paginator
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
@@ -159,6 +160,19 @@ class ModelView(object):
     def response_edit(self, request, instance, form, formsets):
         self.message(request, _('The object has been successfully updated.'))
         return redirect(instance)
+
+    def paginate_object_list(self, request, queryset, paginate_by=10):
+        paginator_obj = paginator.Paginator(queryset, paginate_by)
+
+        try:
+            page = int(request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+
+        try:
+            return paginator_obj.page(page)
+        except (paginator.EmptyPage, paginator.InvalidPage):
+            return paginator_obj.page(paginator_obj.num_pages)
 
     # VIEWS
 

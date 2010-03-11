@@ -1,5 +1,4 @@
 from django import forms
-from django.core import paginator
 from django.db.models import Q
 from django.forms.models import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
@@ -101,21 +100,10 @@ class ProjectModelView(MoochModelView):
 
     def list_view(self, request):
         filterset = ProjectFilterSet(request.GET, queryset=self.get_query_set(request))
-        paginator_obj = paginator.Paginator(filterset.get_query_set(), 20)
-
-        try:
-            page = int(request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-
-        try:
-            page_obj = paginator_obj.page(page)
-        except (paginator.EmptyPage, paginator.InvalidPage):
-            page_obj = paginator_obj.page(paginator_obj.num_pages)
 
         return render_to_response(self.get_template(request, 'filter'), {
             'filterset': filterset,
-            'page': page_obj,
+            'page': self.paginate_object_list(request, filterset.get_query_set()),
             }, context_instance=RequestContext(request))
 
 
