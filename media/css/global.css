@@ -332,7 +332,7 @@ div.roundbox {
 	padding-right:30px;
 }
 
-#project_detail #facts {
+#object_detail #facts {
 	float:right;
 	width:660px;
 }
@@ -348,37 +348,37 @@ div.roundbox {
 	width:560px;
 }
 
-#project_form input {
+#object_form input {
 	width:100px;
 }
 
-#project_form select {
+#object_form select {
 	width:110px;
 }
 
-#project_form #id_budget {
+#object_form #id_budget {
 	width:70px;
 }
 
-#project_detail #id_name {
+#object_detail #id_name {
 	font-family: Trebuchet MS, Helvetica;
 	font-size: 20px;
 	font-weight: bolder;
 	width:400px;
 }
 
-#project_form {
+#object_form {
 	display:inline-block;
 	padding-top:10px;
 }
 
-#project_form #id_description {
+#object_form #id_description {
 	width: 560px;
 	max-width: 560px;
 	height: 300px;
 }
 
-#project_form label {
+#object_form label {
 	width:80px;
 	display:inline-block;
 	font-weight:bolder;

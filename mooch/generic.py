@@ -36,7 +36,10 @@ class ModelView(object):
         """
 
         opts = self.model._meta
-        return '%s/%s_%s.html' % (opts.app_label, opts.module_name, action)
+        return [
+            '%s/%s_%s.html' % (opts.app_label, opts.module_name, action),
+            'modelview/object_%s.html' % action,
+            ]
 
     def get_urls(self):
         from django.conf.urls.defaults import patterns, url
@@ -76,12 +79,29 @@ class ModelView(object):
         except self.model.DoesNotExist:
             raise Http404
 
-    def get_form(self, request, **kwargs):
+    def get_form(self, request, instance=None, **kwargs):
         """
         Return a form class for further use by add and edit views.
         """
 
         return modelform_factory(self.model, **kwargs)
+
+    def extend_args_if_post(self, request, args):
+        """
+        Helper which prepends POST and FILES to args if request method
+        was POST.
+        """
+
+        if request.method == 'POST':
+            args[:0] = [request.POST, request.FILES]
+
+        return args
+
+    def get_form_instance(self, request, form_class, instance=None, **kwargs):
+        args = self.extend_args_if_post(request, [])
+        kwargs['instance'] = instance
+
+        return form_class(*args, **kwargs)
 
     def get_formset_instances(self, request, instance=None, **kwargs):
         """
@@ -160,7 +180,7 @@ class ModelView(object):
         opts = self.model._meta
 
         if request.method == 'POST':
-            form = ModelForm(request.POST, request.FILES)
+            form = self.get_form_instance(request, ModelForm)
 
             if form.is_valid():
                 new_object = self.save_form(request, form, change=False)
@@ -178,7 +198,7 @@ class ModelView(object):
 
                 return self.response_add(request, new_object, form, formsets)
         else:
-            form = ModelForm()
+            form = self.get_form_instance(request, ModelForm)
             formsets = self.get_formset_instances(request)
 
         context = {
@@ -190,13 +210,13 @@ class ModelView(object):
         return self.render_form(request, context, change=False)
 
     def edit_view(self, request, object_pk):
-        ModelForm = self.get_form(request)
         obj = self.get_object_or_404(request, pk=object_pk)
+        ModelForm = self.get_form(request, obj)
 
         opts = self.model._meta
 
         if request.method == 'POST':
-            form = ModelForm(request.POST, request.FILES, instance=obj)
+            form = self.get_form_instance(request, ModelForm, obj)
 
             if form.is_valid():
                 new_object = self.save_form(request, form, change=True)
@@ -214,7 +234,7 @@ class ModelView(object):
 
                 return self.response_edit(request, new_object, form, formsets)
         else:
-            form = ModelForm(instance=obj)
+            form = self.get_form_instance(request, ModelForm, obj)
             formsets = self.get_formset_instances(request, instance=obj)
 
         context = {

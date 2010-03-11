@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.shortcuts import redirect
 
-from mooch.views import project_view, profile_view
+from mooch.views import contact_view, project_view, profile_view, logentry_view
 
 admin.autodiscover()
 
@@ -12,9 +12,11 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^contacts/', include(contact_view.urls)),
     url(r'^projects/', include(project_view.urls)),
     url(r'^profiles/', include(profile_view.urls)),
     url(r'^mobile/', include('mooch.mobile.urls')),
+    url(r'^logentries/', include(logentry_view.urls)),
     url(r'^$', lambda request: redirect('organisation_project_list')),
 )
 

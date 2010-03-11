@@ -21,9 +21,15 @@ class LogEntry(CreateUpdateModel):
     message = models.TextField(_('text'))
     source = models.CharField(_('origin'), choices=LOG_SOURCES, max_length=10)
     reported = models.DateTimeField(_('reported'), default=datetime.now)
-    
+
     class Meta:
         verbose_name = _('log entry')
         verbose_name_plural = _('log entries')
         ordering = ('-reported',)
 
+    def __unicode__(self):
+        return self.title
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('logging_logentry_detail', (self.pk,), {})

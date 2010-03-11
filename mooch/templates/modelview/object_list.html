@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load i18n mooch_tags %}
+
+{% block content %}
+
+	<div id="header_buttons" >
+		<a href="add/" class="button"><span>{% trans "New object" %}</span></a>
+	</div>
+
+	<table class="objects">
+	    <thead>
+            <tr>
+                <th>{% trans "object"|capfirst %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
+            </tr>
+        {% endfor %}
+        </tbody>
+	</table>
+{% endblock %}
