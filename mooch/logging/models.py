@@ -15,7 +15,7 @@ LOG_SOURCES = (
 )
 
 class LogEntry(CreateUpdateModel):
-    account = models.ForeignKey(User)
+    account = models.ForeignKey(User, related_name='logentries')
     project = models.ForeignKey(Project, related_name="logentries", verbose_name=_('project'))
     title = models.CharField(_('title'), max_length=150)
     message = models.TextField(_('text'))
