@@ -27,7 +27,7 @@ class ModelView(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def get_queryset(self, request):
+    def get_query_set(self, request):
         return self.model.objects.all()
 
     def get_template(self, request, action):
@@ -65,7 +65,7 @@ class ModelView(object):
     # HELPERS
 
     def get_object(self, request, **kwargs):
-        queryset = self.get_queryset(request)
+        queryset = self.get_query_set(request)
         model = queryset.model
 
         try:
@@ -164,7 +164,7 @@ class ModelView(object):
 
     def list_view(self, request):
         return self.render_list(request, {
-            self.template_object_list_name: self.get_queryset(request),
+            self.template_object_list_name: self.get_query_set(request),
             })
 
     def detail_view(self, request, object_pk):
