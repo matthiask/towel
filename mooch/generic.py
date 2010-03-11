@@ -36,7 +36,10 @@ class ModelView(object):
         """
 
         opts = self.model._meta
-        return '%s/%s_%s.html' % (opts.app_label, opts.module_name, action)
+        return [
+            '%s/%s_%s.html' % (opts.app_label, opts.module_name, action),
+            'modelview/object_%s.html' % action,
+            ]
 
     def get_urls(self):
         from django.conf.urls.defaults import patterns, url

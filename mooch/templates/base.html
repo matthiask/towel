@@ -44,7 +44,7 @@
 				<tr>
 					{% mark_current %}
 					<td><a class="nav_element" id="projects" href="{% url organisation_project_list %}">{% trans "projects"|upper %}</a></td>
-					<td><a class="nav_element" id="contacts" href="#/contacts/">{% trans "contacts"|upper %}</a></td>
+					<td><a class="nav_element" id="contacts" href="{% url contacts_contact_list %}">{% trans "contacts"|upper %}</a></td>
 					<td><a class="nav_element" id="search"   href="#/search/">{% trans "search"|upper %}</a></td>
 					<td><a class="nav_element" id="search"   href="{% url accounts_profile_list %}">{% trans "profiles"|upper %}</a></td>
 					{% if user.is_staff %}

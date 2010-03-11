@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load feinheit_forms i18n %}
+
+{% block content %}
+	{% if form.errors %}
+	<div id="validation_errors" class="roundbox">
+		<h3>{% trans "Please check the following errors before saving:" %}</h3>
+		<br />
+		{{ form.errors }}
+	</div>
+	{% endif %}
+
+	<div id="object_detail" class="roundbox">
+		{% form_render_start form 'plain' %}
+		<h2>{{ title }}</h2>
+
+		<div id="edit_buttons" >
+			<a id="submit_button" class="button"><span>{% trans "save"|capfirst %}</span></a>
+			<a href="{% if object %}{{ object.get_absolute_url }}
+					 {% else %}../{% endif%}"
+			class="button"><span>{% trans "cancel"|capfirst %}</span></a>
+		</div>
+
+		<hr />
+
+		<div id="object_form">
+			<div id="figures">
+             {% for field in form %}
+             <p>
+                 {{ field.label_tag }}
+                 {% form_render_input field 'plain' %}
+             </p>
+             {% endfor %}
+             </div>
+             <div class="clear"></div>
+        </div>
+
+		{% form_render_end form 'plain' %}
+    </div>
+{% endblock %}

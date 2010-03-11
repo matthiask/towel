@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from mooch import generic
 from mooch.accounts.utils import Profile, access_level_required
 from mooch.forms import DateField
+from mooch.contacts.models import Contact
 from mooch.organisation.models import Project, ProjectFile
 
 
@@ -21,6 +22,7 @@ def model_view_access_level_required(access_level):
             return fn(request, *args, **kwargs)
         return access_level_required(access_level)(_fn)
     return dec
+
 
 ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
@@ -72,3 +74,9 @@ class ProfileModelView(generic.ModelView):
             **kwargs)
 
 profile_view = ProfileModelView(Profile)
+
+
+class ContactModelView(generic.ModelView):
+    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
+
+contact_view = ContactModelView(Contact)

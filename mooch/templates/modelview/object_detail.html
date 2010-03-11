@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load i18n mooch_tags %}
+
+{% block content %}
+	<div id="delete_dialog" title="{% blocktrans %}Delete {{ object }}?{% endblocktrans %}">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 30px 0;"></span>
+		    {% blocktrans %}{{ object }} will be deleted permanently!{% endblocktrans %}
+		</p>
+	</div>
+
+	<div id="object_detail" class="roundbox">
+
+		<h2>{{ object }}</h2>
+
+		<div id="edit_buttons" >
+			<a href="delete/" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
+			<a href="edit/"class="button"><span>{% trans "edit"|capfirst %}</span></a>
+		</div>
+
+		<hr />
+
+	</div>
+
+{% endblock %}
