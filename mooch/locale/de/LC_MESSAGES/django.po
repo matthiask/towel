@@ -248,7 +248,7 @@ msgstr "In Planung"
 
 #: organisation/models.py:33
 msgid "Fund raising"
-msgstr "Fundraisinmg"
+msgstr "Fundraising"
 
 #: organisation/models.py:34
 msgid "In realisation"

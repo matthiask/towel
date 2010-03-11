@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms.models import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
@@ -48,6 +49,35 @@ class ProjectForm(forms.ModelForm):
 ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
 
+import django_filters
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+
+class TextSearchFilter(django_filters.Filter):
+    field_class = forms.CharField
+
+    def filter(self, qs, value):
+        return qs & self.model.objects.filter(
+            Q(name__icontains=value)
+            | Q(description__icontains=value)
+            ).distinct()
+
+
+class ProjectFilterSet(django_filters.FilterSet):
+    query = TextSearchFilter()
+    state = django_filters.MultipleChoiceFilter(choices=Project.STATES,
+        label=_('state'), initial=['PLANNING', 'FUNDRAISING'])
+
+    class Meta:
+        model = Project
+        fields = ['manager', 'state', 'start', 'end']
+        order_by = ['manager', 'state', 'start', 'anything']
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectFilterSet, self).__init__(*args, **kwargs)
+        self.filters['start'].lookup_type = 'gte'
+
+
 class ProjectModelView(MoochModelView):
     template_object_name = 'project'
 
@@ -61,6 +91,13 @@ class ProjectModelView(MoochModelView):
         return {
             'files': ProjectFileInlineFormset(*args, **kwargs),
             }
+
+    def list_view(self, request):
+        f = ProjectFilterSet(request.GET, queryset=self.get_queryset(request))
+        return render_to_response(self.get_template(request, 'filter'), {
+            'f': f,
+            }, context_instance=RequestContext(request))
+
 
 project_view = ProjectModelView(Project)
 

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load i18n mooch_tags %}
+
+{% block content %}
+
+	<div id="header_buttons" >
+		<a href="{% url organisation_project_add %}" class="button"><span>{% trans "New project" %}</span></a>
+	</div>
+
+    <form action="" method="get">
+        {{ f.form.as_p }}
+        <input type="submit" />
+    </form>
+
+	<table class="objects">
+	    <thead>
+            <tr>
+                <th>{% trans "new"|capfirst %}</th>
+                <th>{% trans "name"|capfirst %}</th>
+                <th>{% trans "country"|capfirst %}</th>
+                <th>{% trans "manager"|capfirst %}</th>
+                <th>{% trans "state"|capfirst %}</th>
+                <th>{% trans "funding"|capfirst %}</th>
+                <th>{% trans "start date"|capfirst %}</th>
+                <th>{% trans "end date"|capfirst %}</th>
+                <th>{% trans "online"|capfirst %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for project in f %}
+            <tr id="item{{project.id}}" class="object {% cycle 'odd' 'even' %}">
+                <td>-</td>
+                <th><a href="{{ project.get_absolute_url }}">{{ project }}</a></th>
+                <td>{{ project.country }}</td>
+                <td>{{ project.manager }}</td>
+                <td>{{ project.get_state_display }}</td>
+                <td>
+                    {% bar project.get_funding_rate %}
+                </td>
+                <td>{{ project.start|date:"d.m.Y" }}</td>
+                <td>{{ project.end|date:"d.m.Y" }}</td>
+                <td>-</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+	</table>
+{% endblock %}
