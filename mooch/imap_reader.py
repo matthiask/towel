@@ -1,6 +1,7 @@
 import datetime
 import base64
 import email
+import email.header
 import imaplib
 import StringIO
 
@@ -37,8 +38,8 @@ class IMAPReader(object):
                 return
 
             if msg.get_content_maintype() == 'text':
-                entry.message += msg.get_payload()
-            elif msg.get_content_maintype() == 'image':
+                entry.message += msg.get_payload().decode(msg.get_content_charset())
+            elif msg.get_content_maintype() in ('image', 'application'):
                 files.append((
                     msg.get_filename(), # filename
                     msg.get_filename(), # title
@@ -47,6 +48,12 @@ class IMAPReader(object):
                     ))
             else:
                 print 'Cannot handle type %s yet' % msg.get_content_type()
+
+        def decode_header(header):
+            value = email.header.decode_header(header)
+            if value[0][1]:
+                return value[0][0].decode(value[0][1])
+            return value[0][0]
 
         entries = []
         for msgid in self.unread_messages():
@@ -58,11 +65,11 @@ class IMAPReader(object):
 
             for key, value in msg.items():
                 if key == 'Subject':
-                    entry.title = value
+                    entry.title = decode_header(value)
                 elif key == 'Date':
                     entry.reported = datetime.datetime(*email.utils.parsedate(value)[:7])
                 elif key == 'From':
-                    entry.source_detail = value
+                    entry.source_detail = decode_header(value)
 
             if not entry.title:
                 entry.title = entry.message[:100]
