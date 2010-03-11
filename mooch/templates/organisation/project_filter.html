@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load i18n mooch_tags %}
+{% load feinheit_forms i18n mooch_tags %}
 
 {% block content %}
 
@@ -9,7 +9,10 @@
 	</div>
 
     <form action="" method="get">
-        {{ f.form.as_p }}
+        {% for field in f.form %}
+            {{ field.label_tag }}
+            {% form_render_input field 'plain' %}<br />
+        {% endfor %}
         <input type="submit" />
     </form>
 
