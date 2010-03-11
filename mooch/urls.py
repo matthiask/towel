@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^projects/', include(project_view.urls)),
     url(r'^profiles/', include(profile_view.urls)),
+    url(r'^mobile/', include('mooch.mobile.urls')),
     url(r'^$', lambda request: redirect('organisation_project_list')),
 )
 

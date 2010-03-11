@@ -3,6 +3,6 @@ import models
 
 class LogEntryAdmin(admin.ModelAdmin):
     model = models.LogEntry
-    list_display = ('account', 'title')
+    list_display = ('title','account',)
 
-#admin.site.register(models.Project, ProjectAdmin)
+admin.site.register(models.LogEntry, LogEntryAdmin)
