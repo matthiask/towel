@@ -8,7 +8,7 @@ from mooch import generic
 from mooch.accounts.utils import Profile, access_level_required
 from mooch.contacts.models import Contact
 from mooch.forms import DateField
-from mooch.logging.models import LogEntry
+from mooch.logging.models import LogEntry, LogEntryFile
 from mooch.organisation.models import Project, ProjectFile
 
 
@@ -131,17 +131,33 @@ class ProfileModelView(MoochModelView):
 
 profile_view = ProfileModelView(Profile)
 
-
 contact_view = MoochModelView(Contact)
 
+LogEntryFileInlineFormset = inlineformset_factory(LogEntry, LogEntryFile, extra=1)
 
 class LogEntryModelView(MoochModelView):
     def get_form_instance(self, request, form_class, instance=None, **kwargs):
+        #p_id = request.GET.get('project', None)
         return super(LogEntryModelView, self).get_form_instance(
             request, form_class, instance,
             initial={
                 'account': request.user.get_profile().pk,
                 'source': 'WEB',
+                #'project': p_id
             }, **kwargs)
 
+    """
+    TODO: This shit hits the fan, but why?
+    
+    def get_formset_instances(self, request, instance=None, **kwargs):
+        args = self.extend_args_if_post(request, [])
+        kwargs['instance'] = instance
+
+        return {
+            'files': LogEntryFileInlineFormset(*args, **kwargs),
+        }
+    """ 
+
 logentry_view = LogEntryModelView(LogEntry)
+
+
