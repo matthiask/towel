@@ -76,7 +76,7 @@ class ProjectFilterSet(django_filters.FilterSet):
     class Meta:
         model = Project
         fields = ['query', 'manager', 'state', 'start', 'end']
-        order_by = ['manager', 'state', 'start', 'anything']
+        order_by = ['manager', 'state', 'start']
 
     def __init__(self, *args, **kwargs):
         super(ProjectFilterSet, self).__init__(*args, **kwargs)
