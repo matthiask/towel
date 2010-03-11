@@ -313,14 +313,14 @@ div.roundbox {
  	padding: 10px;
 }
 
-#project_infos label {
+#object_infos label {
 	width:100px;
 	display:inline-block;
 	font-weight:bolder;
 	margin-bottom:7px;
 }
 
-#project_infos {
+#object_infos {
 	display:inline-block;
 	padding-top:10px;
 }
