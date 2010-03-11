@@ -81,6 +81,7 @@ class ProjectFilterSet(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super(ProjectFilterSet, self).__init__(*args, **kwargs)
         self.filters['start'].lookup_type = 'gte'
+        self.filters['end'].lookup_type = 'lte'
 
 
 class ProjectModelView(MoochModelView):
