@@ -48,7 +48,7 @@ class ProjectModelView(generic.ModelView):
     template_object_name = 'project'
     view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
 
-    def get_form(self, request, **kwargs):
+    def get_form(self, request, instance=None, **kwargs):
         return ProjectForm
 
     def get_formset_instances(self, request, instance=None, **kwargs):
