@@ -29,7 +29,7 @@
 				<a href="/"><h1>NGO<strong>INFO</strong></h1></a>
 			</div>
 			<div id="userpanel">
-				<span id="username">{{ request.user }}</span> <br/>
+				<span id="username">{{ request.user }}</span><br />
 				{% if request.user.is_authenticated %}
 					<a href="{% url django.contrib.auth.views.logout %}">Logout</a>
 				{% else %}
