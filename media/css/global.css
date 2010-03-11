@@ -429,3 +429,12 @@ div.bar div.completed {
  	-webkit-border-radius: 2px;
 }
 
+
+a.asc:after {
+    content: '\2193';
+}
+
+a.desc:after {
+    content: '\2191';
+}
+

@@ -107,17 +107,10 @@ class ProjectModelView(MoochModelView):
         data_nopage = data.copy()
         if 'page' in data_nopage: del data_nopage['page']
 
-        data_order = data_nopage.copy()
-        for k in ('o', 'ot'):
-            if k in data_order:
-                del data_order[k]
-
         return render_to_response(self.get_template(request, 'filter'), {
             'filterset': filterset,
             'page': self.paginate_object_list(request, filterset.get_query_set()),
-            'querystring_pagination': generic.querystring(data_nopage),
-            'querystring_ordering': generic.querystring(data_order),
-            'current_ordering': (request.GET.get('o'), request.GET.get('ot')),
+            'querystring': generic.querystring(data_nopage),
             }, context_instance=RequestContext(request))
 
 
