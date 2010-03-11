@@ -48,10 +48,36 @@
 			<div id="facts">
 				<label>{% trans "description"|capfirst %}</label>
 				{{ project.description|linebreaks }}
-			</div>
+            </div>
 
             <div class="clear"></div>
-		</div>
-	</div>
+        </div>
+    </div>
 
+    <div id="object_detail" class="roundbox">
+        <h3>{% trans "project files"|capfirst %}</h3>
+        <hr />
+        <div id="object_infos">
+            {% for file in project.files.all %}
+                <label>{{ file.title }}</label>
+                <a href="{{ file.file.url }}">{{ file.file.name }}</a><br />
+            {% endfor %}
+        </div>
+
+        <div class="clear"></div>
+    </div>
+
+    <div id="object_detail" class="roundbox">
+        <h3>{% trans "log entries"|capfirst %}</h3>
+        <hr />
+        <div id="object_infos">
+            {% for entry in project.logentries.all|slice:"0:10" %}
+                <label><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></label>
+                {{ entry.message|linebreaks }}
+                <br />
+            {% endfor %}
+        </div>
+
+        <div class="clear"></div>
+    </div>
 {% endblock %}

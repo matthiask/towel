@@ -311,6 +311,7 @@ div.roundbox {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
  	padding: 10px;
+ 	margin: 0 0 10px 0;
 }
 
 #object_infos label {

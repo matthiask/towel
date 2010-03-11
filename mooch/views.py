@@ -25,9 +25,6 @@ def model_view_access_level_required(access_level):
     return dec
 
 
-ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
-
-
 class MoochModelView(generic.ModelView):
     view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
 
@@ -46,6 +43,9 @@ class ProjectForm(forms.ModelForm):
             raise forms.ValidationError(
                 _('Please contact us for projects over 10\'000 bucks.'))
         return value
+
+
+ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
 
 class ProjectModelView(MoochModelView):

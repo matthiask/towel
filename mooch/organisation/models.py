@@ -72,6 +72,7 @@ class ProjectFile(CreateUpdateModel):
     project = models.ForeignKey(Project, related_name='files',
         verbose_name=_('project'))
     file = models.FileField(_('file'), upload_to=upload_path)
+    title = models.CharField(_('title'), max_length=100)
 
     class Meta:
         verbose_name = _('project file')
