@@ -282,6 +282,7 @@ tbody tr:first-child th {
 }
 
 table th {
+    padding: 5px 0;
     text-align: left;
 }
 
