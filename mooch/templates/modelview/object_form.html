@@ -14,7 +14,7 @@
 		{% form_render_start form 'plain' %}
 		<h2>{{ title }}</h2>
 
-		<div id="edit_buttons" >
+		<div class="edit_buttons" >
 			<a id="submit_button" class="button"><span>{% trans "save"|capfirst %}</span></a>
 			<a href="{% if object %}{{ object.get_absolute_url }}
 					 {% else %}../{% endif%}"

@@ -18,7 +18,7 @@
 
 		<h2>{% form_render_input form.name 'plain' %}</h2>
 
-		<div id="edit_buttons" >
+		<div class="edit_buttons" >
 			<a id="submit_button" class="button"><span>{% trans "save"|capfirst %}</span></a>
 			<a href="{% if project %}{{ project.get_absolute_url }}
 					 {% else %}{% url organisation_project_list %}{% endif%}"

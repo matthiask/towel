@@ -149,7 +149,7 @@ span.invalid {
 	display:none;
 }
 
-#edit_buttons {
+.edit_buttons {
 	float:right;
 }
 
@@ -332,6 +332,11 @@ div.roundbox {
 	float:left;
 	width: 205px;
 	padding-right:30px;
+}
+
+#object_detail h3 {
+	display:inline-block;
+	padding-bottom:5px;
 }
 
 #object_detail #facts {

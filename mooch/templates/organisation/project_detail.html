@@ -13,7 +13,7 @@
 
 		<h2>{{ project.name }}</h2>
 
-		<div id="edit_buttons" >
+		<div class="edit_buttons" >
 			<a href="delete/" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
 			<a href="edit/"class="button"><span>{% trans "edit"|capfirst %}</span></a>
 		</div>
@@ -69,6 +69,9 @@
 
     <div id="object_detail" class="roundbox">
         <h3>{% trans "log entries"|capfirst %}</h3>
+		<div class="edit_buttons" >
+			<a href="{% url logging_logentry_add %}" class="button"><span>{% trans "add"|capfirst %}</span></a>
+		</div>
         <hr />
         <div id="object_infos">
             {% for entry in project.logentries.all|slice:"0:10" %}
