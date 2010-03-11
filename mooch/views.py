@@ -98,6 +98,12 @@ class ProjectModelView(MoochModelView):
         return {
             'files': ProjectFileInlineFormset(*args, **kwargs),
             }
+        
+    def save_model(self, request, instance, form, change):
+        if not change:
+            if not instance.donated:
+                instance.donated = 0
+        instance.save()
 
     def list_view(self, request):
         filterset = ProjectFilterSet(request.GET, queryset=self.get_query_set(request))
