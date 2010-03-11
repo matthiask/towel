@@ -9,7 +9,7 @@
 	</div>
 
     <form action="" method="get">
-        {% for field in f.form %}
+        {% for field in filterset.form %}
             {{ field.label_tag }}
             {% form_render_input field 'plain' %}<br />
         {% endfor %}
@@ -31,7 +31,7 @@
             </tr>
         </thead>
         <tbody>
-        {% for project in f %}
+        {% for project in page.object_list %}
             <tr id="item{{project.id}}" class="object {% cycle 'odd' 'even' %}">
                 <td>-</td>
                 <th><a href="{{ project.get_absolute_url }}">{{ project }}</a></th>
@@ -48,4 +48,20 @@
         {% endfor %}
         </tbody>
 	</table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page.has_previous %}
+                <a href="?page={{ page.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page.number }} of {{ page.paginator.num_pages }}.
+            </span>
+
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
 {% endblock %}
