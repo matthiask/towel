@@ -87,7 +87,7 @@ class IMAPReader(object):
                 f.file.save(filename, f_obj)
                 f.save()
 
-            #self.mark_seen(msgid)
+            self.mark_seen(msgid)
             entries.append(entry)
 
         return entries
