@@ -197,7 +197,6 @@ class ModelView(object):
 
         if request.method == 'POST':
             form = ModelForm(request.POST, request.FILES, instance=obj)
-            formsets = self.get_formset_instances(request, instance=obj)
 
             if form.is_valid():
                 new_object = self.save_form(request, form, change=True)
