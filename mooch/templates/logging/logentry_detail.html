@@ -29,7 +29,7 @@
 
 				<p id="location_info">
 					<label>{% trans "source"|capfirst %}</label> {{ object.get_source_display }}<br/>
-					<label>{% trans "reported"|capfirst %}</label> {{ object.reported|date:"d.m.Y" }}<br/>
+					<label>{% trans "reported"|capfirst %}</label> {{ object.reported|date:"d.m.Y H:i" }}<br/>
 				</p>
 			</div>
 
