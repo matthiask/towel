@@ -180,7 +180,7 @@ span.invalid {
 	min-height: 100%
 }
 
-#spacer {
+div.spacer {
 	height:20px;
 }
 
@@ -434,12 +434,22 @@ div.bar div.completed {
  	-webkit-border-radius: 2px;
 }
 
+/*
+a.asc {
+    background: url("/media/img/icons/small/down_arrow.png") no-repeat right center;
+	margin-right: 15px;
+}*/
 
 a.asc:after {
-    content: '\2193';
+    content: url("/media/img/icons/small/down_arrow.png");
+
 }
 
 a.desc:after {
-    content: '\2191';
+    content: url("/media/img/icons/small/up_arrow.png");
 }
 
+div.filter input[type="submit"] {
+	background: url("/media/img/icons/small/search_magnifier.png") no-repeat left center;
+	padding-left:16px;
+}

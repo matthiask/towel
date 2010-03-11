@@ -4,17 +4,23 @@
 
 {% block content %}
 
-	<div id="header_buttons" >
-		<a href="{% url organisation_project_add %}" class="button"><span>{% trans "New project" %}</span></a>
-	</div>
+	<a href="{% url organisation_project_add %}" class="button"><span>{% trans "New project" %}</span></a>
 
-    <form action="" method="get">
-        {% for field in filterset.form %}
-            {{ field.label_tag }}
-            {% form_render_input field 'plain' %}<br />
-        {% endfor %}
-        <input type="submit" />
-    </form>
+	<div class="filter">
+	    <form action="" method="get">
+			
+			{% with filterset.form as filterform %}
+				{{ filterform.manager.label_tag }}
+				{% form_render_input filterform.manager 'plain' %}
+				<label for="id_query">Suche:</label>
+				{% form_render_input filterform.query 'plain' %}
+			{% endwith %}
+			
+	        <input type="submit" value="{% trans "Filter"|capfirst %}" />
+	    </form>
+	</div>
+	
+	<div class="spacer"></div>
 
 	<table class="objects">
 	    <thead>
