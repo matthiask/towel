@@ -361,7 +361,7 @@ msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
 
 #: templates/accounts/profile_list.html:8
 msgid "New profile"
-msgstr "Projekt erstellen"
+msgstr "Profil erstellen"
 
 #: templates/accounts/profile_list.html:14
 #: templates/organisation/project_list.html:14

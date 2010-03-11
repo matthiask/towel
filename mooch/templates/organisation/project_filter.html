@@ -20,16 +20,13 @@
 	    <thead>
             <tr>
                 <th>{% trans "new"|capfirst %}</th>
-                <th>{% trans "name"|capfirst %}</th>
-                <th>{% trans "country"|capfirst %}</th>
-                <th>{% trans "manager"|capfirst %}</th>
+                <th>{% ordering_link request "name" _("name") %}</th>
+                <th>{% ordering_link request "country__name" _("country") %}</th>
+                <th>{% ordering_link request "manager__username" _("manager") %}</th>
                 <th>{% trans "state"|capfirst %}</th>
                 <th>{% trans "funding"|capfirst %}</th>
-                {# <th>{% trans "start date"|capfirst %}</th> #}
-                <th>
-                    {% ordering_link "start" current_ordering querystring_ordering _("start date") %}
-                </th>
-                <th>{% trans "end date"|capfirst %}</th>
+                <th>{% ordering_link request "start" _("start date") %}</th>
+                <th>{% ordering_link request "end" _("end date") %}</th>
                 <th>{% trans "online"|capfirst %}</th>
             </tr>
         </thead>
@@ -55,7 +52,7 @@
     <div class="pagination">
         <span class="step-links">
             {% if page.has_previous %}
-                <a href="?{{ querystring_pagination }}&amp;page={{ page.previous_page_number }}">previous</a>
+                <a href="?{{ querystring }}&amp;page={{ page.previous_page_number }}">previous</a>
             {% endif %}
 
             <span class="current">
@@ -63,7 +60,7 @@
             </span>
 
             {% if page.has_next %}
-                <a href="?{{ querystring_pagination }}&amp;page={{ page.next_page_number }}">next</a>
+                <a href="?{{ querystring }}&amp;page={{ page.next_page_number }}">next</a>
             {% endif %}
         </span>
     </div>
