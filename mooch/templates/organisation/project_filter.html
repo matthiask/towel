@@ -25,7 +25,10 @@
                 <th>{% trans "manager"|capfirst %}</th>
                 <th>{% trans "state"|capfirst %}</th>
                 <th>{% trans "funding"|capfirst %}</th>
-                <th>{% trans "start date"|capfirst %}</th>
+                {# <th>{% trans "start date"|capfirst %}</th> #}
+                <th>
+                    {% ordering_link "start" current_ordering querystring_ordering _("start date") %}
+                </th>
                 <th>{% trans "end date"|capfirst %}</th>
                 <th>{% trans "online"|capfirst %}</th>
             </tr>
@@ -52,7 +55,7 @@
     <div class="pagination">
         <span class="step-links">
             {% if page.has_previous %}
-                <a href="?page={{ page.previous_page_number }}">previous</a>
+                <a href="?{{ querystring_pagination }}&amp;page={{ page.previous_page_number }}">previous</a>
             {% endif %}
 
             <span class="current">
@@ -60,7 +63,7 @@
             </span>
 
             {% if page.has_next %}
-                <a href="?page={{ page.next_page_number }}">next</a>
+                <a href="?{{ querystring_pagination }}&amp;page={{ page.next_page_number }}">next</a>
             {% endif %}
         </span>
     </div>
