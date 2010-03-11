@@ -43,4 +43,18 @@
 		</div>
 	</div>
 
+    <div id="object_detail" class="roundbox">
+        <h3>{% trans "log entry files"|capfirst %}</h3>
+        <hr />
+        <div id="object_infos">
+            {% for file in object.files.all %}
+                <label>{{ file.title }}</label>
+                <a href="{{ file.file.url }}">{{ file.file.name }}</a><br />
+            {% endfor %}
+        </div>
+
+        <div class="clear"></div>
+    </div>
+
+
 {% endblock %}
