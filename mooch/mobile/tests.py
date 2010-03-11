@@ -6,7 +6,10 @@ class SampleTest(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_shuffle(self):
+    def sms_revieve_report(self):
         client = Client()
-        status = client.get('/mobile/test')
-        self.assertEqual(status, 200)
+        response = client.post("/mobile/reports/",
+            {'mobileid':'0787730964', 'item':"2 Brunnen fertig gebaut!"})
+        headers = response.items()
+        self.assertTrue(('Content-Type', 'text/html; charset=utf-8') in headers)
+        self.assertTrue(('foo','bla'))

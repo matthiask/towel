@@ -85,6 +85,7 @@ INSTALLED_APPS = (
     'mooch.contacts',
     'mooch.logging',
     'mooch.organisation',
+    'mooch.mobile',
 
     'feincms',
     'feincms.module.medialibrary',
