@@ -20,8 +20,8 @@
 	    <thead>
             <tr>
                 <th>{% trans "new"|capfirst %}</th>
-                <th>{% trans "name"|capfirst %}</th>
-                <th>{% trans "country"|capfirst %}</th>
+                <th>{% ordering_link request "name" _("name") %}</th>
+                <th>{% ordering_link request "country__name" _("country") %}</th>
                 <th>{% ordering_link request "manager__username" _("manager") %}</th>
                 <th>{% trans "state"|capfirst %}</th>
                 <th>{% trans "funding"|capfirst %}</th>
