@@ -48,6 +48,10 @@ hr {
 	margin: 4px 0 4px 0;
 }
 
+.hidden {
+	display:none;
+}
+
 hr.thick {
   	border-top: 2px solid black;
   	margin-bottom: 15px;
@@ -359,6 +363,14 @@ div.roundbox {
 	width:100px;
 }
 
+#facts input, #facts textarea {
+	width:500px;
+}
+
+#facts div.files input {
+	width:80px;
+}
+
 #object_form select {
 	width:110px;
 }
@@ -413,7 +425,8 @@ div.roundbox {
 
 div.bar {
     position: relative;
-    width: 90%;
+    width: 80px;
+	display:inline-block;
     border: 1px solid #888;
     padding: 2px;
 	-moz-border-radius: 2px;

@@ -13,7 +13,7 @@
 
 		<h2>{{ object.title }}</h2>
 
-		<div id="edit_buttons" >
+		<div class="edit_buttons" >
 			<a href="delete/" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
 			<a href="edit/"class="button"><span>{% trans "edit"|capfirst %}</span></a>
 		</div>
@@ -36,7 +36,6 @@
 			<div id="facts">
 				<label>{% trans "message"|capfirst %}</label>
 				{{ object.message|linebreaks }}
-
 			</div>
 
             <div class="clear"></div>
