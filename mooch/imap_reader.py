@@ -50,7 +50,7 @@ class IMAPReader(object):
 
         entries = []
         for msgid in self.unread_messages():
-            entry = LogEntry(account=User.objects.all()[0])
+            entry = LogEntry(account=User.objects.all()[0], source='EML')
             files = []
 
             msg = self.fetch(msgid)
@@ -62,7 +62,7 @@ class IMAPReader(object):
                 elif key == 'Date':
                     entry.reported = datetime.datetime(*email.utils.parsedate(value)[:7])
                 elif key == 'From':
-                    entry.source = value
+                    entry.source_detail = value
 
             if not entry.title:
                 entry.title = entry.message[:100]

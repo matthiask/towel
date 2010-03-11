@@ -21,6 +21,7 @@ class LogEntry(CreateUpdateModel):
     title = models.CharField(_('title'), max_length=150)
     message = models.TextField(_('text'))
     source = models.CharField(_('origin'), choices=LOG_SOURCES, max_length=10)
+    source_detail = models.CharField(_('origin details'), max_length=100)
     reported = models.DateTimeField(_('reported'), default=datetime.now)
 
     class Meta:
