@@ -10,35 +10,35 @@ from mooch.abstract.models import BaseModel, CreateUpdateModel
 class Contact(models.Model):
     first_name = models.CharField(_('first name'), max_length=100)
     last_name = models.CharField(_('last name'), max_length=100)
-    manner_of_address = models.CharField(_('Manner of address'), max_length=30,
+    manner_of_address = models.CharField(_('manner of address'), max_length=30,
         blank=True, default='', help_text=_('e.g. Mr., Ms., Dr.'))
-    title = models.CharField(_('Title/auxiliary'), max_length=100, blank=True,
+    title = models.CharField(_('title/auxiliary'), max_length=100, blank=True,
         default='', help_text=_('e.g. MSc ETH'))
     email = models.EmailField(_('e-mail address'), blank=True)
     website = models.URLField(verify_exists=False, blank=True)
-    function = models.TextField(_('Function'), blank=True)
-    phone = models.CharField(_('Phone'), max_length=30, blank=True,
+    function = models.TextField(_('function'), blank=True)
+    phone = models.CharField(_('phone'), max_length=30, blank=True,
         help_text=_('Please include the country prefix, but no spaces, e.g. +41555111141'))
-    fax = models.CharField(_('Fax'), max_length=30, blank=True,
+    fax = models.CharField(_('fax'), max_length=30, blank=True,
         help_text=_('Please include the country prefix, but no spaces, e.g. +41555111141'))
-    mobile = models.CharField(_('Mobile'), max_length=30, blank=True,
+    mobile = models.CharField(_('mobile'), max_length=30, blank=True,
         help_text=_('Please include the country prefix, but no spaces, e.g. +41555111141'))
-    address = models.TextField(_('Address'), blank=True)
+    address = models.TextField(_('address'), blank=True)
 
-    zip_code = models.CharField(_('ZIP Code'), max_length=30, blank=True)
-    city = models.CharField(_('City'), max_length=30, blank=True)
+    zip_code = models.CharField(_('ZIP code'), max_length=30, blank=True)
+    city = models.CharField(_('city'), max_length=30, blank=True)
 
-    region = models.CharField(_('Region'), max_length=30, blank=True)
-    country = models.CharField(_('Country'), max_length=30, blank=True,
+    region = models.CharField(_('region'), max_length=30, blank=True)
+    country = models.CharField(_('country'), max_length=30, blank=True,
         default='CH')
 
-    sorting_field = models.CharField(_('Sorting field'), max_length=50, blank=True,
+    sorting_field = models.CharField(_('sorting field'), max_length=50, blank=True,
         editable=False)
 
     class Meta:
         ordering = ('sorting_field',)
-        verbose_name = _('Person')
-        verbose_name_plural = _('Persons')
+        verbose_name = _('contact')
+        verbose_name_plural = _('contacts')
 
     def __unicode__(self):
         return self.fullname

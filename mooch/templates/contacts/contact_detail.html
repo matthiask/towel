@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% load i18n mooch_tags %}
+
+{% block content %}
+	<div id="delete_dialog" title="{% blocktrans %}Delete {{ object }}?{% endblocktrans %}">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 30px 0;"></span>
+		    {% blocktrans %}{{ object }} will be deleted permanently!{% endblocktrans %}
+		</p>
+	</div>
+
+	<div id="object_detail" class="roundbox">
+
+		<h2>{{ object.fullname }}</h2>
+
+		<div id="edit_buttons" >
+			<a href="delete/" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
+			<a href="edit/"class="button"><span>{% trans "edit"|capfirst %}</span></a>
+		</div>
+
+		<hr />
+
+		<div id="object_infos">
+			<div id="figures">
+				<p id="general_info">
+					<label>{% trans "manner of address"|capfirst %}</label> {{ object.manner_of_address }}<br/>
+					<label>{% trans "title"|capfirst %}</label> {{ object.title }}<br/>
+					<label>{% trans "e-mail address"|capfirst %}</label> {{ object.email }}<br/>
+					<label>{% trans "function"|capfirst %}</label> {{ object.function }}<br/>
+				</p>
+
+				<p id="location_info">
+					<label>{% trans "phone"|capfirst %}</label> {{ object.phone }}<br/>
+					<label>{% trans "fax"|capfirst %}</label> {{ object.fax }}<br/>
+					<label>{% trans "mobile"|capfirst %}</label> {{ object.mobile }}<br/>
+				</p>
+			</div>
+
+			<div id="facts">
+				<label>{% trans "address"|capfirst %}</label>
+				<p>
+				{{ object.fullname }}<br />
+				{{ object.address|linebreaksbr }}<br />
+				{{ object.zip_code }} {{ object.city }}<br />
+				{% if object.region %}{{ object.region }}<br />{% endif %}
+				{{ object.country }}
+				</p>
+			</div>
+
+            <div class="clear"></div>
+		</div>
+	</div>
+
+{% endblock %}

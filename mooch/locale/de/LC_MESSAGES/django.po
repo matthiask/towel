@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-11 10:57+0100\n"
+"POT-Creation-Date: 2010-03-11 12:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,43 +16,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: generic.py:139
+#: generic.py:156
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: generic.py:143
+#: generic.py:160
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: generic.py:188
+#: generic.py:205
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: generic.py:224
+#: generic.py:241
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: generic.py:236
+#: generic.py:253
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: views.py:35 organisation/models.py:47
+#: views.py:40 organisation/models.py:47
 #: templates/accounts/profile_detail.html:36
-#: templates/organisation/object_detail.html:36
+#: templates/organisation/project_detail.html:36
 #: templates/organisation/project_list.html:20
 msgid "start date"
 msgstr "Startdatum"
 
-#: views.py:36 organisation/models.py:48
+#: views.py:41 organisation/models.py:48
 #: templates/accounts/profile_detail.html:37
-#: templates/organisation/object_detail.html:37
+#: templates/organisation/project_detail.html:37
 #: templates/organisation/project_list.html:21
 msgid "end date"
 msgstr "Enddatum"
 
-#: views.py:42
+#: views.py:47
 msgid "Please contact us for projects over 10'000 bucks."
 msgstr "Bitte kontaktieren Sie uns für Projekte über 10'000 Stutz."
 
@@ -118,8 +118,8 @@ msgstr "Vorname"
 msgid "last name"
 msgstr "Nachname"
 
-#: contacts/models.py:13
-msgid "Manner of address"
+#: contacts/models.py:13 templates/contacts/contact_detail.html:26
+msgid "manner of address"
 msgstr "Anrede"
 
 #: contacts/models.py:14
@@ -127,92 +127,100 @@ msgid "e.g. Mr., Ms., Dr."
 msgstr ""
 
 #: contacts/models.py:15
-msgid "Title/auxiliary"
+msgid "title/auxiliary"
 msgstr "Titel/Zusatz"
 
 #: contacts/models.py:16
 msgid "e.g. MSc ETH"
 msgstr ""
 
-#: contacts/models.py:17
+#: contacts/models.py:17 templates/contacts/contact_detail.html:28
 msgid "e-mail address"
 msgstr "Email-Adresse"
 
-#: contacts/models.py:19
-msgid "Function"
+#: contacts/models.py:19 templates/contacts/contact_detail.html:29
+msgid "function"
 msgstr "Funktion"
 
-#: contacts/models.py:20
-msgid "Phone"
+#: contacts/models.py:20 templates/contacts/contact_detail.html:33
+msgid "phone"
 msgstr "Telefon"
 
 #: contacts/models.py:21 contacts/models.py:23 contacts/models.py:25
 msgid "Please include the country prefix, but no spaces, e.g. +41555111141"
 msgstr ""
 
-#: contacts/models.py:22
-msgid "Fax"
+#: contacts/models.py:22 templates/contacts/contact_detail.html:34
+msgid "fax"
 msgstr "Fax"
 
-#: contacts/models.py:24
-msgid "Mobile"
+#: contacts/models.py:24 templates/contacts/contact_detail.html:35
+msgid "mobile"
 msgstr "Handy"
 
-#: contacts/models.py:26
-msgid "Address"
+#: contacts/models.py:26 templates/contacts/contact_detail.html:40
+msgid "address"
 msgstr "Adresse"
 
 #: contacts/models.py:28
-msgid "ZIP Code"
+msgid "ZIP code"
 msgstr "PLZ"
 
 #: contacts/models.py:29
-msgid "City"
+msgid "city"
 msgstr "Ort"
 
 #: contacts/models.py:31
-msgid "Region"
+msgid "region"
 msgstr "Region"
 
-#: contacts/models.py:32
-msgid "Country"
+#: contacts/models.py:32 organisation/models.py:45
+#: templates/accounts/profile_detail.html:31
+#: templates/organisation/project_detail.html:31
+#: templates/organisation/project_list.html:16
+msgid "country"
 msgstr "Land"
 
 #: contacts/models.py:35
-msgid "Sorting field"
+msgid "sorting field"
 msgstr ""
 
 #: contacts/models.py:40
-msgid "Person"
-msgstr "Person"
+msgid "contact"
+msgstr "Kontakt"
 
-#: contacts/models.py:41
-msgid "Persons"
-msgstr "Personen"
+#: contacts/models.py:41 templates/base.html:47
+msgid "contacts"
+msgstr "Kontakte"
 
-#: logging/models.py:20
+#: logging/models.py:20 organisation/models.py:54 organisation/models.py:73
+#: templates/logging/logentry_detail.html:26
+msgid "project"
+msgstr "Projekt"
+
+#: logging/models.py:21 templates/contacts/contact_detail.html:27
 msgid "title"
 msgstr "Titel"
 
-#: logging/models.py:21
+#: logging/models.py:22
 msgid "text"
 msgstr "Text"
 
-#: logging/models.py:22
+#: logging/models.py:23
 msgid "origin"
 msgstr "Herkunft"
 
-#: logging/models.py:23
+#: logging/models.py:24 templates/logging/logentry_detail.html:32
 msgid "reported"
 msgstr ""
 
-#: logging/models.py:26
-msgid "Log Entry"
-msgstr ""
-
 #: logging/models.py:27
-msgid "Log Entries"
-msgstr ""
+msgid "log entry"
+msgstr "Logbucheintrag"
+
+#: logging/models.py:28
+msgid "log entries"
+msgstr "Logbucheinträge"
 
 #: organisation/models.py:10
 msgid "elaborate name"
@@ -255,30 +263,24 @@ msgid "NGO"
 msgstr "NGO"
 
 #: organisation/models.py:42 templates/accounts/profile_detail.html:26
-#: templates/organisation/object_detail.html:26
+#: templates/organisation/project_detail.html:26
 #: templates/organisation/project_list.html:17
 msgid "manager"
 msgstr "Kapitän"
 
 #: organisation/models.py:44 templates/accounts/profile_detail.html:27
-#: templates/organisation/object_detail.html:27
+#: templates/organisation/project_detail.html:27
 #: templates/organisation/project_list.html:18
 msgid "state"
 msgstr "Status"
 
-#: organisation/models.py:45 templates/accounts/profile_detail.html:31
-#: templates/organisation/object_detail.html:31
-#: templates/organisation/project_list.html:16
-msgid "country"
-msgstr "Land"
-
 #: organisation/models.py:46 templates/accounts/profile_detail.html:32
-#: templates/organisation/object_detail.html:32
+#: templates/organisation/project_detail.html:32
 msgid "location"
 msgstr "Ort"
 
 #: organisation/models.py:49 templates/accounts/profile_detail.html:41
-#: templates/organisation/object_detail.html:41
+#: templates/organisation/project_detail.html:41
 msgid "budget"
 msgstr "Budget"
 
@@ -287,13 +289,9 @@ msgid "donations currently totaling"
 msgstr "Aktuelles Spendentotal"
 
 #: organisation/models.py:51 templates/accounts/profile_detail.html:48
-#: templates/organisation/object_detail.html:49
+#: templates/organisation/project_detail.html:49
 msgid "description"
 msgstr "Beschreibung"
-
-#: organisation/models.py:54 organisation/models.py:73
-msgid "project"
-msgstr "Projekt"
 
 #: organisation/models.py:55 templates/base.html:46
 msgid "projects"
@@ -310,10 +308,6 @@ msgstr "Projektdatei"
 #: organisation/models.py:78 templates/organisation/project_form.html:77
 msgid "project files"
 msgstr "Projektdateien"
-
-#: templates/base.html:47
-msgid "contacts"
-msgstr "Kontakte"
 
 #: templates/base.html:48
 msgid "search"
@@ -338,17 +332,23 @@ msgid "Profile %(profile_name)s will be deleted permanently!"
 msgstr "Profil %(profile_name)s wird permanent gelöscht!"
 
 #: templates/accounts/profile_detail.html:17
-#: templates/organisation/object_detail.html:18
+#: templates/contacts/contact_detail.html:18
+#: templates/logging/logentry_detail.html:18
+#: templates/modelview/object_detail.html:18
+#: templates/organisation/project_detail.html:18
 msgid "edit"
 msgstr "bearbeiten"
 
 #: templates/accounts/profile_detail.html:18
-#: templates/organisation/object_detail.html:17
+#: templates/contacts/contact_detail.html:17
+#: templates/logging/logentry_detail.html:17
+#: templates/modelview/object_detail.html:17
+#: templates/organisation/project_detail.html:17
 msgid "delete"
 msgstr "löschen"
 
 #: templates/accounts/profile_detail.html:42
-#: templates/organisation/object_detail.html:42
+#: templates/organisation/project_detail.html:42
 #: templates/organisation/project_list.html:19
 msgid "funding"
 msgstr "Finanzierungsgrad"
@@ -376,6 +376,32 @@ msgstr "Zugangsniveau"
 msgid "is active"
 msgstr "Ist aktiv"
 
+#: templates/contacts/contact_detail.html:6
+#: templates/logging/logentry_detail.html:6
+#: templates/modelview/object_detail.html:6
+#, python-format
+msgid "Delete %(object)s?"
+msgstr "%(object)s löschen?"
+
+#: templates/contacts/contact_detail.html:8
+#: templates/logging/logentry_detail.html:8
+#: templates/modelview/object_detail.html:8
+#, python-format
+msgid "%(object)s will be deleted permanently!"
+msgstr "%(object)s wird permanent gelöscht!"
+
+#: templates/logging/logentry_detail.html:27
+msgid "account"
+msgstr "Konto"
+
+#: templates/logging/logentry_detail.html:31
+msgid "source"
+msgstr "Quelle"
+
+#: templates/logging/logentry_detail.html:37
+msgid "message"
+msgstr "Mitteilung"
+
 #: templates/modelview/object_form.html:18
 #: templates/organisation/project_form.html:22
 msgid "save"
@@ -394,12 +420,12 @@ msgstr "Objekt erstellen"
 msgid "object"
 msgstr "object"
 
-#: templates/organisation/object_detail.html:6
+#: templates/organisation/project_detail.html:6
 #, python-format
 msgid "Delete project %(project_name)s?"
 msgstr "Projekt %(project_name)s löschen?"
 
-#: templates/organisation/object_detail.html:8
+#: templates/organisation/project_detail.html:8
 #, python-format
 msgid "Project %(project_name)s will be deleted permanently!"
 msgstr "Projekt %(project_name)s wird permanent gelöscht!"
@@ -427,9 +453,3 @@ msgstr "Erneut anmelden"
 #: templates/registration/login.html:18 templates/registration/login.html:28
 msgid "Login"
 msgstr "Anmelden"
-
-#~ msgid "The project has been created."
-#~ msgstr "Das Projekt wurde erstellt."
-
-#~ msgid "The project has been updated!"
-#~ msgstr "Das Projekt wurde aktualisiert!"
