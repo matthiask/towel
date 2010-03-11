@@ -28,6 +28,10 @@ def model_view_access_level_required(access_level):
 ProjectFileInlineFormset = inlineformset_factory(Project, ProjectFile, extra=1)
 
 
+class MoochModelView(generic.ModelView):
+    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -44,9 +48,8 @@ class ProjectForm(forms.ModelForm):
         return value
 
 
-class ProjectModelView(generic.ModelView):
+class ProjectModelView(MoochModelView):
     template_object_name = 'project'
-    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
 
     def get_form(self, request, instance=None, **kwargs):
         return ProjectForm
@@ -62,9 +65,7 @@ class ProjectModelView(generic.ModelView):
 project_view = ProjectModelView(Project)
 
 
-class ProfileModelView(generic.ModelView):
-    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
-
+class ProfileModelView(MoochModelView):
     def get_object(self, request, **kwargs):
         return super(ProfileModelView, self).get_object(request,
             user__username=kwargs.pop('pk'),
@@ -73,15 +74,10 @@ class ProfileModelView(generic.ModelView):
 profile_view = ProfileModelView(Profile)
 
 
-class ContactModelView(generic.ModelView):
-    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
-
-contact_view = ContactModelView(Contact)
+contact_view = MoochModelView(Contact)
 
 
-class LogEntryModelView(generic.ModelView):
-    view_decorator = model_view_access_level_required(Profile.ADMINISTRATION)
-
+class LogEntryModelView(MoochModelView):
     def get_form_instance(self, request, form_class, instance=None, **kwargs):
         return super(LogEntryModelView, self).get_form_instance(
             request, form_class, instance,
