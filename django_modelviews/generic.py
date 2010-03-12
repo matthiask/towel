@@ -142,20 +142,36 @@ class ModelView(object):
 
     # VIEW HELPERS
 
+    def get_extra_context(self, request):
+        from django.core.urlresolvers import reverse
+        info = self.model._meta.app_label, self.model._meta.module_name
+
+        return {
+            'verbose_name': self.model._meta.verbose_name,
+            'verbose_name_plural': self.model._meta.verbose_name_plural,
+            'list_url': reverse('%s_%s_list' % info),
+            'add_url': reverse('%s_%s_add' % info),
+        }
+
+    def get_context(self, request, context):
+        instance = RequestContext(request, self.get_extra_context(request))
+        instance.update(context)
+        return instance
+
     def render_list(self, request, context):
         return render_to_response(
             self.get_template(request, 'list'),
-            context, context_instance=RequestContext(request))
+            self.get_context(request, context))
 
     def render_detail(self, request, context):
         return render_to_response(
             self.get_template(request, 'detail'),
-            context, context_instance=RequestContext(request))
+            self.get_context(request, context))
 
     def render_form(self, request, context, change):
         return render_to_response(
             self.get_template(request, 'form'),
-            context, context_instance=RequestContext(request))
+            self.get_context(request, context))
 
     def response_add(self, request, instance, form, formsets):
         self.message(request, _('The new object has been successfully created.'))
