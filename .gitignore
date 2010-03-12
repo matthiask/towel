@@ -3,13 +3,3 @@
 .*.swp
 \#*#
 *.mo
-/secrets.py
-/django
-/feincms
-/feinheit
-/lib
-/modules
-/mptt
-/pinging
-/tagging
-/countries
