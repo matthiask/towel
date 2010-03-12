@@ -280,14 +280,25 @@ class ModelView(object):
 
         return self.render_form(request, context, change=True)
 
+    def deletion_allowed(self, request, instance):
+        """
+        By default, deletion is not allowed.
+        """
+
+        return False
+
     def delete_view(self, request, object_pk):
         obj = self.get_object_or_404(request, pk=object_pk)
-        obj.delete()
 
-        self.message(request, _('The object has been successfully deleted.'))
+        if self.deletion_allowed(request, obj):
+            obj.delete()
+            self.message(request, _('The object has been successfully deleted.'))
 
-        info = self.model._meta.app_label, self.model._meta.module_name
-        return redirect('%s_%s_list' % info)
+            info = self.model._meta.app_label, self.model._meta.module_name
+            return redirect('%s_%s_list' % info)
+        else:
+            self.message(request, _('You are not allowed to delete this object.'))
+            return redirect(obj)
 
 
 def querystring(data):
