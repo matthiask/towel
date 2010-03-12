@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import urllib
 
 from django.contrib import messages
@@ -309,6 +310,8 @@ def querystring(data):
             return v and 1 or ''
         elif isinstance(v, datetime.date):
             return v.strftime('%Y-%m-%d')
+        elif isinstance(v, decimal.Decimal):
+            return str(v)
         return v.encode('utf-8')
 
     values = []
