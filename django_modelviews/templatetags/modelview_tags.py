@@ -2,7 +2,7 @@ from django import template
 from django.template.loader import render_to_string
 from django.utils.text import capfirst
 
-from django_modelview import generic
+from django_modelviews import generic
 
 register = template.Library()
 
