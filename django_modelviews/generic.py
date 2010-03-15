@@ -33,6 +33,12 @@ class ModelView(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+        if not hasattr(self.model, 'get_absolute_url'):
+            # Add a simple primary key based URL to the model if it does not have one yet
+            info = self.model._meta.app_label, self.model._meta.module_name
+            self.model.get_absolute_url = models.permalink(lambda self: (
+                '%s_%s_detail' % info, (self.pk,), {}))
+
     def get_query_set(self, request):
         return self.model.objects.all()
 
