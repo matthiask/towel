@@ -16,17 +16,19 @@ from django.utils.translation import ugettext as _
 
 
 class ModelView(object):
-
     # Every view is wrapped with this decorator. Use this if you need
     # f.e. a simple way of ensuring a user is logged in before accessing
     # any view here.
     view_decorator = lambda self, f: f
+    crud_view_decorator = None
 
     # Used for detail and edit views
     template_object_name = 'object'
 
     # Used for list views
     template_object_list_name = 'object_list'
+
+    urlconf_detail_re = r'(?P<pk>\d+)'
 
     def __init__(self, model, **kwargs):
         self.model = model
@@ -57,16 +59,24 @@ class ModelView(object):
         from django.conf.urls.defaults import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
 
+        if not self.crud_view_decorator:
+            self.crud_view_decorator = self.view_decorator
+
         return patterns('',
-            url(r'^$', self.view_decorator(self.list_view),
+            url(r'^$',
+                self.view_decorator(self.list_view),
                 name='%s_%s_list' % info),
-            url(r'^add/$', self.view_decorator(self.add_view),
+            url(r'^add/$',
+                self.crud_view_decorator(self.add_view),
                 name='%s_%s_add' % info),
-            url(r'^(.+)/edit/$', self.view_decorator(self.edit_view),
+            url(r'^%s/edit/$' % self.urlconf_detail_re,
+                self.crud_view_decorator(self.edit_view),
                 name='%s_%s_edit' % info),
-            url(r'^(.+)/delete/$', self.view_decorator(self.delete_view),
+            url(r'^%s/delete/$' % self.urlconf_detail_re,
+                self.crud_view_decorator(self.delete_view),
                 name='%s_%s_delete' % info),
-            url(r'^(.+)/$', self.view_decorator(self.detail_view),
+            url(r'^%s/$' % self.urlconf_detail_re,
+                self.view_decorator(self.detail_view),
                 name='%s_%s_detail' % info),
             )
 
