@@ -41,7 +41,7 @@ class ModelView(object):
             self.model.get_absolute_url = models.permalink(lambda self: (
                 '%s_%s_detail' % info, (self.pk,), {}))
 
-    def get_query_set(self, request):
+    def get_query_set(self, request, *args, **kwargs):
         return self.model.objects.all()
 
     def get_template(self, request, action):
@@ -86,18 +86,18 @@ class ModelView(object):
 
     # HELPERS
 
-    def get_object(self, request, **kwargs):
-        queryset = self.get_query_set(request)
+    def get_object(self, request, *args, **kwargs):
+        queryset = self.get_query_set(request, *args, **kwargs)
         model = queryset.model
 
         try:
-            return queryset.get(**kwargs)
+            return queryset.get(*args, **kwargs)
         except (model.DoesNotExist, ValueError, ValidationError):
             raise self.model.DoesNotExist
 
-    def get_object_or_404(self, request, **kwargs):
+    def get_object_or_404(self, request, *args, **kwargs):
         try:
-            return self.get_object(request, **kwargs)
+            return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
             raise Http404
 
@@ -218,8 +218,8 @@ class ModelView(object):
             self.template_object_list_name: self.get_query_set(request),
             })
 
-    def detail_view(self, request, object_pk):
-        instance = self.get_object_or_404(request, pk=object_pk)
+    def detail_view(self, request, *args, **kwargs):
+        instance = self.get_object_or_404(request, *args, **kwargs)
 
         return self.render_detail(request, {
             self.template_object_name: instance,
@@ -260,8 +260,8 @@ class ModelView(object):
 
         return self.render_form(request, context, change=False)
 
-    def edit_view(self, request, object_pk):
-        instance = self.get_object_or_404(request, pk=object_pk)
+    def edit_view(self, request, *args, **kwargs):
+        instance = self.get_object_or_404(request, *args, **kwargs)
         ModelForm = self.get_form(request, instance)
 
         opts = self.model._meta
@@ -304,8 +304,8 @@ class ModelView(object):
 
         return False
 
-    def delete_view(self, request, object_pk):
-        obj = self.get_object_or_404(request, pk=object_pk)
+    def delete_view(self, request, *args, **kwargs):
+        obj = self.get_object_or_404(request, *args, **kwargs)
 
         if self.deletion_allowed(request, obj):
             obj.delete()
