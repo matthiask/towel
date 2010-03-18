@@ -137,9 +137,6 @@ class ModelView(object):
 
         return {}
 
-    def message(self, request, message):
-        messages.info(request, message)
-
     def save_form(self, request, form, change):
         """
         Return an unsaved instance when editing an object.
@@ -196,20 +193,20 @@ class ModelView(object):
             self.get_context(request, context))
 
     def response_add(self, request, instance, form, formsets):
-        self.message(request, _('The new object has been successfully created.'))
+        messages.info(request, _('The new object has been successfully created.'))
         return redirect(instance)
 
     def response_edit(self, request, instance, form, formsets):
-        self.message(request, _('The object has been successfully updated.'))
+        messages.info(request, _('The object has been successfully updated.'))
         return redirect(instance)
 
     def response_delete(self, request, instance, deleted):
         if deleted:
-            self.message(request, _('The object has been successfully deleted.'))
+            messages.info(request, _('The object has been successfully deleted.'))
             info = self.model._meta.app_label, self.model._meta.module_name
             return redirect('%s_%s_list' % info)
         else:
-            self.message(request, _('You are not allowed to delete this object.'))
+            messages.error(request, _('You are not allowed to delete this object.'))
             return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
