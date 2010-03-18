@@ -190,6 +190,11 @@ class ModelView(object):
             self.get_template(request, 'form'),
             self.get_context(request, context))
 
+    def render_delete_confirmation(self, request, context):
+        return render_to_response(
+            self.get_template(request, 'delete_confirmation'),
+            self.get_context(request, context))
+
     def response_add(self, request, instance, form, formsets):
         self.message(request, _('The new object has been successfully created.'))
         return redirect(instance)
@@ -197,6 +202,15 @@ class ModelView(object):
     def response_edit(self, request, instance, form, formsets):
         self.message(request, _('The object has been successfully updated.'))
         return redirect(instance)
+
+    def response_delete(self, request, instance, deleted):
+        if deleted:
+            self.message(request, _('The object has been successfully deleted.'))
+            info = self.model._meta.app_label, self.model._meta.module_name
+            return redirect('%s_%s_list' % info)
+        else:
+            self.message(request, _('You are not allowed to delete this object.'))
+            return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
         paginator_obj = paginator.Paginator(queryset, paginate_by)
@@ -307,15 +321,17 @@ class ModelView(object):
     def delete_view(self, request, *args, **kwargs):
         obj = self.get_object_or_404(request, *args, **kwargs)
 
-        if self.deletion_allowed(request, obj):
-            obj.delete()
-            self.message(request, _('The object has been successfully deleted.'))
+        if not self.deletion_allowed(request, obj):
+            return self.response_delete(request, obj, deleted=False)
 
-            info = self.model._meta.app_label, self.model._meta.module_name
-            return redirect('%s_%s_list' % info)
+        if request.method == 'POST':
+            obj.delete()
+            return self.response_delete(request, obj, deleted=True)
         else:
-            self.message(request, _('You are not allowed to delete this object.'))
-            return redirect(obj)
+            return self.render_delete_confirmation(request, {
+                'title': _('Delete %s') % force_unicode(self.model._meta.verbose_name),
+                self.template_object_name: obj,
+                })
 
 
 def querystring(data):
