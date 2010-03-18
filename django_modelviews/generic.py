@@ -193,11 +193,11 @@ class ModelView(object):
             self.get_context(request, context))
 
     def response_add(self, request, instance, form, formsets):
-        messages.info(request, _('The new object has been successfully created.'))
+        messages.success(request, _('The new object has been successfully created.'))
         return redirect(instance)
 
     def response_edit(self, request, instance, form, formsets):
-        messages.info(request, _('The object has been successfully updated.'))
+        messages.success(request, _('The object has been successfully updated.'))
         return redirect(instance)
 
     def response_delete(self, request, instance, deleted):
