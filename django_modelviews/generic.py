@@ -151,6 +151,10 @@ class ModelView(object):
 
         instance.save()
 
+    def save_formsets(self, request, form, formsets, change):
+        for formset in formsets.itervalues():
+            self.save_formset(request, form, formset, change)
+
     def save_formset(self, request, form, formset, change):
         formset.save()
 
@@ -255,8 +259,7 @@ class ModelView(object):
             if all_valid(formsets.itervalues()) and form_validated:
                 self.save_model(request, new_instance, form, change=False)
                 form.save_m2m()
-                for formset in formsets.itervalues():
-                    self.save_formset(request, form, formset, change=False)
+                self.save_formsets(request, form, formsets, change=False)
 
                 return self.response_add(request, new_instance, form, formsets)
         else:
@@ -291,8 +294,7 @@ class ModelView(object):
             if all_valid(formsets.itervalues()) and form_validated:
                 self.save_model(request, new_instance, form, change=True)
                 form.save_m2m()
-                for formset in formsets.itervalues():
-                    self.save_formset(request, form, formset, change=False)
+                self.save_formsets(request, form, formsets, change=True)
 
                 return self.response_edit(request, new_instance, form, formsets)
         else:
