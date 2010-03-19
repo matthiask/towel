@@ -214,14 +214,14 @@ class ModelView(object):
         messages.error(request, _('You are not allowed to edit this object.'))
         return redirect(instance)
 
-    def response_delete(self, request, instance, deleted):
-        if deleted:
-            messages.success(request, _('The object has been successfully deleted.'))
-            info = self.model._meta.app_label, self.model._meta.module_name
-            return redirect('%s_%s_list' % info)
-        else:
-            messages.error(request, _('You are not allowed to delete this object.'))
-            return redirect(instance)
+    def response_delete(self, request, instance):
+        messages.success(request, _('The object has been successfully deleted.'))
+        info = self.model._meta.app_label, self.model._meta.module_name
+        return redirect('%s_%s_list' % info)
+
+    def response_deletion_denied(self, request, instance):
+        messages.error(request, _('You are not allowed to delete this object.'))
+        return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
         paginator_obj = paginator.Paginator(queryset, paginate_by)
@@ -342,11 +342,11 @@ class ModelView(object):
         obj = self.get_object_or_404(request, *args, **kwargs)
 
         if not self.deletion_allowed(request, obj):
-            return self.response_delete(request, obj, deleted=False)
+            return self.response_deletion_denied(request, obj)
 
         if request.method == 'POST':
             obj.delete()
-            return self.response_delete(request, obj, deleted=True)
+            return self.response_delete(request, obj)
         else:
             return self.render_delete_confirmation(request, {
                 'title': _('Delete %s') % force_unicode(self.model._meta.verbose_name),
