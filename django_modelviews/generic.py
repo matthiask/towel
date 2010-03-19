@@ -210,9 +210,13 @@ class ModelView(object):
         messages.success(request, _('The object has been successfully updated.'))
         return redirect(instance)
 
+    def response_editing_denied(self, request, instance):
+        messages.error(request, _('You are not allowed to edit this object.'))
+        return redirect(instance)
+
     def response_delete(self, request, instance, deleted):
         if deleted:
-            messages.info(request, _('The object has been successfully deleted.'))
+            messages.success(request, _('The object has been successfully deleted.'))
             info = self.model._meta.app_label, self.model._meta.module_name
             return redirect('%s_%s_list' % info)
         else:
@@ -280,8 +284,19 @@ class ModelView(object):
 
         return self.render_form(request, context, change=False)
 
+    def editing_allowed(self, request, instance):
+        """
+        By default, editing is allowed.
+        """
+
+        return True
+
     def edit_view(self, request, *args, **kwargs):
         instance = self.get_object_or_404(request, *args, **kwargs)
+
+        if not self.editing_allowed(request, instance):
+            return self.response_editing_denied(request, instance)
+
         ModelForm = self.get_form(request, instance)
 
         opts = self.model._meta
