@@ -45,7 +45,7 @@ msgstr "%s ändern"
 #: generic.py:337
 #, python-format
 msgid "Delete %s"
-msgstr "%(object)s löschen"
+msgstr "%s löschen"
 
 #: templates/modelview/object_delete_confirmation.html:12
 #: templates/modelview/object_detail.html:17
