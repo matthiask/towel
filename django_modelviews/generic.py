@@ -161,14 +161,20 @@ class ModelView(object):
     # VIEW HELPERS
 
     def get_extra_context(self, request):
-        from django.core.urlresolvers import reverse
+        from django.core.urlresolvers import reverse, NoReverseMatch
         info = self.model._meta.app_label, self.model._meta.module_name
+
+        def tryreverse(*args, **kwargs):
+            try:
+                return reverse(*args, **kwargs)
+            except NoReverseMatch:
+                return None
 
         return {
             'verbose_name': self.model._meta.verbose_name,
             'verbose_name_plural': self.model._meta.verbose_name_plural,
-            'list_url': reverse('%s_%s_list' % info),
-            'add_url': reverse('%s_%s_add' % info),
+            'list_url': tryreverse('%s_%s_list' % info),
+            'add_url': tryreverse('%s_%s_add' % info),
         }
 
     def get_context(self, request, context):
