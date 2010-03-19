@@ -1,2 +1,2 @@
 #!/bin/sh
-PYTHONPATH=.. ../django/bin/django-admin.py $*
+PYTHONPATH=../../.. ../../../django/bin/django-admin.py $*

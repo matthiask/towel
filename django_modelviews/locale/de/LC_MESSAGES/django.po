@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-12 10:25+0100\n"
+"POT-Creation-Date: 2010-03-19 10:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,43 +16,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: generic.py:161
+#: generic.py:206
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: generic.py:165
+#: generic.py:210
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: generic.py:223
+#: generic.py:215
+msgid "The object has been successfully deleted."
+msgstr "Das Objekt wurde erfolgreich gelöscht."
+
+#: generic.py:219
+msgid "You are not allowed to delete this object."
+msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
+
+#: generic.py:276
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: generic.py:259
+#: generic.py:311
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: generic.py:271
-msgid "The object has been successfully deleted."
-msgstr "Das Objekt wurde erfolgreich gelöscht."
+#: generic.py:337
+#, python-format
+msgid "Delete %s"
+msgstr "%(object)s löschen"
 
-#: views.py:39
-msgid "start date"
-msgstr "Startdatum"
+#: templates/modelview/object_delete_confirmation.html:12
+#: templates/modelview/object_detail.html:17
+msgid "delete"
+msgstr "löschen"
 
-#: views.py:40
-msgid "end date"
-msgstr "Enddatum"
-
-#: views.py:46
-msgid "Please contact us for projects over 10'000 bucks."
-msgstr "Bitte kontaktieren Sie uns für Projekte über 10'000 Stutz."
-
-#: views.py:75
-msgid "state"
-msgstr "Status"
+#: templates/modelview/object_delete_confirmation.html:13
+#: templates/modelview/object_form.html:22
+msgid "cancel"
+msgstr "abbrechen"
 
 #: templates/modelview/object_detail.html:6
 #, python-format
@@ -64,25 +67,17 @@ msgstr "%(object)s löschen?"
 msgid "%(object)s will be deleted permanently!"
 msgstr "%(object)s wird permanent gelöscht!"
 
-#: templates/modelview/object_detail.html:17
-msgid "delete"
-msgstr "löschen"
-
 #: templates/modelview/object_detail.html:18
 msgid "edit"
 msgstr "bearbeiten"
 
-#: templates/modelview/object_form.html:7
+#: templates/modelview/object_form.html:8
 msgid "Please check the following errors before saving:"
 msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
 
-#: templates/modelview/object_form.html:18
+#: templates/modelview/object_form.html:19
 msgid "save"
 msgstr "sichern"
-
-#: templates/modelview/object_form.html:21
-msgid "cancel"
-msgstr "abbrechen"
 
 #: templates/modelview/object_list.html:8
 msgid "New object"
