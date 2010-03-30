@@ -206,6 +206,11 @@ class ModelView(object):
         messages.success(request, _('The new object has been successfully created.'))
         return redirect(instance)
 
+    def response_adding_denied(self, request):
+        messages.error(request, _('You are not allowed to add objects.'))
+        info = self.model._meta.app_label, self.model._meta.module_name
+        return redirect('%s_%s_list' % info)
+
     def response_edit(self, request, instance, form, formsets):
         messages.success(request, _('The object has been successfully updated.'))
         return redirect(instance)
@@ -250,7 +255,17 @@ class ModelView(object):
             self.template_object_name: instance,
             })
 
+    def adding_allowed(self, request):
+        """
+        By default, adding is allowed.
+        """
+
+        return True
+
     def add_view(self, request):
+        if not self.adding_allowed(request):
+            return self.response_adding_denied(request)
+
         ModelForm = self.get_form(request)
 
         opts = self.model._meta
