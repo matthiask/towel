@@ -42,7 +42,7 @@ class ModelView(object):
                 '%s_%s_detail' % info, (self.pk,), {}))
 
     def get_query_set(self, request, *args, **kwargs):
-        return self.model.objects.all()
+        return self.model._default_manager.all()
 
     def get_template(self, request, action):
         """
