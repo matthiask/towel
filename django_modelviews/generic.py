@@ -158,6 +158,14 @@ class ModelView(object):
     def save_formset(self, request, form, formset, change):
         formset.save()
 
+    def post_save(self, request, instance, form, formset, change):
+        """
+        Hook for adding custom processing after forms, m2m relations
+        and formsets have been saved.
+        """
+
+        pass
+
     # VIEW HELPERS
 
     def get_extra_context(self, request):
@@ -285,6 +293,7 @@ class ModelView(object):
                 self.save_model(request, new_instance, form, change=False)
                 form.save_m2m()
                 self.save_formsets(request, form, formsets, change=False)
+                self.post_save(request, new_instance, form, formsets, change=False)
 
                 return self.response_add(request, new_instance, form, formsets)
         else:
@@ -331,6 +340,7 @@ class ModelView(object):
                 self.save_model(request, new_instance, form, change=True)
                 form.save_m2m()
                 self.save_formsets(request, form, formsets, change=True)
+                self.post_save(request, new_instance, form, formsets, change=False)
 
                 return self.response_edit(request, new_instance, form, formsets)
         else:
