@@ -3,17 +3,12 @@
 {% load i18n %}
 
 {% block content %}
-	<div id="object_detail" class="roundbox">
+<h2>{{ title }} {{ object }}</h2>
 
-		<h2>{{ title }} {{ object }}</h2>
-
-		<div class="edit_buttons">
-		    <form method="post" action="." id="confirmationform">{% csrf_token %}
-			<a href="#" onclick="document.getElementById('confirmationform').submit();return false" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
-			<a href="{{ object.get_absolute_url }}" class="button"><span>{% trans "cancel"|capfirst %}</span></a>
-		</div>
-
-		<hr />
-
-	</div>
+<div class="edit_buttons">
+    <form method="post" action=".">{% csrf_token %}
+        <button type="submit">{% trans "delete"|capfirst %}</button>
+        <button type="button" onclick="window.location.assign('{{ object.get_absolute_url }}')">{% trans "cancel"|capfirst %}</button>
+    </form>
+</div>
 {% endblock %}
