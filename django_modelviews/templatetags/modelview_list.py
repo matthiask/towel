@@ -14,9 +14,9 @@ def model_row(instance, fields):
         if isinstance(f, models.ForeignKey):
             fk = getattr(instance, f.name)
             if hasattr(fk, 'get_absolute_url'):
-                value = u'<a href="%s">%s</a>' % (
+                value = mark_safe(u'<a href="%s">%s</a>' % (
                     fk.get_absolute_url(),
-                    fk)
+                    fk))
             else:
                 value = unicode(fk)
 
