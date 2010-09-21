@@ -1,5 +1,7 @@
 {% extends base_template|default:"base.html" %}
 
+{% block title %}{{ verbose_name_plural }} - {{ block.super }}{% endblock %}
+
 {% block content %}
     <form action="" method="get">
         {{ f.form.as_p }}

@@ -2,6 +2,8 @@
 
 {% load i18n %}
 
+{% block title %}{{ verbose_name_plural }} - {{ block.super }}{% endblock %}
+
 {% block content %}
 
 	<div id="header_buttons" >
