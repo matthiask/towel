@@ -1,9 +1,18 @@
 {% extends base_template|default:"base.html" %}
 
-{% load i18n %}
+{% load i18n modelview_detail %}
 
 {% block content %}
 <h2>{{ object }}</h2>
+
+<table>
+{% for title, value in object|model_details %}
+    <tr class="{% cycle "odd" "even" %}">
+        <th>{{ title|capfirst }}</th>
+        <td>{{ value }}</td>
+    </tr>
+{% endfor %}
+</table>
 
 <div class="edit_buttons" >
     <a href="delete/" class="button deleteconfirm"><span>{% trans "delete"|capfirst %}</span></a>
