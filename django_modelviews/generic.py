@@ -212,6 +212,10 @@ class ModelView(object):
 
     def response_add(self, request, instance, form, formsets):
         messages.success(request, _('The new object has been successfully created.'))
+
+        if '_continue' in request.POST:
+            return HttpResponseRedirect(instance.get_absolute_url() + 'edit/')
+
         return redirect(instance)
 
     def response_adding_denied(self, request):
@@ -221,6 +225,10 @@ class ModelView(object):
 
     def response_edit(self, request, instance, form, formsets):
         messages.success(request, _('The object has been successfully updated.'))
+
+        if '_continue' in request.POST:
+            return HttpResponseRedirect('.')
+
         return redirect(instance)
 
     def response_editing_denied(self, request, instance):
