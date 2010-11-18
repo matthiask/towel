@@ -36,7 +36,7 @@ class BatchForm(forms.Form):
 
     def selected_items(self, post_data, queryset):
         self.ids = queryset.values_list('id', flat=True)
-        self.ids = [pk for pk in self.ids if post_data.get('entry%s' % pk)]
+        self.ids = [pk for pk in self.ids if post_data.get('batch_%s' % pk)]
         return queryset.filter(id__in=self.ids)
 
 
