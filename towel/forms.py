@@ -1,12 +1,11 @@
 import pickle
 
-from django import forms as django_forms
-from django.db import models as django_models
-from django.forms import * # Pose as the forms module
+from django import forms
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-class BatchForm(Form):
+class BatchForm(forms.Form):
     ids = []
     process = False
 
@@ -41,12 +40,12 @@ class BatchForm(Form):
         return queryset.filter(id__in=self.ids)
 
 
-class SearchForm(Form):
+class SearchForm(forms.Form):
     always_exclude = ('s', 'query')
 
     # search form active?
-    s = CharField(required=False)
-    query = CharField(required=False, label=_('Query'))
+    s = forms.CharField(required=False)
+    query = forms.CharField(required=False, label=_('Query'))
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
@@ -105,7 +104,7 @@ class SearchForm(Form):
         return queryset
 
 
-class StrippedTextInput(TextInput):
+class StrippedTextInput(forms.TextInput):
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
         if isinstance(value, (str, unicode)):
@@ -116,7 +115,7 @@ class StrippedTextInput(TextInput):
         return super(StrippedTextInput, self).render(*args, **kwargs)
 
 
-class StrippedTextarea(Textarea):
+class StrippedTextarea(forms.Textarea):
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
         if isinstance(value, (str, unicode)):
@@ -128,8 +127,8 @@ class StrippedTextarea(Textarea):
 
 
 def stripped_formfield_callback(field, **kwargs):
-    if isinstance(field, django_models.CharField) and not field.choices:
+    if isinstance(field, models.CharField) and not field.choices:
         kwargs['widget'] = StrippedTextInput()
-    elif isinstance(field, django_models.TextField):
+    elif isinstance(field, models.TextField):
         kwargs['widget'] = StrippedTextarea()
     return field.formfield(**kwargs)
