@@ -1,0 +1,30 @@
+{% load i18n %}
+<div class="box mainbox error">
+    {% trans "Please correct the following errors:" %}
+
+    <ul>
+    {% for form in forms %}
+    {% if form.non_field_errors %}
+        <li><span>{% trans "Form errors" %}:</span> {{ form.non_field_errors }}</li>
+    {% endif %}
+    {% for field in form %}
+        {% if field.errors %}
+            <li id="error_{{ field.name }}"><span>{{ field.label }}:</span> {{ field.errors }}</li>
+        {% endif %}
+    {% endfor %}
+    {% endfor %}
+
+    {% for formset in formsets %}
+    {% for form in formset.forms %}
+        {% if form.non_field_errors %}
+            <li><span>{% trans "Form errors" %}:</span> {{ form.non_field_errors }}</li>
+        {% endif %}
+        {% for field in form %}
+            {% if field.errors %}
+                <li id="error_{{ field.name }}"><span>{{ field.label }}:</span> {{ field.errors }}</li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    {% endfor %}
+    </ul>
+</div>
