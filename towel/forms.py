@@ -131,4 +131,9 @@ def stripped_formfield_callback(field, **kwargs):
         kwargs['widget'] = StrippedTextInput()
     elif isinstance(field, models.TextField):
         kwargs['widget'] = StrippedTextarea()
+    elif isinstance(field, models.DateTimeField):
+        kwargs['widget'] = forms.DateTimeInput(attrs={'class': 'dateinput'})
+    elif isinstance(field, models.DateField):
+        kwargs['widget'] = forms.DateInput(attrs={'class': 'dateinput'})
+
     return field.formfield(**kwargs)
