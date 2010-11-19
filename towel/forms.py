@@ -179,7 +179,7 @@ $(function() {
         matchContains: true, minChars: 2, max: 100
     }).result(function(event, item) {
         $('#%(id)s').val(item[1]).trigger('change');
-    });
+    }).focus(function(){this.select();});
 });
 </script>
 ''' % {'id': attrs.get('id', name), 'name': name, 'source': self._source()}
