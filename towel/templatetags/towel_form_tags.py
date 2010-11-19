@@ -29,14 +29,6 @@ def form_item_plain(item):
         }
 
 
-@register.inclusion_tag('_form_item_ac.html')
-def form_item_ac(item, selected):
-    return {
-        'item': item,
-        'selected': selected,
-        }
-
-
 @register.tag
 def form_errors(parser, token):
     tokens = token.split_contents()
