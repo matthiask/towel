@@ -6,6 +6,11 @@ from django.template.loader import render_to_string
 register = template.Library()
 
 
+@register.simple_tag
+def form_items(form):
+    return u''.join(render_to_string('_form_item.html', {'item': field}) for field in form)
+
+
 @register.inclusion_tag('_form_item.html')
 def form_item(item, additional_classes=None):
     """
