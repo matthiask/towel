@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-23 09:46+0100\n"
+"POT-Creation-Date: 2010-11-23 12:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,41 +21,50 @@ msgstr ""
 msgid "Query"
 msgstr "Suchbegriff"
 
-#: modelview.py:214
+#: modelview.py:215
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: modelview.py:222
+#: modelview.py:223
 msgid "You are not allowed to add objects."
 msgstr "Es ist ihnen nicht erlaubt, Objekte hinzuzufügen."
 
-#: modelview.py:227
+#: modelview.py:228
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: modelview.py:235
+#: modelview.py:236
 msgid "You are not allowed to edit this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu bearbeiten."
 
-#: modelview.py:239
+#: modelview.py:240
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: modelview.py:244
+#: modelview.py:245
 msgid "You are not allowed to delete this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
 
-#: modelview.py:312
+#: modelview.py:313
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: modelview.py:359
+#: modelview.py:360
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: modelview.py:385
+#: modelview.py:387
+msgid " and "
+msgstr " und "
+
+#: modelview.py:393
+#, python-format
+msgid "Deletion not allowed: There are %s related to this object."
+msgstr "Löschen nicht erlaubt: Es sind %s mit diesem Objekt verbunden."
+
+#: modelview.py:407
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"

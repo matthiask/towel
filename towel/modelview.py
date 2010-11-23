@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core import paginator
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
+from django.db.models.deletion import Collector
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
@@ -371,6 +372,27 @@ class ModelView(object):
 
         return False
 
+    def deletion_allowed_if_only(self, request, instance, classes):
+        related = set(related_classes(instance))
+
+        related.discard(self.model)
+        for class_ in classes:
+            related.discard(class_)
+
+        if len(related):
+            pretty_classes = [unicode(class_._meta.verbose_name_plural) for class_ in related]
+            if len(pretty_classes) > 1:
+                pretty_classes = u''.join((
+                    u', '.join(pretty_classes[:-1]),
+                    _(' and '),
+                    pretty_classes[-1]))
+            else:
+                pretty_classes = pretty_classes[-1]
+
+            messages.error(request,
+                _('Deletion not allowed: There are %s related to this object.') % pretty_classes)
+
+
     def delete_view(self, request, *args, **kwargs):
         obj = self.get_object_or_404(request, *args, **kwargs)
 
@@ -418,3 +440,19 @@ def querystring(data):
             values.append((k, _v(v)))
 
     return urllib.urlencode(values)
+
+
+def related_classes(instance):
+    collector = Collector(using=instance._state.db)
+    collector.collect([instance])
+    return collector.data.keys()
+
+
+def deletion_allowed_if_only(instance, classes):
+    related = set(related_classes(instance))
+
+    related.discard(instance.__class__)
+    for class_ in classes:
+        related.discard(class_)
+
+    return not len(related)
