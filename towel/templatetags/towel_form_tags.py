@@ -111,17 +111,21 @@ class DynamicFormsetNode(template.Node):
 
         result = []
 
-        context.push()
-        context['empty'] = True
-        context['form_id'] = '%s-empty' % slug
-        context['form'] = formset.empty_form
+        context.update({
+            'empty': True,
+            'form_id': '%s-empty' % slug,
+            'form': formset.empty_form,
+            })
         result.append(self.nodelist.render(context))
-        context['empty'] = False
+        context.pop()
 
         for idx, form in enumerate(formset.forms):
-            context['form_id'] = '%s-%s' % (slug, idx)
-            context['form'] = form
+            context.update({
+                'empty': False,
+                'form_id': '%s-%s' % (slug, idx),
+                'form': form,
+                })
             result.append(self.nodelist.render(context))
+            context.pop()
 
-        context.pop()
         return u''.join(result)
