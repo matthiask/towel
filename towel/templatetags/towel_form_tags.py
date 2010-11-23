@@ -82,3 +82,46 @@ class FormErrorsNode(template.Node):
             'formsets': formset_list,
             'errors': True,
             })
+
+
+@register.tag
+def dynamic_formset(parser, token):
+    """
+    {% dynamic_formset formset "activities" %}
+        ... form code
+    {% enddynamic_formset %}
+    """
+
+    tokens = token.split_contents()
+    nodelist = parser.parse(('enddynamic_formset',))
+    parser.delete_first_token()
+
+    return DynamicFormsetNode(tokens[1], tokens[2], nodelist)
+
+
+class DynamicFormsetNode(template.Node):
+    def __init__(self, formset, slug, nodelist):
+        self.formset = template.Variable(formset)
+        self.slug = template.Variable(slug)
+        self.nodelist = nodelist
+
+    def render(self, context):
+        formset = self.formset.resolve(context)
+        slug = self.slug.resolve(context)
+
+        result = []
+
+        context.push()
+        context['empty'] = True
+        context['form_id'] = '%s-empty' % slug
+        context['form'] = formset.empty_form
+        result.append(self.nodelist.render(context))
+        context['empty'] = False
+
+        for idx, form in enumerate(formset.forms):
+            context['form_id'] = '%s-%s' % (slug, idx)
+            context['form'] = form
+            result.append(self.nodelist.render(context))
+
+        context.pop()
+        return u''.join(result)
