@@ -171,7 +171,15 @@ class ModelAutocompleteWidget(forms.TextInput):
         except (self.choices.queryset.model.DoesNotExist, ValueError, TypeError):
             final_attrs['value'] = u''
 
-        ac = u'<input%s />' % flatatt(final_attrs)
+        if self.is_required:
+            ac = u'<input%s />' % flatatt(final_attrs)
+        else:
+            final_attrs['class'] = final_attrs.get('class', '') + ' ac_nullable'
+
+            ac = (u' <a href="#" id="%(id)s_cl" class="ac_clear"> %(text)s</a>' % {
+                'id': final_attrs['id'][:-3],
+                'text': _('clear'),
+                }) + (u'<input%s />' % flatatt(final_attrs))
 
         js = '''<script type="text/javascript">
 $(function() {
@@ -184,6 +192,9 @@ $(function() {
     }).bind('blur', function() {
         if (!this.value)
             $('#%(id)s').val('');
+    });
+    $('#%(id)s_cl').click(function(){
+        $('#%(id)s, #%(id)s_ac').val('');
     });
 });
 </script>
