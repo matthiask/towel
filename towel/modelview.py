@@ -392,6 +392,7 @@ class ModelView(object):
             messages.error(request,
                 _('Deletion not allowed: There are %s related to this object.') % pretty_classes)
 
+        return not len(related)
 
     def delete_view(self, request, *args, **kwargs):
         obj = self.get_object_or_404(request, *args, **kwargs)
