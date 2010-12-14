@@ -9,7 +9,14 @@ register = template.Library()
 @register.filter
 def model_row(instance, fields):
     for name in fields.split(','):
-        f = instance._meta.get_field(name)
+        try:
+            f = instance._meta.get_field(name)
+        except models.FieldDoesNotExist:
+            attr = getattr(instance, name)
+            if hasattr(attr, '__call__'):
+                yield (name, attr())
+            yield (name, attr)
+            continue
 
         if isinstance(f, models.ForeignKey):
             fk = getattr(instance, f.name)
