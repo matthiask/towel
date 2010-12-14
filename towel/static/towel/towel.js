@@ -3,7 +3,8 @@ function towel_add_subform(slug) {
     var new_id = parseInt(total_forms.val());
 
     total_forms.val(new_id + 1);
-    var form = $('#' + slug + '-empty').clone(true);
+    var empty = $('#' + slug + '-empty');
+    var form = empty.clone(true);
     form.removeClass('empty').attr('id', slug + '-' + new_id);
 
     var attributes = ['id', 'name', 'for'];
@@ -16,10 +17,6 @@ function towel_add_subform(slug) {
         });
     }
 
-    if (form[0].tagName.toLowerCase() == 'tr')
-        form.appendTo('#' + slug + '-formset table').hide().fadeIn();
-    else if (form[0].tagName.toLowerCase() == 'div')
-        form.insertBefore('#' + slug + '-formset div.buttons').hide().fadeIn();
-
+    form.appendTo(empty.parent()).hide().fadeIn();
     return false;
 }
