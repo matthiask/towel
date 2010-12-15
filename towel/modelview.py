@@ -274,8 +274,6 @@ class ModelView(object):
                 form.apply_filters(self.model.objects.search(data.get('query')), data))
 
             ctx['search_form'] = form
-        else:
-            queryset = self.get_query_set(request)
 
         ctx[self.template_object_list_name] = queryset
         return self.render_list(request, ctx)
