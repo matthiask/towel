@@ -21,6 +21,15 @@ def normalize_query(query_string,
 class SearchManager(models.Manager):
     search_fields = ()
 
+    def search(self, query):
+        """
+        This implementation stupidly forwards to _search, which does the gruntwork.
+
+        Put your customizations in here.
+        """
+
+        return self._search(query)
+
     def _search(self, query):
         queryset = self.get_query_set()
 
