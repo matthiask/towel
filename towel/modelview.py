@@ -276,7 +276,7 @@ class ModelView(object):
 
             ctx['search_form'] = form
 
-        if paginate_by:
+        if paginate_by and not request.GET.get('all'):
             page, paginator = self.paginate_object_list(request, queryset, paginate_by)
 
             ctx.update({

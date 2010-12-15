@@ -29,7 +29,7 @@
 {% endif %}
 {% endblock %}
 
-{% pagination page paginator "top" %}
+{% if paginator %}{% pagination page paginator "top" %}{% endif %}
 
 {% block objects %}
 <table class="objects">
@@ -48,6 +48,6 @@
 </table>
 {% endblock %}
 
-{% pagination page paginator "bottom" %}
+{% if paginator %}{% pagination page paginator "bottom" %}{% endif %}
 
 {% endblock %}

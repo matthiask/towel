@@ -15,10 +15,7 @@
         <li><a href="?{{ querystring }}&all=1">{% trans "show all" %}</a></li>
     </ul>
 
-    <div style="float:left;padding:3px 3px 0 3px;">
-        {{ page.start_index }} - {{ page.end_index }} / {{ paginator.count }}
-    </div>
-
+    <span>{{ page.start_index }} - {{ page.end_index }} / {{ paginator.count }}</span>
 </div>
 {% endwith %}
 {% endif %}
