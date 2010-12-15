@@ -7,6 +7,15 @@
 {% block content %}
 <h2>{{ title }} {{ object }}</h2>
 
+{% if collected_objects %}
+<p>{% trans "You are about to delete the following objects:" %}
+<ul>
+{% for opts, count in collected_objects %}
+    <li>{% if count == 1 %}1 {{ opts.verbose_name }}{% else %}{{ count }} {{ opts.verbose_name_plural }}{% endif %}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
 <form method="post" action=".">{% csrf_token %}
     <div class="buttons">
         <button type="submit">{% trans "delete"|capfirst %}</button>

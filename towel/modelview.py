@@ -404,9 +404,15 @@ class ModelView(object):
             obj.delete()
             return self.response_delete(request, obj)
         else:
+            collected_objects = getattr(obj, '_collected_objects', None)
+
+            if collected_objects:
+                collected_objects = [(key._meta, len(value)) for key, value in collected_objects.items()]
+
             return self.render_delete_confirmation(request, {
                 'title': _('Delete %s') % force_unicode(self.model._meta.verbose_name),
                 self.template_object_name: obj,
+                'collected_objects': collected_objects,
                 })
 
 
@@ -446,6 +452,10 @@ def querystring(data):
 def related_classes(instance):
     collector = Collector(using=instance._state.db)
     collector.collect([instance])
+
+    # Save collected objects for later referencing
+    instance._collected_objects = collector.data
+
     return collector.data.keys()
 
 
