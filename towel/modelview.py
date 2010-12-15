@@ -254,14 +254,15 @@ class ModelView(object):
             page = 1
 
         try:
-            return paginator_obj.page(page)
+            return paginator_obj.page(page), paginator_obj
         except (paginator.EmptyPage, paginator.InvalidPage):
-            return paginator_obj.page(paginator_obj.num_pages)
+            return paginator_obj.page(paginator_obj.num_pages), paginator_obj
 
     # VIEWS
 
     def list_view(self, request):
         search_form = getattr(self, 'search_form', None)
+        paginate_by = getattr(self, 'paginate_by', None)
 
         ctx = {}
         queryset = self.get_query_set(request)
@@ -275,7 +276,17 @@ class ModelView(object):
 
             ctx['search_form'] = form
 
-        ctx[self.template_object_list_name] = queryset
+        if paginate_by:
+            page, paginator = self.paginate_object_list(request, queryset, paginate_by)
+
+            ctx.update({
+                self.template_object_list_name: page.object_list,
+                'page': page,
+                'paginator': paginator,
+                })
+        else:
+            ctx[self.template_object_list_name] = queryset
+
         return self.render_list(request, ctx)
 
     def detail_view(self, request, *args, **kwargs):

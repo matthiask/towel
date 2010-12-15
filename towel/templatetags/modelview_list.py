@@ -1,3 +1,6 @@
+import operator
+import urllib
+
 from django import template
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -34,3 +37,22 @@ def model_row(instance, fields):
             value = unicode(getattr(instance, f.name))
 
         yield (f.verbose_name, value)
+
+
+@register.inclusion_tag('_pagination.html', takes_context=True)
+def pagination(context, page, paginator, where=None):
+    return {
+        'context': context,
+        'page': page,
+        'paginator': paginator,
+        'where': where,
+        }
+
+
+@register.filter
+def querystring(data):
+    items = reduce(operator.add,
+        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in ('page',)),
+        [])
+
+    return urllib.urlencode(items)

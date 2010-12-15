@@ -1,0 +1,24 @@
+{% load i18n modelview_list %}
+{% if page.has_other_pages %}
+{% with context.request.GET|querystring as querystring %}
+<div class="box pagination">
+    <ul>
+    {% if page.has_previous %}
+        <li><a href="?{{ querystring }}&page={{ page.previous_page_number }}">&laquo;</a></li>
+    {% endif %}
+    {% for p in paginator.page_range %}
+        <li {% ifequal p page %}class="mark"{% endifequal %}><a href="?{{ querystring }}&page={{ p }}">{{ p }}</a></li>
+    {% endfor %}
+    {% if page.has_next %}
+        <li><a href="?{{ querystring }}&page={{ page.next_page_number }}">&raquo;</a></li>
+    {% endif %}
+        <li><a href="?{{ querystring }}&all=1">{% trans "show all" %}</a></li>
+    </ul>
+
+    <div style="float:left;padding:3px 3px 0 3px;">
+        {{ page.start_index }} - {{ page.end_index }} / {{ paginator.count }}
+    </div>
+
+</div>
+{% endwith %}
+{% endif %}

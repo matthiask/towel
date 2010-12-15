@@ -1,6 +1,6 @@
 {% extends base_template|default:"base.html" %}
 
-{% load i18n towel_form_tags %}
+{% load i18n modelview_list towel_form_tags %}
 
 {% block title %}{{ verbose_name_plural }} - {{ block.super }}{% endblock %}
 
@@ -29,6 +29,8 @@
 {% endif %}
 {% endblock %}
 
+{% pagination page paginator "top" %}
+
 {% block objects %}
 <table class="objects">
     <thead>
@@ -45,4 +47,7 @@
     </tbody>
 </table>
 {% endblock %}
+
+{% pagination page paginator "bottom" %}
+
 {% endblock %}
