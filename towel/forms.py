@@ -46,15 +46,35 @@ class BatchForm(forms.Form):
 
 class SearchForm(forms.Form):
     always_exclude = ('s', 'query')
+    default = {}
 
     # search form active?
     s = forms.CharField(required=False)
     query = forms.CharField(required=False, label=_('Query'))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs):
         request = kwargs.pop('request')
-        super(SearchForm, self).__init__(*args, **kwargs)
+        super(SearchForm, self).__init__(self.prepare_data(data, request),
+            *args, **kwargs)
         self.persist(request)
+        self.post_init(request)
+
+    def prepare_data(self, data, request):
+        if not self.default:
+            return data
+
+        data = data.copy()
+        for k, v in self.default.items():
+            if k not in data:
+                if hasattr(v, '__iter__'):
+                    data.setlist(k, v)
+                else:
+                    data[k] = v
+        return data
+
+    def post_init(self, request):
+        # Hook for customizations
+        pass
 
     def persist(self, request):
         session_key = 'sf_%s' % self.__class__.__name__.lower()
