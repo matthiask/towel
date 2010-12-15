@@ -6,22 +6,24 @@
 
 {% block content %}
 
-	<div class="buttons">
-		<a href="add/" class="button"><span>{% trans "New object" %}</span></a>
-	</div>
+<div class="buttons">
+    <a href="add/" class="button"><span>{% blocktrans %}Add {{ verbose_name }}{% endblocktrans %}</span></a>
+</div>
 
-	<table class="objects">
-	    <thead>
-            <tr>
-                <th>{% trans "object"|capfirst %}</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for object in object_list %}
-            <tr class="{% cycle 'odd' 'even' %}">
-                <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
-            </tr>
-        {% endfor %}
-        </tbody>
-	</table>
+{% block objects %}
+<table class="objects">
+    <thead>
+        <tr>
+            <th>{% trans "object"|capfirst %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for object in object_list %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
 {% endblock %}

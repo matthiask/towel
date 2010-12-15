@@ -10,7 +10,8 @@
 <form method="post" action=".">{% csrf_token %}
     <div class="buttons">
         <button type="submit">{% trans "delete"|capfirst %}</button>
-        <button type="button" onclick="window.location.assign('{{ object.get_absolute_url }}')">{% trans "cancel"|capfirst %}</button>
+        <a href="{{ object.get_absolute_url }}" class="button">
+            <span>{% trans "cancel"|capfirst %}</span></a>
     </div>
 </form>
 {% endblock %}
