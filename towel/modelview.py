@@ -261,9 +261,24 @@ class ModelView(object):
     # VIEWS
 
     def list_view(self, request):
-        return self.render_list(request, {
-            self.template_object_list_name: self.get_query_set(request),
-            })
+        search_form = getattr(self, 'search_form', None)
+
+        ctx = {}
+        queryset = self.get_query_set(request)
+
+        if search_form:
+            form = search_form(request.GET, request=request)
+            data = form.safe_cleaned_data
+
+            queryset = safe_queryset_and(queryset,
+                form.apply_filters(self.model.objects.search(data.get('query')), data))
+
+            ctx['search_form'] = form
+        else:
+            queryset = self.get_query_set(request)
+
+        ctx[self.template_object_list_name] = queryset
+        return self.render_list(request, ctx)
 
     def detail_view(self, request, *args, **kwargs):
         instance = self.get_object_or_404(request, *args, **kwargs)
@@ -467,3 +482,9 @@ def deletion_allowed_if_only(instance, classes):
         related.discard(class_)
 
     return not len(related)
+
+
+def safe_queryset_and(qs1, qs2):
+    if qs1.query.distinct or qs2.query.distinct:
+        return qs1.distinct() & qs2.distinct()
+    return qs1 & qs2
