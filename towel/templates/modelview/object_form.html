@@ -1,6 +1,6 @@
 {% extends base_template|default:"base.html" %}
 
-{% load i18n %}
+{% load i18n towel_form_tags %}
 
 {% block title %}{{ title }} - {{ block.super }}{% endblock %}
 
@@ -8,19 +8,25 @@
 <h2>{{ title }}</h2>
 
 <form method="post" action=".">{% csrf_token %}
+
+{% for formset in formsets.values %}{{ formset.management_form }}{% endfor %}
+
+{% form_errors form formsets %}
+
 <table>
-    {{ form }}
+    {% for field in form %}{% form_item field %}{% endfor %}
 
     {% for key, formset in formsets.items %}
-        {{ formset }}
+        {% for form in formset.forms %}
+            {% for field in form %}{% form_item field %}{% endfor %}
+        {% endfor %}
     {% endfor %}
-    <tr>
-        <td>&nbsp;</td>
-        <td>
-            <button type="submit">{% trans "save"|capfirst %}</button>
-            <button type="button" onclick="window.location.assign('../')">{% trans "cancel"|capfirst %}</button>
-        </td>
-    </tr>
 </table>
+
+<div class="buttons">
+    <button type="submit">{% trans "save"|capfirst %}</button>
+    <button type="button" onclick="window.location.assign('../')">{% trans "cancel"|capfirst %}</button>
+</div>
+
 </form>
 {% endblock %}

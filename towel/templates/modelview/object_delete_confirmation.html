@@ -7,10 +7,10 @@
 {% block content %}
 <h2>{{ title }} {{ object }}</h2>
 
-<div class="buttons">
-    <form method="post" action=".">{% csrf_token %}
+<form method="post" action=".">{% csrf_token %}
+    <div class="buttons">
         <button type="submit">{% trans "delete"|capfirst %}</button>
         <button type="button" onclick="window.location.assign('{{ object.get_absolute_url }}')">{% trans "cancel"|capfirst %}</button>
-    </form>
-</div>
+    </div>
+</form>
 {% endblock %}
