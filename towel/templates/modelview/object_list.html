@@ -31,16 +31,20 @@
 
 {% if paginator %}{% pagination page paginator "top" %}{% endif %}
 
+{% if batch_form %}<form id="batchform" method="post" action="{{ request.get_full_path }}">{% csrf_token %}{% endif %}
+
 {% block objects %}
 <table class="objects">
     <thead>
         <tr>
+            {% if batch_form %}<td></td>{% endif %}
             <th>{% trans "object"|capfirst %}</th>
         </tr>
     </thead>
     <tbody>
     {% for object in object_list %}
         <tr class="{% cycle 'odd' 'even' %}">
+            {% if batch_form %}<td>{% batch_checkbox batch_form object.id %}</td>{% endif %}
             <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
         </tr>
     {% endfor %}
@@ -49,5 +53,32 @@
 {% endblock %}
 
 {% if paginator %}{% pagination page paginator "bottom" %}{% endif %}
+
+{% if batch_form %}
+{% if profile.access_level >= EMPLOYEE %}
+    <div class="box detail">
+        <h2>{% trans "Batch form" %}</h2>
+
+        <input type="hidden" name="batchform" value="1" />
+        <table>{% for field in batch_form %}{% form_item field %}{% endfor %}</table>
+
+        {% if batch_items %}
+            {% for item in batch_items %}
+                {{ item }}
+                <br />
+            {% endfor %}
+        {% endif %}
+
+        {% block batch_buttons %}
+        <div class="buttons">
+            <a href="#" class="button right"
+                onclick="return conditional_submit_batch_form('batchform')">
+                <span>{% trans "Submit" %}</span></a>
+        </div>
+        {% endblock %}
+    </div>
+{% endif %}
+</form>
+{% endif %}
 
 {% endblock %}
