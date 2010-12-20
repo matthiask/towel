@@ -261,20 +261,18 @@ class ModelView(object):
     # VIEWS
 
     def list_view(self, request):
-        search_form = getattr(self, 'search_form', None)
         paginate_by = getattr(self, 'paginate_by', None)
 
         ctx = {}
         queryset = self.get_query_set(request)
 
-        if search_form:
-            form = search_form(request.GET, request=request)
-            data = form.safe_cleaned_data
+        queryset, response = self.handle_search_form(request, ctx)
+        if response:
+            return response
 
-            queryset = safe_queryset_and(queryset,
-                form.apply_filters(self.model.objects.search(data.get('query')), data))
-
-            ctx['search_form'] = form
+        response = self.handle_batch_form(request, ctx, queryset)
+        if response:
+            return response
 
         if paginate_by and not request.GET.get('all'):
             page, paginator = self.paginate_object_list(request, queryset, paginate_by)
@@ -288,6 +286,39 @@ class ModelView(object):
             ctx[self.template_object_list_name] = queryset
 
         return self.render_list(request, ctx)
+
+    def handle_search_form(self, request, ctx, queryset=None):
+        """
+        Must return a tuple consisting of a queryset and either a HttpResponse or None
+        """
+
+        if not queryset:
+            queryset = self.model._default_manager.all()
+
+        search_form = getattr(self, 'search_form', None)
+        if search_form:
+            form = search_form(request.GET, request=request)
+            data = form.safe_cleaned_data
+
+            queryset = safe_queryset_and(queryset,
+                form.apply_filters(self.model.objects.search(data.get('query')), data))
+
+            ctx['search_form'] = form
+
+        return queryset, None
+
+    def handle_batch_form(self, request, ctx, queryset):
+        """
+        May optionally return a HttpResponse which is directly returned to the browser
+        """
+
+        batch_form = getattr(self, 'batch_form', None)
+        if batch_form:
+            form = batch_form(request)
+            ctx.update(form.context(queryset))
+
+            if 'response' in ctx:
+                return ctx['response']
 
     def detail_view(self, request, *args, **kwargs):
         instance = self.get_object_or_404(request, *args, **kwargs)
