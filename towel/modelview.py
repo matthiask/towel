@@ -29,6 +29,8 @@ class ModelView(object):
     # Used for list views
     template_object_list_name = 'object_list'
 
+    base_template = 'base.html'
+
     urlconf_detail_re = r'(?P<pk>\d+)'
 
     def __init__(self, model, **kwargs):
@@ -184,6 +186,7 @@ class ModelView(object):
             'verbose_name_plural': self.model._meta.verbose_name_plural,
             'list_url': tryreverse('%s_%s_list' % info),
             'add_url': tryreverse('%s_%s_add' % info),
+            'base_template': self.base_template,
         }
 
     def get_context(self, request, context):
