@@ -92,7 +92,7 @@ class SearchForm(forms.Form):
             request.session[session_key] = pickle.dumps(self.data)
 
     def searching(self):
-        if self.cleaned_data['s'] or hasattr(self, 'persistency'):
+        if self.safe_cleaned_data.get('s') or hasattr(self, 'persistency'):
             return 'searching'
         return ''
 
