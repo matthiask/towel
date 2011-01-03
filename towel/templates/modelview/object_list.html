@@ -1,6 +1,6 @@
 {% extends base_template|default:"base.html" %}
 
-{% load i18n modelview_list towel_form_tags %}
+{% load i18n modelview_list towel_batch_tags towel_form_tags %}
 
 {% block title %}{{ verbose_name_plural }} - {{ block.super }}{% endblock %}
 
