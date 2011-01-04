@@ -249,6 +249,9 @@ class ModelView(object):
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
+        if request.GET.get('all'):
+            paginate_by = int(1e10)
+
         paginator_obj = paginator.Paginator(queryset, paginate_by)
 
         try:
@@ -277,7 +280,7 @@ class ModelView(object):
         if response:
             return response
 
-        if paginate_by and not request.GET.get('all'):
+        if paginate_by:
             page, paginator = self.paginate_object_list(request, queryset, paginate_by)
 
             ctx.update({
