@@ -102,6 +102,12 @@ methods::
     )
 
 
+The model instances are passed as ``object_list`` into the template by default.
+This can be customized by setting ``template_object_list_name`` to a different
+value.
+
+
+
 Object list call-graph
 ----------------------
 
@@ -256,25 +262,157 @@ Object detail pages
 ===================
 
 
+Object detail pages are handled by ``detail_view``. All parameters captured in
+the ``urlconf_detail_re`` regex are passed on to ``get_object_or_404``, which
+passes them to ``get_object``. ``get_object`` first calls ``get_query_set``,
+and tries finding a model thereafter.
+
+The rendering is handled by ``render_detail``; the templates tried are
+
+* ``<app_label>/<model_name>_detail.html`` (in our case, ``myapp/book_detail.html``)
+* ``modelview/object_detail.html``
+
+The model instance is passed as ``object`` into the template by default. This
+can be customized by setting ``template_object_name`` to a different value.
+
+
 .. _standard-context:
 
 Standard context variables
 ==========================
 
+The following variables are always added to the context:
+
+* ``verbose_name``
+* ``verbose_name_plural``
+* ``list_url``
+* ``add_url``
+* ``base_template``
+
+``RequestContext`` is used, therefore all configured context processors are
+executed too.
+
+
+.. _permissions:
 
 Permissions
 ===========
 
+ModelView's ``get_urls``method assumes that there are two groups of users with
+potentially differing permissions: Those who are only allowed to view and those
+who may add, change or update objects.
+
+To restrict viewing to authenticated users and editing to managers, you could
+do the following::
+
+    from django.contrib.admin.views.decorators import staff_member_required
+    from django.contrib.auth.decorators import login_required
+
+    book_views = BookModelView(Book,
+        search_form=BookSearchForm,
+        paginate_by=20,
+        view_decorator=login_required,
+        crud_view_decorator=staff_member_required,
+        )
+
+If ``crud_view_decorator`` is not provided, it defaults to ``view_decorator``.
+``view_decorator`` defaults to ``lambda f: f``, which means that no checking
+is performed.
+
+
+
+.. _adding-updating:
 
 Adding and updating objects
 ===========================
 
 
+.. _deletion:
+
 Object deletion
 ===============
+
+Object deletion through ModelView is forbidden by default as a safety measure.
+However, it is very easy to allow deletion globally::
+
+    class AuthorModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            return True
+
+
+If you wanted to allow deletion only for the creator, you could use something
+like this::
+
+    class AuthorModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            # Our author model does not have a created_by field, therefore this
+            # does not work.
+            return request.user == instance.created_by
+
+
+Often, you want to allow deletion, but only if no related objects are affected
+by the deletion. ModelView offers a helper to do that::
+
+    class PublisherModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            return self.deletion_allowed_if_only(request, instance, [Publisher])
+
+
+If there are any books in our system published by the given publisher instance,
+the deletion would not be allowed. If there are no related objects for this
+instance, the user is asked whether he really wants to delete the object. If
+he confirms, the instance is deleted for good.
+
 
 
 .. _batch-processing:
 
 Batch processing
 ================
+
+Suppose you want to change the publisher for a selection of books. You could
+do this by editing each of them by hand, or by thinking earlier and doing this::
+
+
+    from django import forms
+    from django.contrib import messages
+    from towel import forms as towel_forms
+    from myapp.models import Book, Publisher
+
+    class BookBatchForm(towel_forms.BatchForm):
+        publisher = forms.ModelChoiceField(Publisher.objects.all(), required=False)
+
+        formfield_callback = towel_forms.stripped_formfield_callback
+
+        def _context(self, batch_queryset):
+            data = self.cleaned_data
+
+            if data.get('publisher'):
+                messages.success(request, 'Updated %s books.' % (
+                    batch_queryset.update(publisher=data.get('publisher')),
+                    ))
+
+            return {
+                'batch_items': batch_queryset,
+                }
+
+
+Activate the batch form like this::
+
+    book_views = BookModelView(Book,
+        batch_form=BookBatchForm,
+        search_form=BookSearchForm,
+        paginate_by=20,
+        )
+
+
+If you have to return a response from the batch form (f.e. because you want to
+generate sales reports for a selection of books), you can return a response in
+``_context`` using the special-cased key ``response``::
+
+    def _context(self, batch_queryset):
+        # [...]
+
+        return {
+            'response': HttpResponse(your_report, mimetype='application/pdf'),
+            }

@@ -16,8 +16,6 @@ Contents
    installation
 
    modelviews
-   forms
-   managers
    templatetags
 
 
