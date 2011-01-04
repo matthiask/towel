@@ -1,0 +1,23 @@
+.. _forms:
+
+=====
+Forms
+=====
+
+.. module:: towel.forms
+
+
+:class:`~towel.forms.SearchForm`
+================================
+
+
+:class:`~towel.forms.BatchForm`
+===============================
+
+
+:func:`~towel.forms.stripped_formfield_callback`
+================================================
+
+
+:class:`~towel.forms.ModelAutocompleteWidget`
+=============================================
