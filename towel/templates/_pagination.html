@@ -6,12 +6,12 @@
         <li><a href="?{{ querystring }}&page={{ page.previous_page_number }}">&laquo;</a></li>
     {% endif %}
     {% for p in paginator.page_range %}
-        <li {% ifequal p page.number %}class="mark"{% endifequal %}><a href="?{{ querystring }}&page={{ p }}">{{ p }}</a></li>
+        <li {% if p == page.number and not page.show_all_objects %}class="mark"{% endif %}><a href="?{{ querystring }}&page={{ p }}">{{ p }}</a></li>
     {% endfor %}
     {% if page.has_next %}
         <li><a href="?{{ querystring }}&page={{ page.next_page_number }}">&raquo;</a></li>
     {% endif %}
-        <li><a href="?{{ querystring }}&all=1">{% trans "show all" %}</a></li>
+        <li {% if page.show_all_objects %}class="mark"{% endif %}><a href="?{{ querystring }}&all=1">{% trans "show all" %}</a></li>
     </ul>
     {% endwith %}
 

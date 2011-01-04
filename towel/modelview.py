@@ -249,9 +249,6 @@ class ModelView(object):
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
-        if request.GET.get('all'):
-            paginate_by = int(1e10)
-
         paginator_obj = paginator.Paginator(queryset, paginate_by)
 
         try:
@@ -260,9 +257,15 @@ class ModelView(object):
             page = 1
 
         try:
-            return paginator_obj.page(page), paginator_obj
+            page_obj = paginator_obj.page(page)
         except (paginator.EmptyPage, paginator.InvalidPage):
-            return paginator_obj.page(paginator_obj.num_pages), paginator_obj
+            page_obj = paginator.obj.page(paginator_obj.num_pages)
+
+        if request.GET.get('all'):
+            page_obj.object_list = queryset
+            page_obj.show_all_objects = True
+
+        return page_obj, paginator_obj
 
     # VIEWS
 
