@@ -1,1 +1,6 @@
-Django ModelView class offering searchable and orderable list views, detail pages and CRUD functionality.
+==================================
+Towel - Keeping you DRY since 2010
+==================================
+
+* Towel on github: https://github.com/matthiask/towel/
+* Documentation: http://www.feinheit.ch/media/labs/towel/
