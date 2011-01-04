@@ -52,7 +52,7 @@ def pagination(context, page, paginator, where=None):
 @register.filter
 def querystring(data):
     items = reduce(operator.add,
-        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in ('page',)),
+        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in ('page', 'all')),
         [])
 
     return urllib.urlencode(items)
