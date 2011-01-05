@@ -50,9 +50,11 @@ def pagination(context, page, paginator, where=None):
 
 
 @register.filter
-def querystring(data):
+def querystring(data, exclude='page,all'):
+    exclude = exclude.split(',')
+
     items = reduce(operator.add,
-        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in ('page', 'all')),
+        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in exclude),
         [])
 
     return urllib.urlencode(items)
