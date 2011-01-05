@@ -199,4 +199,6 @@ Form tags
        </form>
 
    The formset-prefix must correspond to the prefix used when initializing
-   the FormSet in your Python code.
+   the FormSet in your Python code. You should pass ``extra=0`` when creating
+   the FormSet class; any additional forms are better created using
+   ``towel_add_subform``.

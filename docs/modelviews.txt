@@ -111,36 +111,38 @@ value.
 Object list call-graph
 ----------------------
 
+.. module:: towel.modelview.ModelView
+
 The ``list_view`` method does not contain much code, and simply defers to
 other methods who do most of the grunt-work. Those methods are shortly explained
 here.
 
-.. function:: list_view
+.. function:: list_view(self, request)
 
    Main entry point for object lists, calls all other methods.
 
 
-.. function:: get_query_set
+.. function:: get_query_set(self, request, *args, **kwargs)
 
    Receives the request as only argument, must return a queryset of all objects
    a user is allowed to see. The default implementation is ``._default_manager.all()``.
 
 
-.. function:: handle_search_form
-.. function:: handle_batch_form
+.. function:: handle_search_form(self, request, ctx, queryset=None)
+.. function:: handle_batch_form(self, request, ctx, queryset)
 
    These methods are discussed later, under :ref:`object-list-searchable` and
    :ref:`batch-processing`.
 
 
-.. function:: paginate_object_list
+.. function:: paginate_object_list(self, request, queryset, paginate_by=10)
 
    If ``paginate_by``is given paginates the object list using the ``page`` GET
    parameter. Pagination can be switched off by passing ``all=1`` in the GET
    request.
 
 
-.. function:: render_list
+.. function:: render_list(self, request, context)
 
    The rendering of object lists is done inside ``render_list``. This method
    calls ``get_template`` to assemble a list of templates to try, and
@@ -276,6 +278,151 @@ The model instance is passed as ``object`` into the template by default. This
 can be customized by setting ``template_object_name`` to a different value.
 
 
+.. _adding-updating:
+
+Adding and updating objects
+===========================
+
+Towel offers several facilities to make it easier to build and process complex
+forms composed of forms and formsets. The code paths for adding and updating
+objects are shared for a big part.
+
+``add_view`` and ``edit_view`` are called first. They defer most of their work
+to helper methods.
+
+.. function:: add_view(self, request)
+
+   ``add_view`` does not accept any arguments.
+
+
+.. function:: edit_view(self, request, *args, **kwargs)
+
+   ``*args`` and ``**kwargs`` are passed as they are directly into ``get_object``.
+
+
+.. function:: get_form(self, request, instance=None, **kwargs)
+
+   Return a Django form class. The default implementation returns the result
+   of ``modelform_factory(self.model, **kwargs)``.
+
+
+.. function:: get_form_instance(self, request, form_class, instance=None, **kwargs)
+
+   Instantiate the form, for the given instance in the editing case.
+
+   The arguments passed to the form class when instantiating are determined by
+   ``extend_args_if_post`` and ``**kwargs``.
+
+
+.. function:: extend_args_if_post(self, request, args)
+
+   Inserts ``request.POST`` and ``request.FILES`` at the beginning of ``args``
+   if ``request.method`` is ``POST``.
+
+
+.. function:: get_formset_instances(self, request, instance=None, **kwargs)
+
+   Returns an empty ``dict`` by default. Construct your formsets if you want
+   any in this method::
+
+       BookFormSet = inlineformset_factory(Publisher, Book)
+
+       class PublisherModelView(ModelView):
+           def get_formset_instances(self, request, instance=None, **kwargs):
+               args = self.extend_args_if_post(request, [])
+               kwargs.setdefault('instance', instance)
+
+               return {
+                   'books': BookFormSet(prefix='books', *args, **kwargs),
+                   }
+
+
+.. function:: save_form(self, request, form, change)
+
+   Return an unsaved instance when editing an object. ``change`` is ``True``
+   if editing an object.
+
+
+.. function:: save_model(self, request, instance, form, change)
+
+   Save the instance to the database. ``change`` is ``True`` if editing
+   an object.
+
+
+.. function:: save_formsets(self, request, form, formsets, change)
+
+   Iterates through the ``formsets`` ``dict``, calling ``save_formset`` on
+   each.
+
+
+.. function:: save_formset(self, request, form, formset, change)
+
+   Actually saves the formset instances.
+
+
+.. function:: post_save(self, request, form, formset, change)
+
+   Hook for adding custom processing after forms, formsets and m2m relations
+   have been saved. Does nothing by default.
+
+
+.. function:: render_form(self, request, context, change)
+
+   Offloads work to ``get_template``, ``get_context`` and ``render_to_response``.
+   The templates tried when rendering are:
+
+   * ``<app_label>/<model_name>_form.html``
+   * ``modelview/object_form.html``
+
+
+.. function:: response_add
+.. function:: response_edit
+
+   They add a message using the ``django.contrib.messages`` framework and redirect
+   the user to the appropriate place, being the detail page of the edited object
+   or the editing form if ``_continue`` is contained in the POST request.
+
+
+
+.. _deletion:
+
+Object deletion
+===============
+
+Object deletion through ModelView is forbidden by default as a safety measure.
+However, it is very easy to allow deletion globally::
+
+    class AuthorModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            return True
+
+
+If you wanted to allow deletion only for the creator, you could use something
+like this::
+
+    class AuthorModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            # Our author model does not have a created_by field, therefore this
+            # does not work.
+            return request.user == instance.created_by
+
+
+Often, you want to allow deletion, but only if no related objects are affected
+by the deletion. ModelView offers a helper to do that::
+
+    class PublisherModelView(ModelView):
+        def deletion_allowed(self, request, instance):
+            return self.deletion_allowed_if_only(request, instance, [Publisher])
+
+
+If there are any books in our system published by the given publisher instance,
+the deletion would not be allowed. If there are no related objects for this
+instance, the user is asked whether he really wants to delete the object. If
+he confirms, the instance is or the instances are deleted for good, depending
+on whether there are related objects or not.
+
+
+
 .. _standard-context:
 
 Standard context variables
@@ -319,49 +466,16 @@ If ``crud_view_decorator`` is not provided, it defaults to ``view_decorator``.
 ``view_decorator`` defaults to ``lambda f: f``, which means that no checking
 is performed.
 
+Additionally, ModelView offers the following hooks for customizing permissions:
 
+.. function:: adding_allowed(self, request)
+.. function:: editing_allowed(self, request, instance)
 
-.. _adding-updating:
+    Return ``True`` by default.
 
-Adding and updating objects
-===========================
+.. function:: deletion_allowed(self, request, instance)
 
-
-.. _deletion:
-
-Object deletion
-===============
-
-Object deletion through ModelView is forbidden by default as a safety measure.
-However, it is very easy to allow deletion globally::
-
-    class AuthorModelView(ModelView):
-        def deletion_allowed(self, request, instance):
-            return True
-
-
-If you wanted to allow deletion only for the creator, you could use something
-like this::
-
-    class AuthorModelView(ModelView):
-        def deletion_allowed(self, request, instance):
-            # Our author model does not have a created_by field, therefore this
-            # does not work.
-            return request.user == instance.created_by
-
-
-Often, you want to allow deletion, but only if no related objects are affected
-by the deletion. ModelView offers a helper to do that::
-
-    class PublisherModelView(ModelView):
-        def deletion_allowed(self, request, instance):
-            return self.deletion_allowed_if_only(request, instance, [Publisher])
-
-
-If there are any books in our system published by the given publisher instance,
-the deletion would not be allowed. If there are no related objects for this
-instance, the user is asked whether he really wants to delete the object. If
-he confirms, the instance is deleted for good.
+   Was already discussed under :ref:`deletion`.
 
 
 
