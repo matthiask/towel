@@ -77,7 +77,7 @@ class SearchForm(forms.Form):
         pass
 
     def persist(self, request):
-        session_key = 'sf_%s' % self.__class__.__name__.lower()
+        session_key = '_'.join(('sf', self.__class__.__name__, request.path))
 
         if 'clear' in request.GET or 'n' in request.GET:
             if session_key in request.session:
