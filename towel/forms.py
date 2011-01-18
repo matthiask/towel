@@ -128,6 +128,11 @@ class SearchForm(forms.Form):
 
         return queryset
 
+    def queryset(self, model):
+        data = self.safe_cleaned_data
+        queryset = model.objects.search(data.get('query'))
+        return self.apply_filters(queryset, data)
+
 
 class StrippedTextInput(forms.TextInput):
     def value_from_datadict(self, data, files, name):
