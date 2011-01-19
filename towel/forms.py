@@ -66,6 +66,9 @@ class SearchForm(forms.Form):
         data = data.copy()
         for k, v in self.default.items():
             if k not in data:
+                if hasattr(v, '__call__'):
+                    v = v(request)
+
                 if hasattr(v, '__iter__'):
                     data.setlist(k, v)
                 else:
