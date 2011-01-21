@@ -307,7 +307,7 @@ class ModelView(object):
         search_form = getattr(self, 'search_form', None)
         if search_form:
             form = search_form(request.GET, request=request)
-            queryset = safe_queryset_and(queryset, form.queryset(model=self.model))
+            queryset = safe_queryset_and(queryset, form.queryset(self.model))
 
             ctx['search_form'] = form
 
