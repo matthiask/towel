@@ -98,7 +98,7 @@ methods::
     from towel.modelview import ModelView
 
     urlpatterns = patterns('',
-        url(r'^books/', ModelView(Book, paginate_by=20).urls),
+        url(r'^books/', include(ModelView(Book, paginate_by=20).urls)),
     )
 
 
@@ -246,10 +246,10 @@ when you instantiate the ModelView subclass::
     from towel.modelview import ModelView
 
     urlpatterns = patterns('',
-        url(r'^books/', ModelView(Book,
+        url(r'^books/', include(ModelView(Book,
             search_form=BookSearchForm,
             paginate_by=20,
-            ).urls),
+            ).urls)),
     )
 
 
