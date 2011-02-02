@@ -259,7 +259,7 @@ class ModelView(object):
         try:
             page_obj = paginator_obj.page(page)
         except (paginator.EmptyPage, paginator.InvalidPage):
-            page_obj = paginator.obj.page(paginator_obj.num_pages)
+            page_obj = paginator_obj.page(paginator_obj.num_pages)
 
         if request.GET.get('all'):
             page_obj.object_list = queryset
