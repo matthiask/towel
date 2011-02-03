@@ -122,10 +122,9 @@ class SearchForm(forms.Form):
                 continue
 
             value = data.get(field)
-            if value is not None:
+            if value:
                 if hasattr(value, '__iter__'):
-                    if value:
-                        queryset = queryset.filter(**{'%s__in' % field: value})
+                    queryset = queryset.filter(**{'%s__in' % field: value})
                 else:
                     queryset = queryset.filter(**{field: value})
 
