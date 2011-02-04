@@ -122,13 +122,13 @@ class ModelView(object):
 
         return args
 
-    def get_form_instance(self, request, form_class, instance=None, **kwargs):
+    def get_form_instance(self, request, form_class, instance=None, change=None, **kwargs):
         args = self.extend_args_if_post(request, [])
         kwargs['instance'] = instance
 
         return form_class(*args, **kwargs)
 
-    def get_formset_instances(self, request, instance=None, **kwargs):
+    def get_formset_instances(self, request, instance=None, change=None, **kwargs):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
