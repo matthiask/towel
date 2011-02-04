@@ -410,7 +410,7 @@ class ModelView(object):
                 self.save_model(request, new_instance, form, change=True)
                 form.save_m2m()
                 self.save_formsets(request, form, formsets, change=True)
-                self.post_save(request, new_instance, form, formsets, change=False)
+                self.post_save(request, new_instance, form, formsets, change=True)
 
                 return self.response_edit(request, new_instance, form, formsets)
         else:
