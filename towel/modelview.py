@@ -122,13 +122,13 @@ class ModelView(object):
 
         return args
 
-    def get_form_instance(self, request, form_class, instance=None, **kwargs):
+    def get_form_instance(self, request, form_class, instance=None, change=None, **kwargs):
         args = self.extend_args_if_post(request, [])
         kwargs['instance'] = instance
 
         return form_class(*args, **kwargs)
 
-    def get_formset_instances(self, request, instance=None, **kwargs):
+    def get_formset_instances(self, request, instance=None, change=None, **kwargs):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
@@ -259,7 +259,7 @@ class ModelView(object):
         try:
             page_obj = paginator_obj.page(page)
         except (paginator.EmptyPage, paginator.InvalidPage):
-            page_obj = paginator.obj.page(paginator_obj.num_pages)
+            page_obj = paginator_obj.page(paginator_obj.num_pages)
 
         if request.GET.get('all'):
             page_obj.object_list = queryset
@@ -314,7 +314,7 @@ class ModelView(object):
         search_form = getattr(self, 'search_form', None)
         if search_form:
             form = search_form(request.GET, request=request)
-            queryset = safe_queryset_and(queryset, form.queryset(model=self.model))
+            queryset = safe_queryset_and(queryset, form.queryset(self.model))
 
             ctx['search_form'] = form
 
@@ -356,7 +356,7 @@ class ModelView(object):
         opts = self.model._meta
 
         if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm)
+            form = self.get_form_instance(request, ModelForm, change=False)
 
             if form.is_valid():
                 new_instance = self.save_form(request, form, change=False)
@@ -365,7 +365,7 @@ class ModelView(object):
                 new_instance = self.model()
                 form_validated = False
 
-            formsets = self.get_formset_instances(request, instance=new_instance)
+            formsets = self.get_formset_instances(request, instance=new_instance, change=False)
             if all_valid(formsets.itervalues()) and form_validated:
                 self.save_model(request, new_instance, form, change=False)
                 form.save_m2m()
@@ -374,8 +374,8 @@ class ModelView(object):
 
                 return self.response_add(request, new_instance, form, formsets)
         else:
-            form = self.get_form_instance(request, ModelForm)
-            formsets = self.get_formset_instances(request)
+            form = self.get_form_instance(request, ModelForm, change=False)
+            formsets = self.get_formset_instances(request, change=False)
 
         context = {
             'title': _('Add %s') % force_unicode(opts.verbose_name),
@@ -403,7 +403,7 @@ class ModelView(object):
         opts = self.model._meta
 
         if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm, instance)
+            form = self.get_form_instance(request, ModelForm, instance, change=True)
 
             if form.is_valid():
                 new_instance = self.save_form(request, form, change=True)
@@ -412,17 +412,17 @@ class ModelView(object):
                 new_instance = instance
                 form_validated = False
 
-            formsets = self.get_formset_instances(request, instance=new_instance)
+            formsets = self.get_formset_instances(request, instance=new_instance, change=True)
             if all_valid(formsets.itervalues()) and form_validated:
                 self.save_model(request, new_instance, form, change=True)
                 form.save_m2m()
                 self.save_formsets(request, form, formsets, change=True)
-                self.post_save(request, new_instance, form, formsets, change=False)
+                self.post_save(request, new_instance, form, formsets, change=True)
 
                 return self.response_edit(request, new_instance, form, formsets)
         else:
-            form = self.get_form_instance(request, ModelForm, instance)
-            formsets = self.get_formset_instances(request, instance=instance)
+            form = self.get_form_instance(request, ModelForm, instance, change=True)
+            formsets = self.get_formset_instances(request, instance=instance, change=True)
 
         context = {
             'title': _('Change %s') % force_unicode(opts.verbose_name),
