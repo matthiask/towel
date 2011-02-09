@@ -282,6 +282,13 @@ class ModelView(object):
         response = self.handle_batch_form(request, ctx, queryset)
         if response:
             return response
+        
+        """ 
+        The 'auto_detail' attribute redirects the visitor to the detail page
+        if there is only one match.
+        """
+        if  getattr(self, 'auto_detail', None) and len(queryset) == 1:
+            return redirect(queryset[0])
 
         if paginate_by:
             page, paginator = self.paginate_object_list(request, queryset, paginate_by)
