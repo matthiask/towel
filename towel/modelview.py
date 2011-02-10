@@ -20,8 +20,10 @@ class ModelView(object):
     # Every view is wrapped with this decorator. Use this if you need
     # f.e. a simple way of ensuring a user is logged in before accessing
     # any view here.
-    view_decorator = lambda self, f: f
-    crud_view_decorator = None
+    def view_decorator(self, func):
+        return func
+    def crud_view_decorator(self, func):
+        return self.view_decorator(func)
 
     # Used for detail and edit views
     template_object_name = 'object'
@@ -61,9 +63,6 @@ class ModelView(object):
     def get_urls(self):
         from django.conf.urls.defaults import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
-
-        if not self.crud_view_decorator:
-            self.crud_view_decorator = self.view_decorator
 
         return patterns('',
             url(r'^$',
