@@ -208,12 +208,20 @@ class ModelAutocompleteWidget(forms.TextInput):
                 'text': _('clear'),
                 }) + (u'<input%s />' % flatatt(final_attrs))
 
-        js = '''<script type="text/javascript">
+        js = u'''<script type="text/javascript">
 $(function() {
-    $('#%(id)s_ac').autocomplete(%(source)s, {
-        matchContains: true, minChars: 2, max: 100
-    }).result(function(event, item) {
-        $('#%(id)s').val(item[1]).trigger('change');
+    $('#%(id)s_ac').autocomplete({
+        source: %(source)s,
+        minLength: 2,
+        focus: function(event, ui) {
+            $('#%(id)s_ac').val(ui.item.label);
+            return false;
+        },
+        select: function(event, ui) {
+            $('#%(id)s').val(ui.item.value);
+            $('#%(id)s_ac').val(ui.item.label);
+            return false;
+        }
     }).bind('focus', function() {
         this.select();
     }).bind('blur', function() {
