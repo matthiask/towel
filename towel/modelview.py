@@ -64,7 +64,7 @@ class ModelView(object):
         from django.conf.urls.defaults import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
 
-        return patterns('',
+        urlpatterns = patterns('',
             url(r'^$',
                 self.view_decorator(self.list_view),
                 name='%s_%s_list' % info),
@@ -77,10 +77,28 @@ class ModelView(object):
             url(r'^%s/delete/$' % self.urlconf_detail_re,
                 self.crud_view_decorator(self.delete_view),
                 name='%s_%s_delete' % info),
+            )
+
+        for urlp, view, ident in self.get_action_urls():
+            urlpatterns += patterns('',
+                url(urlp % {
+                        'detail': self.urlconf_detail_re,
+                        'ident': ident,
+                        },
+                    self.crud_view_decorator(view),
+                    name=('%s_%s_%%s' % info) % ident),
+                )
+
+        urlpatterns += patterns('',
             url(r'^%s/$' % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
                 name='%s_%s_detail' % info),
             )
+
+        return urlpatterns
+
+    def get_action_urls(self):
+        return ()
 
     @property
     def urls(self):

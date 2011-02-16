@@ -231,6 +231,8 @@ $(function() {
 
     def _source(self):
         if self.url:
+            if hasattr(self.url, '__call__'):
+                return u'\'%s\'' % self.url()
             return u'\'%s\'' % self.url
         else:
             return simplejson.dumps([(unicode(o), o.id) for o in self.queryset.all()])
