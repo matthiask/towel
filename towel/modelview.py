@@ -79,13 +79,19 @@ class ModelView(object):
                 name='%s_%s_delete' % info),
             )
 
-        for urlp, view, ident in self.get_action_urls():
+        for spec in self.additional_urls():
+            urlp, view = spec[:2]
+            if len(spec) > 2:
+                ident = spec[2]
+            else:
+                ident = view.__name__
+
             urlpatterns += patterns('',
                 url(urlp % {
                         'detail': self.urlconf_detail_re,
                         'ident': ident,
                         },
-                    self.crud_view_decorator(view),
+                    view,
                     name=('%s_%s_%%s' % info) % ident),
                 )
 
@@ -97,7 +103,24 @@ class ModelView(object):
 
         return urlpatterns
 
-    def get_action_urls(self):
+    def additional_urls(self):
+        """
+        Define additional URLs for the modelview.
+
+        You are responsible yourself for wrapping the views with permission decorators etc.
+
+        The following example will add three views; %(detail)s is replaced with the
+        regular expression ``urlconf_detail_re``. The URL pattern name is determined by
+        ``<app_label>_<module_name>_<ident>``, where ``ident`` is either the third argument
+        in the URL specification or the function name of the passed view::
+
+            return [
+                (r'^autocomplete/$', self.view_decorator(self.autocomplete)),
+                (r'^%(detail)s/statistics/$', self.view_decorator(self.statistics), 'anything'),
+                (r'^%(detail)s/something/$', self.crud_view_decorator(self.something), 'something'),
+                ]
+        """
+
         return ()
 
     @property
