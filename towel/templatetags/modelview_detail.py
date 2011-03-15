@@ -8,6 +8,20 @@ register = template.Library()
 
 @register.filter
 def model_details(instance):
+    """
+    Returns a stream of ``verbose_name``, ``value`` pairs for the specified
+    model instance::
+
+        <table>
+        {% for verbose_name, value in object|model_details %}
+            <tr>
+                <th>{{ verbose_name }}</th>
+                <td>{{ value }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    """
+
     for f in instance._meta.fields:
         if f.auto_created:
             continue

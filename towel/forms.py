@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class BatchForm(forms.Form):
+    """Batch form"""
+
     ids = []
     process = False
 
@@ -45,7 +47,19 @@ class BatchForm(forms.Form):
 
 
 class SearchForm(forms.Form):
+    """
+    Search form
+
+    Supports persistence of searches (stores search in the session). Requires
+    not only the GET parameters but the request object itself to work
+    correctly.
+    """
+
+    #: Fields which are always excluded from automatic filtering
+    #: in ``apply_filters``
     always_exclude = ('s', 'query')
+
+    #: Default field values - used if not overridden by the user
     default = {}
 
     # search form active?
@@ -60,6 +74,11 @@ class SearchForm(forms.Form):
         self.post_init(request)
 
     def prepare_data(self, data, request):
+        """
+        Fill in default values from ``default`` if they aren't provided by
+        the user.
+        """
+
         if not self.default:
             return data
 
@@ -76,10 +95,18 @@ class SearchForm(forms.Form):
         return data
 
     def post_init(self, request):
-        # Hook for customizations
+        """
+        Hook for customizations.
+        """
+
         pass
 
     def persist(self, request):
+        """
+        Persist the search in the session, or load saved search if user
+        isn't searching right now.
+        """
+
         session_key = '_'.join(('sf', self.__class__.__name__, request.path))
 
         if 'clear' in request.GET or 'n' in request.GET:
@@ -95,12 +122,21 @@ class SearchForm(forms.Form):
             request.session[session_key] = pickle.dumps(self.data)
 
     def searching(self):
+        """
+        Returns ``searching`` for use as CSS class if results are filtered
+        by this search form in any way.
+        """
+
         if hasattr(self, 'persistency') or self.safe_cleaned_data.get('s'):
             return 'searching'
         return ''
 
     @property
     def safe_cleaned_data(self):
+        """
+        Safely return a dictionary of values, even if search form isn't valid.
+        """
+
         self.is_valid()
         try:
             return self.cleaned_data.copy()
@@ -108,6 +144,10 @@ class SearchForm(forms.Form):
             return {}
 
     def fields_iterator(self):
+        """
+        Yield all additional search fields.
+        """
+
         skip = ('query', 's')
 
         for field in self:
@@ -115,6 +155,12 @@ class SearchForm(forms.Form):
                 yield field
 
     def apply_filters(self, queryset, data, exclude=()):
+        """
+        Automatically apply filters
+
+        Uses form field names for ``filter()`` argument construction.
+        """
+
         exclude = list(exclude) + list(self.always_exclude)
 
         for field in self.fields.keys():
@@ -130,12 +176,20 @@ class SearchForm(forms.Form):
         return queryset
 
     def queryset(self, model):
+        """
+        Return the result of the search
+        """
+
         data = self.safe_cleaned_data
         queryset = model.objects.search(data.get('query'))
         return self.apply_filters(queryset, data)
 
 
 class StrippedTextInput(forms.TextInput):
+    """
+    ``TextInput`` form widget subclass returning stripped contents only
+    """
+
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
         if isinstance(value, (str, unicode)):
@@ -147,6 +201,10 @@ class StrippedTextInput(forms.TextInput):
 
 
 class StrippedTextarea(forms.Textarea):
+    """
+    ``Textarea`` form widget subclass returning stripped contents only
+    """
+
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
         if isinstance(value, (str, unicode)):
@@ -158,6 +216,12 @@ class StrippedTextarea(forms.Textarea):
 
 
 def stripped_formfield_callback(field, **kwargs):
+    """
+    Use this callback as ``formfield_callback`` if you want to use stripped
+    text inputs and textareas automatically without manually specifying the
+    widgets. Adds a ``dateinput`` class to date and datetime fields too.
+    """
+
     if isinstance(field, models.CharField) and not field.choices:
         kwargs['widget'] = StrippedTextInput()
     elif isinstance(field, models.TextField):
@@ -171,6 +235,24 @@ def stripped_formfield_callback(field, **kwargs):
 
 
 class ModelAutocompleteWidget(forms.TextInput):
+    """
+    Model autocompletion widget using jQuery UI Autocomplete
+
+    Supports both querysets and JSON-returning AJAX handlers as data
+    sources. Use as follows::
+
+        class MyForm(forms.ModelForm):
+            customer = forms.ModelChoiceField(Customer.objects.all(),
+                widget=ModelAutocompleteWidget(url='/customers/search_ajax/'),
+                )
+            type = forms.ModelChoiceField(Type.objects.all(),
+                widget=ModelAutocompleteWidget(queryset=Type.objects.all()),
+                )
+
+    You need to make sure that the jQuery UI files are loaded correctly
+    yourself.
+    """
+
     def __init__(self, attrs=None, url=None, queryset=None):
         assert url or queryset, 'Provide either url or queryset'
 

@@ -8,13 +8,22 @@ register = template.Library()
 
 @register.simple_tag
 def form_items(form):
+    """
+    Render all form items::
+
+        {% form_items form %}
+    """
     return u''.join(render_to_string('_form_item.html', {'item': field}) for field in form)
 
 
 @register.inclusion_tag('_form_item.html')
 def form_item(item, additional_classes=None):
     """
-    Helper for easy displaying of form items.
+    Helper for easy displaying of form items::
+
+        {% for field in form %}
+            {% form_item field %}
+        {% endfor %}
     """
 
     return {
@@ -26,7 +35,10 @@ def form_item(item, additional_classes=None):
 @register.inclusion_tag('_form_item_plain.html')
 def form_item_plain(item):
     """
-    Helper for easy displaying of form items.
+    Helper for easy displaying of form items without any additional
+    tags (table cells or paragraphs) or labels::
+
+        {% form_item_plain field %}
     """
 
     return {
@@ -36,6 +48,14 @@ def form_item_plain(item):
 
 @register.tag
 def form_errors(parser, token):
+    """
+    Show all form and formset errors::
+
+        {% form_errors form formset1 formset2 %}
+
+    Silently ignores non-existant variables.
+    """
+
     tokens = token.split_contents()
 
     return FormErrorsNode(*tokens[1:])
@@ -87,9 +107,12 @@ class FormErrorsNode(template.Node):
 @register.tag
 def dynamic_formset(parser, token):
     """
-    {% dynamic_formset formset "activities" %}
-        ... form code
-    {% enddynamic_formset %}
+    Implements formsets where subforms can be added using the
+    ``towel_add_subform`` javascript method::
+
+        {% dynamic_formset formset "activities" %}
+            ... form code
+        {% enddynamic_formset %}
     """
 
     tokens = token.split_contents()

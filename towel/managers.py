@@ -19,6 +19,29 @@ def normalize_query(query_string,
 
 
 class SearchManager(models.Manager):
+    """
+    Stupid searching manager
+
+    Does not use fulltext searching abilities of databases. Constructs a query
+    searching specified fields for a freely definable search string. The
+    individual terms may be grouped by using apostrophes, and can be prefixed with
+    + or - signs to specify different searching modes::
+
+        +django "shop software" -satchmo
+
+    Usage example::
+
+        class MyModelManager(SearchManager):
+            search_fields = ('field1', 'name', 'related__field')
+
+        class MyModel(models.Model):
+            # ...
+
+            objects = MyModelManager()
+
+        MyModel.objects.search('yeah -no')
+    """
+
     search_fields = ()
 
     def search(self, query):

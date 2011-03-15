@@ -2,3 +2,6 @@
 *~
 .*.swp
 \#*#
+/docs/_build
+/django
+/example

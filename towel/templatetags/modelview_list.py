@@ -11,6 +11,18 @@ register = template.Library()
 
 @register.filter
 def model_row(instance, fields):
+    """
+    Shows a row in a modelview object list::
+
+        {% for object in object_list %}
+            <tr>
+            {% for verbose_name, field in object|model_row:"name,get_absolute_url" %}
+                <td>{{ field }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    """
+
     for name in fields.split(','):
         try:
             f = instance._meta.get_field(name)
@@ -41,6 +53,12 @@ def model_row(instance, fields):
 
 @register.inclusion_tag('_pagination.html', takes_context=True)
 def pagination(context, page, paginator, where=None):
+    """
+    Shows pagination links::
+
+        {% pagination current_page paginator %}
+    """
+
     return {
         'context': context,
         'page': page,
@@ -51,6 +69,12 @@ def pagination(context, page, paginator, where=None):
 
 @register.filter
 def querystring(data, exclude='page,all'):
+    """
+    Returns the current querystring, excluding specified GET parameters::
+
+        {% request.GET|querystring:"page,all" %}
+    """
+
     exclude = exclude.split(',')
 
     items = reduce(operator.add,

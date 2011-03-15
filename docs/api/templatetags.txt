@@ -1,0 +1,18 @@
+Template tags
+=============
+
+.. automodule:: towel.templatetags.modelview_detail
+   :members:
+   :noindex:
+
+.. automodule:: towel.templatetags.modelview_list
+   :members:
+   :noindex:
+
+.. automodule:: towel.templatetags.towel_batch_tags
+   :members:
+   :noindex:
+
+.. automodule:: towel.templatetags.towel_form_tags
+   :members:
+   :noindex:

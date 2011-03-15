@@ -10,13 +10,23 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   :numbered:
 
    overview
    installation
-
    modelviews
    templatetags
+
+
+API Documentation
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   api/forms
+   api/managers
+   api/modelview
+   api/templatetags
 
 
 Indices and tables
