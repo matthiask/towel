@@ -218,7 +218,7 @@ $(function() {
             return false;
         },
         select: function(event, ui) {
-            $('#%(id)s').val(ui.item.value);
+            $('#%(id)s').val(ui.item.value).trigger('change');
             $('#%(id)s_ac').val(ui.item.label);
             return false;
         }
