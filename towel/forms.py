@@ -243,4 +243,17 @@ $(function() {
                 return u'\'%s\'' % self.url()
             return u'\'%s\'' % self.url
         else:
-            return simplejson.dumps([(unicode(o), o.id) for o in self.queryset.all()])
+            data = simplejson.dumps([{
+                'label': unicode(o),
+                'value': o.id,
+                } for o in self.queryset.all()])
+
+            return u'''function (request, response) {
+    var data = %(data)s, ret = [], term = request.term.toLowerCase();
+    for (var i=0; i<data.length; ++i) {
+        if (data[i].label.toLowerCase().indexOf(term) != -1)
+            ret.push(data[i]);
+    }
+    response(ret);
+}
+''' % {'data': data}
