@@ -312,6 +312,7 @@ $(function() {
     });
     $('#%(id)s_cl').click(function(){
         $('#%(id)s, #%(id)s_ac').val('');
+        return false;
     });
 });
 </script>
