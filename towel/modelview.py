@@ -325,6 +325,8 @@ class ModelView(object):
         if response:
             return response
 
+        ctx['full_%s' % self.template_object_list_name] = queryset
+
         if paginate_by:
             page, paginator = self.paginate_object_list(request, queryset, paginate_by)
 
