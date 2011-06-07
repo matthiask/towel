@@ -229,6 +229,8 @@ class ModelView(object):
             'list_url': tryreverse('%s_%s_list' % info),
             'add_url': tryreverse('%s_%s_add' % info),
             'base_template': self.base_template,
+
+            'adding_allowed': self.adding_allowed(request),
         }
 
     def get_context(self, request, context):

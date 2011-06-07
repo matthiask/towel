@@ -7,7 +7,8 @@
 {% block content %}
 
 <div class="buttons">
-    <a href="add/" class="button"><span>{% blocktrans %}Add {{ verbose_name }}{% endblocktrans %}</span></a>
+    {% if adding_allowed %}<a href="add/" class="button">
+        <span>{% blocktrans %}Add {{ verbose_name }}{% endblocktrans %}</span></a>{% endif %}
 </div>
 
 {% block search %}
