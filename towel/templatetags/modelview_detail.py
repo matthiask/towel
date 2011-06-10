@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.filter
-def model_details(instance):
+def model_details(instance, fields=None):
     """
     Returns a stream of ``verbose_name``, ``value`` pairs for the specified
     model instance::
@@ -22,7 +22,12 @@ def model_details(instance):
         </table>
     """
 
-    for f in instance._meta.fields:
+    if not fields:
+        _fields = instance._meta.fields
+    else:
+        _fields = [instance._meta.get_field_by_name(f)[0] for f in fields.split(',')]
+
+    for f in _fields:
         if f.auto_created:
             continue
 
