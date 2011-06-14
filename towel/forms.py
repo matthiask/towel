@@ -119,7 +119,8 @@ class SearchForm(forms.Form):
                 self.data = pickle.loads(request.session[session_key])
                 self.persistency = True
         else:
-            request.session[session_key] = pickle.dumps(self.data)
+            request.session[session_key] = pickle.dumps(dict(
+                (k, v) for k, v in self.data.items() if k not in ('s',)))
 
     def searching(self):
         """
