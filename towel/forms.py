@@ -113,16 +113,17 @@ class SearchForm(forms.Form):
             if session_key in request.session:
                 del request.session[session_key]
 
-        if request.method == 'GET' and 's' not in request.GET:
+        if self.data:
+            data = self.data.copy()
+            if 's' in data:
+                del data['s']
+                request.session[session_key] = pickle.dumps(data)
+
+        elif request.method == 'GET' and 's' not in request.GET:
             # try to get saved search from session
             if session_key in request.session:
                 self.data = pickle.loads(request.session[session_key])
                 self.persistency = True
-        else:
-            data = self.data.copy()
-            if 's' in data:
-                del data['s']
-            request.session[session_key] = pickle.dumps(data)
 
     def searching(self):
         """
