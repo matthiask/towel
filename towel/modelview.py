@@ -238,23 +238,26 @@ class ModelView(object):
         instance.update(context)
         return instance
 
+    def render(self, request, template, context):
+        return render_to_response(template, context)
+
     def render_list(self, request, context):
-        return render_to_response(
+        return self.render(request,
             self.get_template(request, 'list'),
             self.get_context(request, context))
 
     def render_detail(self, request, context):
-        return render_to_response(
+        return self.render(request,
             self.get_template(request, 'detail'),
             self.get_context(request, context))
 
     def render_form(self, request, context, change):
-        return render_to_response(
+        return self.render(request,
             self.get_template(request, 'form'),
             self.get_context(request, context))
 
     def render_delete_confirmation(self, request, context):
-        return render_to_response(
+        return self.render(request,
             self.get_template(request, 'delete_confirmation'),
             self.get_context(request, context))
 
