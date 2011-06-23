@@ -120,8 +120,8 @@ class SearchForm(forms.Form):
                 self.persistency = True
         else:
             data = self.data.copy()
-            if 'k' in data:
-                del data['k']
+            if 's' in data:
+                del data['s']
             request.session[session_key] = pickle.dumps(data)
 
     def searching(self):
