@@ -299,6 +299,8 @@ $(function() {
     $('#%(id)s_ac').autocomplete({
         source: %(source)s,
         minLength: 2,
+        autoFocus: true,
+        delay: 400,
         focus: function(event, ui) {
             $('#%(id)s_ac').val(ui.item.label);
             return false;
