@@ -1,5 +1,4 @@
-from django import template
-from django.forms import BaseForm
+from django import forms, template
 from django.template.loader import render_to_string
 
 
@@ -13,7 +12,10 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return u''.join(render_to_string('_form_item.html', {'item': field}) for field in form)
+    return u''.join(render_to_string('_form_item.html', {
+        'item': field,
+        'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
+        }) for field in form)
 
 
 @register.inclusion_tag('_form_item.html')
@@ -29,6 +31,7 @@ def form_item(item, additional_classes=None):
     return {
         'item': item,
         'additional_classes': additional_classes,
+        'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
         }
 
 
@@ -43,6 +46,7 @@ def form_item_plain(item):
 
     return {
         'item': item,
+        'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
         }
 
 
@@ -86,7 +90,7 @@ class FormErrorsNode(template.Node):
         formset_list = []
 
         for i in items:
-            if isinstance(i, BaseForm):
+            if isinstance(i, forms.BaseForm):
                 form_list.append(i)
             else:
                 formset_list.append(i)
