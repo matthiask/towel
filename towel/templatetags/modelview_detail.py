@@ -1,6 +1,7 @@
 from django import template
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 
 register = template.Library()
@@ -42,6 +43,14 @@ def model_details(instance, fields=None):
 
         elif f.choices:
             value = getattr(instance, 'get_%s_display' % f.name)()
+
+        elif isinstance(f, (models.BooleanField, models.NullBooleanField)):
+            value = getattr(instance, f.name)
+            value = unicode({
+                True: _('yes'),
+                False: _('no'),
+                None: _('unknown'),
+                }.get(value, value))
 
         else:
             value = unicode(getattr(instance, f.name))

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-27 09:42+0100\n"
+"POT-Creation-Date: 2011-07-15 17:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,58 +17,58 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: forms.py:53
+#: forms.py:67
 msgid "Query"
 msgstr "Suchbegriff"
 
-#: forms.py:213
-msgid "reset"
-msgstr "rücksetzen"
+#: forms.py:294
+msgid "clear"
+msgstr ""
 
-#: modelview.py:218
+#: modelview.py:265
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: modelview.py:226
+#: modelview.py:273
 msgid "You are not allowed to add objects."
 msgstr "Es ist ihnen nicht erlaubt, Objekte hinzuzufügen."
 
-#: modelview.py:231
+#: modelview.py:278
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: modelview.py:239
+#: modelview.py:286
 msgid "You are not allowed to edit this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu bearbeiten."
 
-#: modelview.py:243
+#: modelview.py:290
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: modelview.py:248
+#: modelview.py:295
 msgid "You are not allowed to delete this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
 
-#: modelview.py:374
+#: modelview.py:423
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: modelview.py:421
+#: modelview.py:470
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: modelview.py:448
+#: modelview.py:497
 msgid " and "
 msgstr " und "
 
-#: modelview.py:454
+#: modelview.py:503
 #, python-format
 msgid "Deletion not allowed: There are %s related to this object."
 msgstr "Löschen nicht erlaubt: Es sind %s mit diesem Objekt verbunden."
 
-#: modelview.py:474
+#: modelview.py:523
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"
@@ -107,26 +107,41 @@ msgstr "bearbeiten"
 msgid "save"
 msgstr "sichern"
 
-#: templates/modelview/object_list.html:10
+#: templates/modelview/object_list.html:11
 #, python-format
 msgid "Add %(verbose_name)s"
 msgstr "%(verbose_name)s hinzufügen"
 
-#: templates/modelview/object_list.html:26
+#: templates/modelview/object_list.html:27
 msgid "Search"
 msgstr "Suchen"
 
-#: templates/modelview/object_list.html:41
+#: templates/modelview/object_list.html:42
 msgid "object"
 msgstr "object"
 
-#: templates/modelview/object_list.html:60
+#: templates/modelview/object_list.html:61
 msgid "Batch form"
 msgstr "Stapelbearbeitung"
 
-#: templates/modelview/object_list.html:76
+#: templates/modelview/object_list.html:77
 msgid "Submit"
 msgstr "Abschicken"
+
+#: templatetags/modelview_detail.py:50
+msgid "yes"
+msgstr "ja"
+
+#: templatetags/modelview_detail.py:51
+msgid "no"
+msgstr "nein"
+
+#: templatetags/modelview_detail.py:52
+msgid "unknown"
+msgstr "unbekannt"
+
+#~ msgid "reset"
+#~ msgstr "rücksetzen"
 
 #~ msgid "New object"
 #~ msgstr "Objekt erstellen"
