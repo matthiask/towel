@@ -346,3 +346,86 @@ $(function() {
     response(ret);
 }
 ''' % {'data': data}
+
+
+class InvalidEntry(object):
+    pk = None
+
+class MultipleAutocompletionWidget(forms.TextInput):
+    def __init__(self, attrs=None, queryset=None):
+        self.queryset = queryset
+        super(MultipleAutocompletionWidget, self).__init__(attrs)
+
+    def _possible(self):
+        return dict((unicode(o).lower(), o) for o in self.queryset._clone())
+
+    def render(self, name, value, attrs=None, choices=()):
+        if value is None: value = []
+        final_attrs = self.build_attrs(attrs, name=name, type='text')
+
+        if value:
+            value = u', '.join(unicode(o) for o in
+                self.queryset.filter(id__in=value))
+
+        js = u'''<script type="text/javascript">
+$(function() {
+    function split( val ) {
+        return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+        return split( term ).pop();
+    }
+
+    $( "#%(id)s" )
+        // don't navigate away from the field on tab when selecting an item
+        .bind( "keydown", function( event ) {
+            if ( event.keyCode === $.ui.keyCode.TAB &&
+                    $( this ).data( "autocomplete" ).menu.active ) {
+                event.preventDefault();
+            }
+        })
+        .autocomplete({
+            source: %(source)s,
+            search: function() {
+                // custom minLength
+                var term = extractLast( this.value );
+                if ( term.length < 2 ) {
+                    return false;
+                }
+            },
+            focus: function() {
+                // prevent value inserted on focus
+                return false;
+            },
+            select: function( event, ui ) {
+                var terms = split( this.value );
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push( ui.item.value );
+                // add placeholder to get the comma-and-space at the end
+                terms.push( "" );
+                this.value = terms.join( ", " );
+                return false;
+            }
+    });
+});
+</script>
+''' % {'id': final_attrs.get('id', name), 'name': name, 'source': self._source()}
+
+        return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs), value) + js)
+
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, None)
+        if not value:
+            return []
+
+        possible = self._possible()
+        values = [s for s in [s.strip() for s in value.lower().split(',')] if s]
+        return list(set(possible.get(s, InvalidEntry).pk for s in values))
+
+    def _source(self):
+        return u'''function(request, response) {
+            response($.ui.autocomplete.filter(%(data)s, extractLast(request.term))); }''' % {
+                'data': simplejson.dumps([unicode(o) for o in self.queryset._clone()]),
+                }
