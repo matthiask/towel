@@ -133,11 +133,10 @@ class ModelView(object):
 
     def get_object(self, request, *args, **kwargs):
         queryset = self.get_query_set(request, *args, **kwargs)
-        model = queryset.model
 
         try:
             return queryset.get(*args, **kwargs)
-        except (model.DoesNotExist, ValueError, ValidationError):
+        except (ValueError, ValidationError):
             raise self.model.DoesNotExist
 
     def get_object_or_404(self, request, *args, **kwargs):
