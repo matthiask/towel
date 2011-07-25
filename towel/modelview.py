@@ -379,6 +379,7 @@ class ModelView(object):
 
         return self.render_detail(request, {
             self.template_object_name: instance,
+            'editing_allowed': self.editing_allowed(request, instance),
             })
 
     def adding_allowed(self, request):
