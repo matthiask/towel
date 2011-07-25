@@ -315,12 +315,14 @@ class ModelView(object):
 
     # VIEWS
 
-    def list_view(self, request):
+    def list_view(self, request, *args, **kwargs):
         paginate_by = getattr(self, 'paginate_by', None)
 
         ctx = {}
 
-        queryset, response = self.handle_search_form(request, ctx)
+        queryset, response = self.handle_search_form(request, ctx,
+            queryset=self.get_query_set(request, *args, **kwargs))
+
         if response:
             return response
 
