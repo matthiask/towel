@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-15 17:03+0200\n"
+"POT-Creation-Date: 2011-07-25 09:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr "%s löschen"
 
 #: templates/_form_errors.html:3
 msgid "Please correct the following errors:"
-msgstr "Bitte überprüfen Sie die folgenden Fehler vor dem Speichern:"
+msgstr "Bitte korrigieren Sie die folgenden Fehler:"
 
 #: templates/_form_errors.html:8 templates/_form_errors.html.py:20
 msgid "Form errors"
