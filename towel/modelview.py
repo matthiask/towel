@@ -320,7 +320,6 @@ class ModelView(object):
         paginate_by = getattr(self, 'paginate_by', None)
 
         ctx = {}
-        queryset = self.get_query_set(request)
 
         queryset, response = self.handle_search_form(request, ctx)
         if response:
@@ -351,7 +350,7 @@ class ModelView(object):
         """
 
         if not queryset:
-            queryset = self.model._default_manager.all()
+            queryset = self.get_query_set(request)
 
         search_form = getattr(self, 'search_form', None)
         if search_form:
