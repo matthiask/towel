@@ -350,7 +350,7 @@ class ModelView(object):
         Must return a tuple consisting of a queryset and either a HttpResponse or None
         """
 
-        if not queryset:
+        if queryset is None:
             queryset = self.get_query_set(request)
 
         search_form = getattr(self, 'search_form', None)
