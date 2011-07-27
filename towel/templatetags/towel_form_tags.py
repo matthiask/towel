@@ -36,7 +36,7 @@ def form_item(item, additional_classes=None):
 
 
 @register.inclusion_tag('_form_item_plain.html')
-def form_item_plain(item):
+def form_item_plain(item, additional_classes=None):
     """
     Helper for easy displaying of form items without any additional
     tags (table cells or paragraphs) or labels::
@@ -46,6 +46,7 @@ def form_item_plain(item):
 
     return {
         'item': item,
+        'additional_classes': additional_classes,
         'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
         }
 
