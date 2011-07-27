@@ -7,7 +7,7 @@
 {% block content %}
 <h2>{{ title }}</h2>
 
-<form method="post" action=".">{% csrf_token %}
+<form method="post" action="." enctype="multipart/form-data">{% csrf_token %}
 
 {% for formset in formsets.values %}{{ formset.management_form }}{% endfor %}
 
