@@ -68,6 +68,7 @@ class SearchForm(forms.Form):
 
     def __init__(self, data, *args, **kwargs):
         request = kwargs.pop('request')
+        self.original_data = data
         super(SearchForm, self).__init__(self.prepare_data(data, request),
             *args, **kwargs)
         self.persist(request)
@@ -113,7 +114,7 @@ class SearchForm(forms.Form):
             if session_key in request.session:
                 del request.session[session_key]
 
-        if self.data:
+        if self.original_data:
             data = self.data.copy()
             if 's' in data:
                 del data['s']
