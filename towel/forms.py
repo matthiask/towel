@@ -64,7 +64,8 @@ class SearchForm(forms.Form):
 
     # search form active?
     s = forms.CharField(required=False)
-    query = forms.CharField(required=False, label=_('Query'))
+    query = forms.CharField(required=False, label=_('Query'),
+        widget=forms.TextInput(attrs={'placeholder': _('Query')}))
 
     def __init__(self, data, *args, **kwargs):
         request = kwargs.pop('request')
