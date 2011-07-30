@@ -5,6 +5,7 @@ import urllib
 from django.contrib import messages
 from django.core import paginator
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models.deletion import Collector
 from django.forms.formsets import all_valid
@@ -14,6 +15,13 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+
+
+def _tryreverse(*args, **kwargs):
+    try:
+        return reverse(*args, **kwargs)
+    except NoReverseMatch:
+        return None
 
 
 class ModelView(object):
@@ -213,20 +221,13 @@ class ModelView(object):
     # VIEW HELPERS
 
     def get_extra_context(self, request):
-        from django.core.urlresolvers import reverse, NoReverseMatch
         info = self.model._meta.app_label, self.model._meta.module_name
-
-        def tryreverse(*args, **kwargs):
-            try:
-                return reverse(*args, **kwargs)
-            except NoReverseMatch:
-                return None
 
         return {
             'verbose_name': self.model._meta.verbose_name,
             'verbose_name_plural': self.model._meta.verbose_name_plural,
-            'list_url': tryreverse('%s_%s_list' % info),
-            'add_url': tryreverse('%s_%s_add' % info),
+            'list_url': _tryreverse('%s_%s_list' % info),
+            'add_url': _tryreverse('%s_%s_add' % info),
             'base_template': self.base_template,
 
             'adding_allowed': self.adding_allowed(request),
@@ -271,7 +272,8 @@ class ModelView(object):
     def response_adding_denied(self, request):
         messages.error(request, _('You are not allowed to add objects.'))
         info = self.model._meta.app_label, self.model._meta.module_name
-        return redirect('%s_%s_list' % info)
+        url = _tryreverse('%s_%s_list' % info)
+        return HttpResponseRedirect(url if url else '../../')
 
     def response_edit(self, request, instance, form, formsets):
         messages.success(request, _('The object has been successfully updated.'))
@@ -288,7 +290,8 @@ class ModelView(object):
     def response_delete(self, request, instance):
         messages.success(request, _('The object has been successfully deleted.'))
         info = self.model._meta.app_label, self.model._meta.module_name
-        return redirect('%s_%s_list' % info)
+        url = _tryreverse('%s_%s_list' % info)
+        return HttpResponseRedirect(url if url else '../../')
 
     def response_deletion_denied(self, request, instance):
         messages.error(request, _('You are not allowed to delete this object.'))
