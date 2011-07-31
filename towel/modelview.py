@@ -3,7 +3,6 @@ import decimal
 import urllib
 
 from django.contrib import messages
-from django.core import paginator
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
@@ -15,6 +14,8 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+
+from towel import paginator
 
 
 def _tryreverse(*args, **kwargs):
