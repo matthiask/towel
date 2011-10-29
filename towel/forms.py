@@ -120,7 +120,8 @@ class SearchForm(forms.Form):
             if session_key in request.session:
                 del request.session[session_key]
 
-        if self.original_data:
+        if self.original_data and (
+                set(self.original_data.keys()) & set(self.fields.keys())):
             data = self.data.copy()
             if 's' in data:
                 del data['s']
