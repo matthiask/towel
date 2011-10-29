@@ -68,6 +68,11 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': _('Query')}))
 
     def __init__(self, data, *args, **kwargs):
+        # Are the results filtered in any way?
+        self.filtered = True
+        # Is a persisted search active?
+        self.persistency = False
+
         request = kwargs.pop('request')
         self.original_data = data
         super(SearchForm, self).__init__(self.prepare_data(data, request),
@@ -127,13 +132,16 @@ class SearchForm(forms.Form):
                 self.data = pickle.loads(request.session[session_key])
                 self.persistency = True
 
+            else:
+                self.filtered = False
+
     def searching(self):
         """
         Returns ``searching`` for use as CSS class if results are filtered
         by this search form in any way.
         """
 
-        if hasattr(self, 'persistency') or self.safe_cleaned_data.get('s'):
+        if self.persistency or self.safe_cleaned_data.get('s'):
             return 'searching'
         return ''
 
