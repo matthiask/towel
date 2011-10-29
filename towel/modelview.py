@@ -519,10 +519,10 @@ class ModelView(object):
             obj.delete()
             return self.response_delete(request, obj)
         else:
-            collected_objects = getattr(obj, '_collected_objects', None)
+            if not hasattr(obj, '_collected_objects'):
+                related_classes(obj)
 
-            if collected_objects:
-                collected_objects = [(key._meta, len(value)) for key, value in collected_objects.items()]
+            collected_objects = [(key._meta, len(value)) for key, value in obj._collected_objects.items()]
 
             return self.render_delete_confirmation(request, {
                 'title': _('Delete %s') % force_unicode(self.model._meta.verbose_name),
