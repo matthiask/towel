@@ -85,8 +85,14 @@ def querystring(data, exclude='page,all'):
 
 
 @register.simple_tag
-def ordering_link(field, request):
+def ordering_link(field, request, title=None, base_url=u''):
     qs = querystring(request.GET, 'page,all,o')
     if request.GET.get('o') == field:
-        return u'%s&o=-%s' % (qs, field)
-    return u'%s&o=%s' % (qs, field)
+        qs = u'%s&o=-%s' % (qs, field)
+        css_class = 'desc'
+    else:
+        qs = u'%s&o=%s' % (qs, field)
+        css_class = 'asc'
+
+    return u'<a class="ordering %s" href="%s?%s">%s</a>' % (
+        css_class, base_url, qs, title)
