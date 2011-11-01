@@ -90,9 +90,12 @@ def ordering_link(field, request, title=None, base_url=u''):
     if request.GET.get('o') == field:
         qs = u'%s&o=-%s' % (qs, field)
         css_class = 'desc'
-    else:
+    elif request.GET.get('o') == ('-%s' % field):
         qs = u'%s&o=%s' % (qs, field)
         css_class = 'asc'
+    else:
+        qs = u'%s&o=%s' % (qs, field)
+        css_class = ''
 
     return u'<a class="ordering %s" href="%s?%s">%s</a>' % (
         css_class, base_url, qs, title)
