@@ -82,3 +82,11 @@ def querystring(data, exclude='page,all'):
         [])
 
     return urllib.urlencode(items)
+
+
+@register.simple_tag
+def ordering_link(field, request):
+    qs = querystring(request.GET, 'page,all,o')
+    if request.GET.get('o') == field:
+        return u'%s&o=-%s' % (qs, field)
+    return u'%s&o=%s' % (qs, field)

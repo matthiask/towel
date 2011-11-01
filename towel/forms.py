@@ -57,13 +57,21 @@ class SearchForm(forms.Form):
 
     #: Fields which are always excluded from automatic filtering
     #: in ``apply_filters``
-    always_exclude = ('s', 'query')
+    always_exclude = ('s', 'query', 'o')
 
     #: Default field values - used if not overridden by the user
     default = {}
 
+    #: Ordering specification
+    orderings = {}
+
     # search form active?
     s = forms.CharField(required=False)
+
+    # current ordering
+    o = forms.CharField(required=False)
+
+    # Full text search query
     query = forms.CharField(required=False, label=_('Query'),
         widget=forms.TextInput(attrs={'placeholder': _('Query')}))
 
@@ -163,7 +171,7 @@ class SearchForm(forms.Form):
         Yield all additional search fields.
         """
 
-        skip = ('query', 's')
+        skip = ('query', 's', 'o')
 
         for field in self:
             if field.name not in skip:
@@ -190,6 +198,32 @@ class SearchForm(forms.Form):
 
         return queryset
 
+    def apply_ordering(self, queryset, ordering=None):
+        if ordering is None:
+            return queryset
+
+        if ordering and ordering[0] == '-':
+            order_by, desc = ordering[1:], True
+        else:
+            order_by, desc = ordering, False
+
+        if order_by not in self.orderings:
+            # Ignore ordering request if unknown
+            return queryset
+
+        order_by = self.orderings[order_by]
+
+        if hasattr(order_by, '__call__'):
+            queryset = order_by(queryset)
+        elif hasattr(order_by, '__iter__'):
+            queryset = queryset.order_by(*order_by)
+        else:
+            queryset = queryset.order_by(order_by)
+
+        if desc:
+            return queryset.reverse()
+        return queryset
+
     def queryset(self, model):
         """
         Return the result of the search
@@ -197,7 +231,8 @@ class SearchForm(forms.Form):
 
         data = self.safe_cleaned_data
         queryset = model.objects.search(data.get('query'))
-        return self.apply_filters(queryset, data)
+        queryset = self.apply_filters(queryset, data)
+        return self.apply_ordering(queryset, data.get('o'))
 
 
 class StrippedTextInput(forms.TextInput):
