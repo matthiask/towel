@@ -15,7 +15,7 @@ def batch_checkbox(form, id):
         {% endfor %}
     """
 
-    if not form or not getattr(form, 'ids'):
+    if not form or not hasattr(form, 'ids'):
         return u''
 
     cb = u'<input type="checkbox" name="batch_%s" value="%s" class="batch" %s/>'
