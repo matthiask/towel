@@ -314,6 +314,8 @@ class ModelView(object):
         if request.GET.get('all'):
             page_obj.object_list = queryset
             page_obj.show_all_objects = True
+            page_obj.start_index = 1
+            page_obj.end_index = paginator_obj.count
 
         return page_obj, paginator_obj
 
