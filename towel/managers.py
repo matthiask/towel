@@ -3,6 +3,7 @@ import re
 from django.db import models
 from django.db.models import Q
 
+from towel import queryset_transform
 
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
@@ -18,7 +19,7 @@ def normalize_query(query_string,
     return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
 
 
-class SearchManager(models.Manager):
+class SearchManager(queryset_transform.TransformManager):
     """
     Stupid searching manager
 
