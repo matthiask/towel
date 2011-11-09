@@ -144,6 +144,10 @@ class SearchForm(forms.Form):
             else:
                 self.filtered = False
 
+        elif request.method == 'POST' and 's' not in request.POST:
+            # It wasn't the search form which was POSTed, hopefully :-)
+            self.filtered = False
+
     def searching(self):
         """
         Returns ``searching`` for use as CSS class if results are filtered
