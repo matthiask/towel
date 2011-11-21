@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-25 09:53+0200\n"
+"POT-Creation-Date: 2011-11-21 13:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,58 +17,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: forms.py:67
+#: forms.py:75 forms.py:76
 msgid "Query"
 msgstr "Suchbegriff"
 
-#: forms.py:294
+#: forms.py:344
 msgid "clear"
 msgstr ""
 
-#: modelview.py:265
+#: modelview.py:266
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: modelview.py:273
+#: modelview.py:274
 msgid "You are not allowed to add objects."
 msgstr "Es ist ihnen nicht erlaubt, Objekte hinzuzufügen."
 
-#: modelview.py:278
+#: modelview.py:280
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: modelview.py:286
+#: modelview.py:288
 msgid "You are not allowed to edit this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu bearbeiten."
 
-#: modelview.py:290
+#: modelview.py:292
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: modelview.py:295
+#: modelview.py:298
 msgid "You are not allowed to delete this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
 
-#: modelview.py:423
+#: modelview.py:430
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: modelview.py:470
+#: modelview.py:477
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: modelview.py:497
+#: modelview.py:504
 msgid " and "
 msgstr " und "
 
-#: modelview.py:503
+#: modelview.py:510
 #, python-format
-msgid "Deletion not allowed: There are %s related to this object."
-msgstr "Löschen nicht erlaubt: Es sind %s mit diesem Objekt verbunden."
+msgid ""
+"Deletion not allowed: <small>There are %s related to this object.</small>"
+msgstr "Löschen nicht erlaubt: <small>Es sind %s mit diesem Objekt verbunden.</small>"
 
-#: modelview.py:523
+#: modelview.py:530
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"
@@ -81,7 +82,7 @@ msgstr "Bitte korrigieren Sie die folgenden Fehler:"
 msgid "Form errors"
 msgstr "Formularfehler"
 
-#: templates/_pagination.html:14
+#: templates/_pagination.html:17
 msgid "show all"
 msgstr "alle anzeigen"
 

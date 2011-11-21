@@ -507,7 +507,7 @@ class ModelView(object):
                 pretty_classes = pretty_classes[-1]
 
             messages.error(request,
-                _('Deletion not allowed: There are %s related to this object.') % pretty_classes)
+                _('Deletion not allowed: <small>There are %s related to this object.</small>') % pretty_classes)
 
         return not len(related)
 
