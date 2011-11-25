@@ -2,6 +2,7 @@
 Drop-in replacement for Django's ``django.core.paginator`` with additional goodies
 """
 
+from django.conf import settings
 from django.core import paginator
 
 
@@ -11,11 +12,11 @@ PageNotAnInteger = paginator.PageNotAnInteger
 EmptyPage = paginator.EmptyPage
 
 
-PAGINATION = {
-    'START': 4, # items at the start
-    'END': 4, # items at the end
-    'AROUND': 4, # items around the current page
-    }
+PAGINATION = getattr(settings, 'PAGINATION', {
+    'START': 6, # items at the start
+    'END': 6, # items at the end
+    'AROUND': 5, # items around the current page
+    })
 
 
 def filter_adjacent(iterable):
