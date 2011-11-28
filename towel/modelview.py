@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import datetime
 import decimal
 import urllib
@@ -5,7 +7,7 @@ import urllib
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.db import models
+from django.db import models, transaction
 from django.db.models.deletion import Collector
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
@@ -416,10 +418,11 @@ class ModelView(object):
 
             formsets = self.get_formset_instances(request, instance=new_instance, change=False)
             if all_valid(formsets.itervalues()) and form_validated:
-                self.save_model(request, new_instance, form, change=False)
-                form.save_m2m()
-                self.save_formsets(request, form, formsets, change=False)
-                self.post_save(request, new_instance, form, formsets, change=False)
+                with transaction.commit_on_success():
+                    self.save_model(request, new_instance, form, change=False)
+                    form.save_m2m()
+                    self.save_formsets(request, form, formsets, change=False)
+                    self.post_save(request, new_instance, form, formsets, change=False)
 
                 return self.response_add(request, new_instance, form, formsets)
         else:
@@ -463,10 +466,11 @@ class ModelView(object):
 
             formsets = self.get_formset_instances(request, instance=new_instance, change=True)
             if all_valid(formsets.itervalues()) and form_validated:
-                self.save_model(request, new_instance, form, change=True)
-                form.save_m2m()
-                self.save_formsets(request, form, formsets, change=True)
-                self.post_save(request, new_instance, form, formsets, change=True)
+                with transaction.commit_on_success():
+                    self.save_model(request, new_instance, form, change=True)
+                    form.save_m2m()
+                    self.save_formsets(request, form, formsets, change=True)
+                    self.post_save(request, new_instance, form, formsets, change=True)
 
                 return self.response_edit(request, new_instance, form, formsets)
         else:
