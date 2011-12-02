@@ -48,6 +48,8 @@ class ModelView(object):
 
     urlconf_detail_re = r'(?P<pk>\d+)'
 
+    paginator_class = paginator.Paginator
+
     def __init__(self, model, **kwargs):
         self.model = model
         for k, v in kwargs.items():
@@ -301,7 +303,7 @@ class ModelView(object):
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
-        paginator_obj = paginator.Paginator(queryset, paginate_by)
+        paginator_obj = self.paginator_class(queryset, paginate_by)
 
         try:
             page = int(request.GET.get('page', '1'))
