@@ -309,7 +309,7 @@ class SearchForm(forms.Form):
                 if hasattr(value, '__iter__'):
                     value = [choices.get(v) for v in value]
                 else:
-                    value = choices.get(v)
+                    value = choices.get(value)
 
             if hasattr(value, '__iter__'):
                 value = u', '.join(unicode(v) for v in value)
