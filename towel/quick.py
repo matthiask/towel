@@ -38,6 +38,12 @@ def identity():
 
 
 def model_mapper(queryset, attribute):
+    """
+    The regular expression needs to return a dict which is directly passed
+    to ``queryset.get()``. As a speciality, this mapper returns both the
+    primary key of the instance under the ``attribute`` name, and the instance
+    itself as ``attribute_``.
+    """
     def _fn(v):
         try:
             instance = queryset.get(**v)

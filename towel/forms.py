@@ -8,6 +8,8 @@ from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from towel import quick
+
 
 class BatchForm(forms.Form):
     """Batch form"""
@@ -64,6 +66,9 @@ class SearchForm(forms.Form):
 
     #: Ordering specification
     orderings = {}
+
+    #: Quick rules, a list of (regex, mapper) tuples
+    quick_rules = []
 
     # search form active?
     s = forms.CharField(required=False)
@@ -200,6 +205,20 @@ class SearchForm(forms.Form):
             elif value or value is False:
                 queryset = queryset.filter(**{field: value})
 
+        if self.quick_rules:
+            quick_only = set(data.keys()) - set(self.fields.keys())
+            for field in quick_only:
+                if field.endswith('_') and field[:-1] in quick_only or field[:-1] in self.fields:
+                    # Either ``quick.model_mapper`` wanted to trick us and added
+                    # the model instance, too, or the quick mechanism filled
+                    # an existing form field which means that the attribute has
+                    # already been handled above.
+                    continue
+
+                value = data.get(field)
+                if value is not None:
+                    queryset = queryset.filter(**{field: value})
+
         return queryset
 
     def apply_ordering(self, queryset, ordering=None):
@@ -228,13 +247,37 @@ class SearchForm(forms.Form):
             return queryset.reverse()
         return queryset
 
+    def query_data(self):
+        """
+        Return a fulltext query and structured data which can be converted into
+        simple filter() calls
+        """
+        data = self.safe_cleaned_data
+
+        if self.quick_rules:
+            data, query = quick.parse_quickadd(data.get('query'), self.quick_rules)
+            query = u' '.join(query)
+
+            # Data in form fields overrides any quick specifications
+            for k, v in self.safe_cleaned_data.items():
+                if v is not None:
+                    lst = data.setlistdefault(k, [])
+                    if isinstance(v, (list, tuple)):
+                        lst.extend(v)
+                    else:
+                        lst.append(v)
+        else:
+            query = data.get('query')
+
+        return query, data
+
     def queryset(self, model):
         """
         Return the result of the search
         """
 
-        data = self.safe_cleaned_data
-        queryset = model.objects.search(data.get('query'))
+        query, data = self.query_data()
+        queryset = model.objects.search(query)
         queryset = self.apply_filters(queryset, data)
         return self.apply_ordering(queryset, data.get('o'))
 
