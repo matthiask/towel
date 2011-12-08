@@ -238,6 +238,31 @@ class SearchForm(forms.Form):
         queryset = self.apply_filters(queryset, data)
         return self.apply_ordering(queryset, data.get('o'))
 
+    def active_search(self):
+        active_search = []
+        cleaned_data = self.safe_cleaned_data
+
+        for field in self.changed_data:
+            if field in ('s',):
+                continue
+            value = cleaned_data.get(field)
+
+            if value is None:
+                continue
+
+            formfield = self.fields[field]
+
+            if hasattr(formfield, 'choices') and hasattr(value, '__iter__'):
+                c = dict((str(k), v) for k, v in formfield.choices)
+                value = [c.get(v) for v in value]
+
+            if hasattr(value, '__iter__'):
+                value = u', '.join(unicode(v) for v in value)
+
+            active_search.append((formfield.label, value))
+
+        return active_search
+
 
 class StrippedTextInput(forms.TextInput):
     """
