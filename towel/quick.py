@@ -104,3 +104,13 @@ def due_mapper(attribute):
 
         return {}
     return _fn
+
+
+def bool_mapper(attribute):
+    def _fn(v):
+        if v['bool'].lower() in ('yes', '1', 'on'):
+            return {attribute: True}
+        elif v['bool'].lower() in ('no', '0', 'off'):
+            return {attribute: False}
+        return {}
+    return _fn
