@@ -208,6 +208,9 @@ class SearchForm(forms.Form):
         if self.quick_rules:
             quick_only = set(data.keys()) - set(self.fields.keys())
             for field in quick_only:
+                if field in exclude:
+                    continue
+
                 if field.endswith('_') and (field[:-1] in quick_only or field[:-1] in self.fields):
                     # Either ``quick.model_mapper`` wanted to trick us and added
                     # the model instance, too, or the quick mechanism filled
