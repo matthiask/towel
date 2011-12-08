@@ -208,7 +208,7 @@ class SearchForm(forms.Form):
         if self.quick_rules:
             quick_only = set(data.keys()) - set(self.fields.keys())
             for field in quick_only:
-                if field.endswith('_') and field[:-1] in quick_only or field[:-1] in self.fields:
+                if field.endswith('_') and (field[:-1] in quick_only or field[:-1] in self.fields):
                     # Either ``quick.model_mapper`` wanted to trick us and added
                     # the model instance, too, or the quick mechanism filled
                     # an existing form field which means that the attribute has
@@ -252,20 +252,23 @@ class SearchForm(forms.Form):
         Return a fulltext query and structured data which can be converted into
         simple filter() calls
         """
-        data = self.safe_cleaned_data
 
-        if self.quick_rules:
-            data, query = quick.parse_quickadd(data.get('query'), self.quick_rules)
-            query = u' '.join(query)
+        if not hasattr(self, '_query_data_cache'):
+            data = self.safe_cleaned_data
 
-            # Data in form fields overrides any quick specifications
-            for k, v in self.safe_cleaned_data.items():
-                if v is not None:
-                    data[k] = v
-        else:
-            query = data.get('query')
+            if self.quick_rules:
+                data, query = quick.parse_quickadd(data.get('query'), self.quick_rules)
+                query = u' '.join(query)
 
-        return query, data
+                # Data in form fields overrides any quick specifications
+                for k, v in self.safe_cleaned_data.items():
+                    if v is not None:
+                        data[k] = v
+            else:
+                query = data.get('query')
+
+            self._query_data_cache = query, data
+        return self._query_data_cache
 
     def queryset(self, model):
         """
@@ -278,22 +281,35 @@ class SearchForm(forms.Form):
         return self.apply_ordering(queryset, data.get('o'))
 
     def active_search(self):
+        query, data = self.query_data()
+
         active_search = []
-        cleaned_data = self.safe_cleaned_data
 
         for field in self.changed_data:
-            if field in ('s',):
-                continue
-            value = cleaned_data.get(field)
+            if field == 'query' and self.quick_rules:
+                value = [query]
+                quick_only = set(data.keys()) - set(self.fields.keys())
+                for f in quick_only:
+                    if f.endswith('_') and (f[:-1] in quick_only or f[:-1] in self.fields):
+                        value.append(u'%s:%s' % (f[:-1], data[f]))
+                value = u' '.join(value)
 
-            if value is None:
+            elif (field in self.always_exclude) or (field not in self.fields):
                 continue
+
+            else:
+                value = data.get(field)
+                if value is None:
+                    continue
 
             formfield = self.fields[field]
 
-            if hasattr(formfield, 'choices') and hasattr(value, '__iter__'):
-                c = dict((str(k), v) for k, v in formfield.choices)
-                value = [c.get(v) for v in value]
+            if hasattr(formfield, 'choices'):
+                choices = dict((str(k), v) for k, v in formfield.choices)
+                if hasattr(value, '__iter__'):
+                    value = [choices.get(v) for v in value]
+                else:
+                    value = choices.get(v)
 
             if hasattr(value, '__iter__'):
                 value = u', '.join(unicode(v) for v in value)
