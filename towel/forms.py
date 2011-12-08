@@ -280,44 +280,6 @@ class SearchForm(forms.Form):
         queryset = self.apply_filters(queryset, data)
         return self.apply_ordering(queryset, data.get('o'))
 
-    def active_search(self):
-        query, data = self.query_data()
-
-        active_search = []
-
-        for field in self.changed_data:
-            if field == 'query' and self.quick_rules:
-                value = [query]
-                quick_only = set(data.keys()) - set(self.fields.keys())
-                for f in quick_only:
-                    if f.endswith('_') and (f[:-1] in quick_only or f[:-1] in self.fields):
-                        value.append(u'%s:%s' % (f[:-1], data[f]))
-                value = u' '.join(value)
-
-            elif (field in self.always_exclude) or (field not in self.fields):
-                continue
-
-            else:
-                value = data.get(field)
-                if value is None:
-                    continue
-
-            formfield = self.fields[field]
-
-            if hasattr(formfield, 'choices'):
-                choices = dict((str(k), v) for k, v in formfield.choices)
-                if hasattr(value, '__iter__'):
-                    value = [choices.get(v) for v in value]
-                else:
-                    value = choices.get(value)
-
-            if hasattr(value, '__iter__'):
-                value = u', '.join(unicode(v) for v in value)
-
-            active_search.append((formfield.label, value))
-
-        return active_search
-
 
 class StrippedTextInput(forms.TextInput):
     """
