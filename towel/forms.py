@@ -261,11 +261,7 @@ class SearchForm(forms.Form):
             # Data in form fields overrides any quick specifications
             for k, v in self.safe_cleaned_data.items():
                 if v is not None:
-                    lst = data.setlistdefault(k, [])
-                    if isinstance(v, (list, tuple)):
-                        lst.extend(v)
-                    else:
-                        lst.append(v)
+                    data[k] = v
         else:
             query = data.get('query')
 
