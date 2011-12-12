@@ -370,8 +370,8 @@ class ModelAutocompleteWidget(forms.TextInput):
         hidden = u'<input%s />' % flatatt(final_attrs)
 
         final_attrs['type'] = 'text'
-        final_attrs['name'] += '_ac'
         final_attrs['id'] += '_ac'
+        del final_attrs['name']
 
         try:
             model = self.choices.queryset.get(pk=value)
