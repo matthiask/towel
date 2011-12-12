@@ -5,6 +5,16 @@ from django.template.loader import render_to_string
 register = template.Library()
 
 
+def _type_class(item):
+    if isinstance(item.field.widget, forms.CheckboxInput):
+        return 'checkbox'
+    elif isinstance(item.field.widget, forms.RadioSelect):
+        return 'radio'
+    elif isinstance(item.field.widget, forms.DateInput):
+        return 'date'
+    return ''
+
+
 @register.simple_tag
 def form_items(form):
     """
@@ -15,6 +25,7 @@ def form_items(form):
     return u''.join(render_to_string('_form_item.html', {
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
+        'type_class': _type_class(field),
         }) for field in form)
 
 
@@ -32,6 +43,7 @@ def form_item(item, additional_classes=None):
         'item': item,
         'additional_classes': additional_classes,
         'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
+        'type_class': _type_class(item),
         }
 
 
@@ -48,6 +60,7 @@ def form_item_plain(item, additional_classes=None):
         'item': item,
         'additional_classes': additional_classes,
         'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
+        'type_class': _type_class(item),
         }
 
 
