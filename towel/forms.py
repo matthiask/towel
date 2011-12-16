@@ -127,7 +127,7 @@ class SearchForm(forms.Form):
         isn't searching right now.
         """
 
-        session_key = '_'.join(('sf', self.__class__.__name__, request.path))
+        session_key = 'sf_%s' % id(self.__class__)
 
         if 'clear' in request.GET or 'n' in request.GET:
             if session_key in request.session:
