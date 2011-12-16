@@ -48,7 +48,20 @@ class ModelView(object):
 
     urlconf_detail_re = r'(?P<pk>\d+)'
 
+    #: Paginate list views by this much. ``None`` means no pagination (the default).
+    paginate_by = None
+
+    #: The paginator class used for pagination
     paginator_class = paginator.Paginator
+
+    #: Search form class
+    search_form = None
+
+    #: Search form is not only shown on list pages
+    search_form_everywhere = False
+
+    #: The form used for batch processing
+    batch_form = None
 
     def __init__(self, model, **kwargs):
         self.model = model
@@ -236,6 +249,9 @@ class ModelView(object):
             'base_template': self.base_template,
 
             'adding_allowed': self.adding_allowed(request),
+
+            'search_form': (self.search_form(request.GET, request=request)
+                if self.search_form_everywhere else None),
         }
 
     def get_context(self, request, context):
@@ -326,8 +342,6 @@ class ModelView(object):
     # VIEWS
 
     def list_view(self, request, *args, **kwargs):
-        paginate_by = getattr(self, 'paginate_by', None)
-
         ctx = {}
 
         queryset, response = self.handle_search_form(request, ctx,
@@ -342,8 +356,8 @@ class ModelView(object):
 
         ctx['full_%s' % self.template_object_list_name] = queryset
 
-        if paginate_by:
-            page, paginator = self.paginate_object_list(request, queryset, paginate_by)
+        if self.paginate_by:
+            page, paginator = self.paginate_object_list(request, queryset, self.paginate_by)
 
             ctx.update({
                 self.template_object_list_name: page.object_list,
@@ -363,9 +377,8 @@ class ModelView(object):
         if queryset is None:
             queryset = self.get_query_set(request)
 
-        search_form = getattr(self, 'search_form', None)
-        if search_form:
-            form = search_form(request.GET, request=request)
+        if self.search_form:
+            form = self.search_form(request.GET, request=request)
             queryset = safe_queryset_and(queryset, form.queryset(self.model))
 
             ctx['search_form'] = form
@@ -377,9 +390,8 @@ class ModelView(object):
         May optionally return a HttpResponse which is directly returned to the browser
         """
 
-        batch_form = getattr(self, 'batch_form', None)
-        if batch_form:
-            form = batch_form(request)
+        if self.batch_form:
+            form = self.batch_form(request)
             ctx.update(form.context(queryset))
 
             if 'response' in ctx:
