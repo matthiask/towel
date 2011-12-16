@@ -38,18 +38,25 @@ class ModelView(object):
     def crud_view_decorator(self, func):
         return self.view_decorator(func)
 
-    # Used for detail and edit views
+    #: Used for detail and edit views
     template_object_name = 'object'
 
-    # Used for list views
+    #: Used for list views
     template_object_list_name = 'object_list'
 
+    #: The base template which all default modelview templates inherit
+    #: from
     base_template = 'base.html'
 
+    #: The regular expression for detail URLs. Override this if you
+    #: do not want the primary key in the URL.
     urlconf_detail_re = r'(?P<pk>\d+)'
 
     #: Paginate list views by this much. ``None`` means no pagination (the default).
     paginate_by = None
+
+    #: By default, showing all objects on one page is allowed
+    pagination_all_allowed = True
 
     #: The paginator class used for pagination
     paginator_class = paginator.Paginator
@@ -75,13 +82,28 @@ class ModelView(object):
                 '%s_%s_detail' % info, (self.pk,), {}))
 
     def get_query_set(self, request, *args, **kwargs):
+        """
+        The queryset returned here is used for everything. Override this
+        method if you want to show only a subset of objects to the current
+        visitor.
+        """
         return self.model._default_manager.all()
 
     def get_template(self, request, action):
         """
         Construct and return a template name for the given action.
-        """
 
+        Example::
+
+            self.get_template(request, 'list')
+
+        returns the following template names for ``auth.User``::
+
+            [
+                'auth/user_list.html',
+                'modelview/object_list.html',
+            ]
+        """
         opts = self.model._meta
         return [
             '%s/%s_%s.html' % (opts.app_label, opts.module_name, action),
@@ -89,6 +111,13 @@ class ModelView(object):
             ]
 
     def get_urls(self):
+        """
+        Return all URLs known to this ``ModelView``. You probably do not
+        need to override this except if you need more granular view
+        decoration than offered with ``view_decorator`` and
+        ``crud_view_decorator``. If you need additional URLs, use
+        ``additional_urls`` instead.
+        """
         from django.conf.urls.defaults import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
 
@@ -153,11 +182,27 @@ class ModelView(object):
 
     @property
     def urls(self):
+        """
+        Property returning the return value of ``get_urls``. Should
+        be used inside the URLconf::
+
+            from towel.modelview import ModelView
+
+            urlpatterns = patterns('',
+                url(r'^prefix/', include(ModelView(Model).urls)),
+            )
+        """
         return self.get_urls()
 
     # HELPERS
 
     def get_object(self, request, *args, **kwargs):
+        """
+        Return an instance, raising ``DoesNotExist`` if an error occurs.
+
+        The default implementation simply passes ``*args`` and
+        ``**kwargs`` into ``queryset.get``.
+        """
         queryset = self.get_query_set(request, *args, **kwargs)
 
         try:
@@ -166,6 +211,9 @@ class ModelView(object):
             raise self.model.DoesNotExist
 
     def get_object_or_404(self, request, *args, **kwargs):
+        """
+        Return an instance, raising a 404 if it could not be found.
+        """
         try:
             return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
@@ -174,6 +222,9 @@ class ModelView(object):
     def get_form(self, request, instance=None, **kwargs):
         """
         Return a form class for further use by add and edit views.
+
+        Override this if you want to specify your own form class used
+        for creating and editing objects.
         """
 
         return modelform_factory(self.model, **kwargs)
@@ -181,7 +232,10 @@ class ModelView(object):
     def extend_args_if_post(self, request, args):
         """
         Helper which prepends POST and FILES to args if request method
-        was POST.
+        was POST. Ugly and helpful::
+
+            args = self.extend_args_if_post(request, [])
+            form = Form(*args, **kwargs)
         """
 
         if request.method == 'POST':
@@ -190,6 +244,11 @@ class ModelView(object):
         return args
 
     def get_form_instance(self, request, form_class, instance=None, change=None, **kwargs):
+        """
+        Returns the form instance
+
+        Override this if your form class has special needs for instantiation.
+        """
         args = self.extend_args_if_post(request, [])
         kwargs['instance'] = instance
 
@@ -222,10 +281,16 @@ class ModelView(object):
         instance.save()
 
     def save_formsets(self, request, form, formsets, change):
+        """
+        Loop over all formsets, calling ``save_formset`` for each.
+        """
         for formset in formsets.itervalues():
             self.save_formset(request, form, formset, change)
 
     def save_formset(self, request, form, formset, change):
+        """
+        Save an individual formset
+        """
         formset.save()
 
     def post_save(self, request, instance, form, formset, change):
@@ -239,6 +304,17 @@ class ModelView(object):
     # VIEW HELPERS
 
     def get_extra_context(self, request):
+        """
+        Returns a context containing the following useful variables:
+
+        * ``verbose_name``
+        * ``verbose_name_plural``
+        * ``list_url``
+        * ``add_url``
+        * ``base_template``
+        * ``adding_allowed``
+        * ``search_form`` (if ``search_form_everywhere = True``)
+        """
         info = self.model._meta.app_label, self.model._meta.module_name
 
         return {
@@ -255,34 +331,56 @@ class ModelView(object):
         }
 
     def get_context(self, request, context):
+        """
+        Creates a ``RequestContext`` and merges the passed context
+        and the return value of ``get_extra_context`` into it.
+        """
         instance = RequestContext(request, self.get_extra_context(request))
         instance.update(context)
         return instance
 
     def render(self, request, template, context):
+        """
+        Render the whole shebang.
+        """
         return render_to_response(template, context)
 
     def render_list(self, request, context):
+        """
+        Render the list view
+        """
         return self.render(request,
             self.get_template(request, 'list'),
             self.get_context(request, context))
 
     def render_detail(self, request, context):
+        """
+        Render the detail view
+        """
         return self.render(request,
             self.get_template(request, 'detail'),
             self.get_context(request, context))
 
     def render_form(self, request, context, change):
+        """
+        Render the add and edit views
+        """
         return self.render(request,
             self.get_template(request, 'form'),
             self.get_context(request, context))
 
     def render_delete_confirmation(self, request, context):
+        """
+        Render the deletion confirmation page
+        """
         return self.render(request,
             self.get_template(request, 'delete_confirmation'),
             self.get_context(request, context))
 
     def response_add(self, request, instance, form, formsets):
+        """
+        Return the response after successful addition of a new instance
+        """
         messages.success(request, _('The new object has been successfully created.'))
 
         if '_continue' in request.POST:
@@ -291,12 +389,18 @@ class ModelView(object):
         return redirect(instance)
 
     def response_adding_denied(self, request):
+        """
+        Return the response when adding instances is denied
+        """
         messages.error(request, _('You are not allowed to add objects.'))
         info = self.model._meta.app_label, self.model._meta.module_name
         url = _tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
 
     def response_edit(self, request, instance, form, formsets):
+        """
+        Return the response after an instance has been successfully edited
+        """
         messages.success(request, _('The object has been successfully updated.'))
 
         if '_continue' in request.POST:
@@ -305,20 +409,34 @@ class ModelView(object):
         return redirect(instance)
 
     def response_editing_denied(self, request, instance):
+        """
+        Return the response when editing the given instance is denied
+        """
         messages.error(request, _('You are not allowed to edit this object.'))
         return redirect(instance)
 
     def response_delete(self, request, instance):
+        """
+        Return the response when an object has been successfully deleted
+        """
         messages.success(request, _('The object has been successfully deleted.'))
         info = self.model._meta.app_label, self.model._meta.module_name
         url = _tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
 
     def response_deletion_denied(self, request, instance):
+        """
+        Return the response when deleting the given instance is not allowed
+        """
         messages.error(request, _('You are not allowed to delete this object.'))
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
+        """
+        Helper which paginates the given object list
+
+        Skips pagination if the magic ``all`` GET parameter is set.
+        """
         paginator_obj = self.paginator_class(queryset, paginate_by)
 
         try:
@@ -331,7 +449,7 @@ class ModelView(object):
         except (paginator.EmptyPage, paginator.InvalidPage):
             page_obj = paginator_obj.page(paginator_obj.num_pages)
 
-        if request.GET.get('all'):
+        if self.pagination_all_allowed and request.GET.get('all'):
             page_obj.object_list = queryset
             page_obj.show_all_objects = True
             page_obj.start_index = 1
@@ -342,6 +460,12 @@ class ModelView(object):
     # VIEWS
 
     def list_view(self, request, *args, **kwargs):
+        """
+        Handles the listing of objects
+
+        This view knows how to paginate objects and is able
+        to handle search and batch forms, too.
+        """
         ctx = {}
 
         queryset, response = self.handle_search_form(request, ctx,
@@ -398,6 +522,9 @@ class ModelView(object):
                 return ctx['response']
 
     def detail_view(self, request, *args, **kwargs):
+        """
+        Simple detail page view
+        """
         instance = self.get_object_or_404(request, *args, **kwargs)
 
         return self.render_detail(request, {
@@ -413,6 +540,9 @@ class ModelView(object):
         return True
 
     def add_view(self, request):
+        """
+        Add view with some additional formset handling
+        """
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
@@ -459,6 +589,9 @@ class ModelView(object):
         return True
 
     def edit_view(self, request, *args, **kwargs):
+        """
+        Edit view with some additional formset handling
+        """
         instance = self.get_object_or_404(request, *args, **kwargs)
 
         if not self.editing_allowed(request, instance):
@@ -508,6 +641,20 @@ class ModelView(object):
         return False
 
     def deletion_allowed_if_only(self, request, instance, classes):
+        """
+        Helper which is most useful when used inside ``deletion_allowed``
+
+        Allows the deletion if the deletion cascade only contains
+        objects from the given classes. Adds a message if deletion is
+        not allowed containing details which classes are preventing
+        deletion.
+
+        Example::
+
+            def deletion_allowed(self, request, instance):
+                return self.deletion_allowed_if_only(request, instance, [
+                    Ticket, TicketUpdate])
+        """
         related = set(related_classes(instance))
 
         related.discard(self.model)
@@ -530,6 +677,9 @@ class ModelView(object):
         return not len(related)
 
     def delete_view(self, request, *args, **kwargs):
+        """
+        Handles deletion
+        """
         obj = self.get_object_or_404(request, *args, **kwargs)
 
         if not self.deletion_allowed(request, obj):
@@ -552,6 +702,11 @@ class ModelView(object):
 
 
 def querystring(data):
+    """
+    Converts the passed ``dict`` or ``MultiValueDict`` into a query string.
+    Contrary to f.e. ``urllib.urlencode``, it also knows how to handle
+    dates, decimals and Django models.
+    """
     def _v(v):
         if isinstance(v, models.Model):
             return v.pk
@@ -585,6 +740,11 @@ def querystring(data):
 
 
 def related_classes(instance):
+    """
+    Return all classes which would be deleted if the passed instance
+    were deleted too by employing the cascade machinery of Django
+    itself.
+    """
     collector = Collector(using=instance._state.db)
     collector.collect([instance])
 
@@ -605,6 +765,10 @@ def deletion_allowed_if_only(instance, classes):
 
 
 def safe_queryset_and(qs1, qs2):
+    """
+    Safe AND-ing of two querysets. If one of both queries has its
+    DISTINCT flag set, sets distinct on both querysets.
+    """
     if qs1.query.distinct or qs2.query.distinct:
         return qs1.distinct() & qs2.distinct()
     return qs1 & qs2

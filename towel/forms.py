@@ -12,7 +12,60 @@ from towel import quick
 
 
 class BatchForm(forms.Form):
-    """Batch form"""
+    """
+    Batch form
+
+    The method ``_context(self, batch_queryset)`` must return a
+    ``dict`` instance which is added to the context afterwards.
+
+    Usage example::
+
+        class AddressBatchForm(BatchForm):
+            subject = forms.CharField()
+            body = forms.TextField()
+
+            def _context(self, batch_queryset):
+                # Form validation has already been taken care of
+                subject = self.cleaned_data.get('subject')
+                body = self.cleaned_data.get('body')
+
+                if not (subject and body):
+                    return {}
+
+                sent = 0
+                for item in batch_queryset:
+                    send_mail(subject, body, settings.DEFAULT_SENDER,
+                        [item.email])
+                    sent += 1
+                if sent:
+                    messages.success(request, 'Sent %s emails.' % sent)
+                return {}
+
+        def addresses(request):
+            queryset = Address.objects.all()
+            batch_form = AddressBatchForm(request)
+            ctx = {'addresses': queryset}
+            ctx.update(batch_form.context(queryset))
+            return render(request, 'addresses.html', ctx)
+
+    Template code::
+
+        {% load towel_batch_tags %}
+        <form method="post" action=".">
+            <ul>
+            {% for address in addresses %}
+                <li>
+                {% batch_checkbox address.id batch_form %}
+                {{ address }}
+                </li>
+            {% endfor %}
+            </ul>
+            <table>
+                {{ batch_form }}
+            </table>
+            <button type="submit">Send mail to selected</button>
+        </form>
+    """
 
     ids = []
     process = False
@@ -55,6 +108,48 @@ class SearchForm(forms.Form):
     Supports persistence of searches (stores search in the session). Requires
     not only the GET parameters but the request object itself to work
     correctly.
+
+    Usage example::
+
+        class AddressManager(SearchManager):
+            search_fields = ('first_name', 'last_name', 'address', 'email',
+                'city', 'zip_code', 'created_by__email')
+
+        class Address(models.Model):
+            ...
+
+            objects = AddressManager()
+
+        class AddressSearchForm(SearchForm):
+            orderings = {
+                '': ('last_name', 'first_name'), # Default
+                'dob': 'dob', # Sort by date of birth
+                'random': lambda queryset: queryset.order_by('?'),
+                }
+            is_person = forms.NullBooleanField()
+
+        def addresses(request):
+            search_form = AddressSearchForm(request.GET, request=request)
+            queryset = search_form.queryset(Address)
+            ctx = {
+                'addresses': queryset,
+                'search_form': search_form,
+                }
+            return render(request, 'addresses.html', ctx)
+
+    Template code::
+
+        <form method="get" action=".">
+            <input type="hidden" name="s" value="1"> <!-- SearchForm search -->
+            <table>
+                {{ search_form }}
+            </table>
+            <button type="submit">Search</button>
+        </form>
+
+        {% for address in addresses %}
+            ...
+        {% endfor %}
     """
 
     #: Fields which are always excluded from automatic filtering
@@ -70,13 +165,13 @@ class SearchForm(forms.Form):
     #: Quick rules, a list of (regex, mapper) tuples
     quick_rules = []
 
-    # search form active?
+    #: Search form active?
     s = forms.CharField(required=False)
 
-    # current ordering
+    #: Current ordering
     o = forms.CharField(required=False)
 
-    # Full text search query
+    #: Full text search query
     query = forms.CharField(required=False, label=_('Query'),
         widget=forms.TextInput(attrs={'placeholder': _('Query')}))
 
@@ -225,6 +320,12 @@ class SearchForm(forms.Form):
         return queryset
 
     def apply_ordering(self, queryset, ordering=None):
+        """
+        Applies ordering if the value in ``o`` matches a key in
+        ``self.orderings``. The ordering may also be reversed,
+        in which case the ``o`` value should be prefixed with
+        a minus sign.
+        """
         if ordering is None:
             return queryset
 

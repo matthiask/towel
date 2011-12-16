@@ -1,3 +1,40 @@
+"""
+This module beefs up the default full text search field to be a little
+bit more versatile. It allows specifying patterns such as ``is:unread``
+or ``!important`` which are extracted from the query string and returned
+as standalone values allowing the implementation of a search syntax
+known from f.e. Google Mail.
+
+Quick rules always consist of two parts: A regular expression pulling
+values out of the query string and a mapper which maps the values from
+the regex to something else which may be directly usable by forms.
+
+Usage example::
+
+    QUICK_RULES = [
+        (re.compile(r'!!'), quick.static(important=True)),
+        (re.compile(r'@(?P<username>\w+)'),
+            quick.model_mapper(User.objects.all(), 'assigned_to')),
+        (re.compile(r'\^\+(?P<due>\d+)'),
+            lambda v: {'due': date.today() + timedelta(days=int(v['due']))}),
+        (re.compile(r'=(?P<estimated_hours>[\d\.]+)h'),
+            quick.identity()),
+        ]
+
+    data, rest = quick.parse_quickadd(
+        request.POST.get('quick', u''),
+        QUICK_RULES)
+
+    data['notes'] = u' '.join(rest) # Everything which could not be parsed
+                                    # is added to the ``notes`` field.
+    form = TicketForm(data)
+
+.. note::
+
+   The mappers always get the regex matches ``dict`` and return a
+   ``dict``.
+"""
+
 from datetime import date, timedelta
 
 from django.utils import dateformat
@@ -6,6 +43,13 @@ from django.utils.translation import ugettext as _
 
 
 def parse_quickadd(quick, regexes):
+    """
+    The main workhorse. Named ``parse_quickadd`` for historic reasons,
+    can be used not only for adding but for searching etc. too. In fact,
+    :class:`towel.forms.SearchForm` supports quick rules out of the box
+    when they are specified in ``quick_rules``.
+    """
+
     data = {}
     rest = []
 
@@ -32,6 +76,10 @@ def parse_quickadd(quick, regexes):
 
 
 def identity():
+    """
+    Identity mapper. Returns the values from the regular expression
+    directly.
+    """
     def _fn(v):
         return v
     return _fn
@@ -57,6 +105,9 @@ def model_mapper(queryset, attribute):
 
 
 def static(**kwargs):
+    """
+    Return a predefined ``dict`` when the given regex matches.
+    """
     def _fn(v):
         return kwargs
     return _fn
@@ -66,6 +117,20 @@ def model_choices_mapper(data, attribute):
     """
     Needs a ``value`` provided by the regular expression and returns
     the corresponding ``key`` value.
+
+    Example::
+
+        class Ticket(models.Model):
+            VISIBILITY_CHOICES = (
+                ('public', _('public')),
+                ('private', _('private')),
+                )
+            visibility = models.CharField(choices=VISIBILITY_CHOICES)
+
+        QUICK_RULES = [
+            (re.compile(r'~(?P<value>[^\s]+)'),
+                quick.model_choices_mapper(Ticket.VISIBILITY_CHOICES, 'visibility')),
+            ]
     """
     reverse = dict((unicode(v), k) for k, v in data)
     def _fn(v):
@@ -77,6 +142,10 @@ def model_choices_mapper(data, attribute):
 
 
 def due_mapper(attribute):
+    """
+    Understands ``Today``, ``Tomorrow``, the following five localized
+    week day names or (partial) dates such as ``20.12.`` and ``01.03.2012``.
+    """
     def _fn(v):
         today = date.today()
         due = v['due']
@@ -107,6 +176,10 @@ def due_mapper(attribute):
 
 
 def bool_mapper(attribute):
+    """
+    Maps ``yes``, ``1`` and ``on`` to ``True`` and ``no``, ``0``
+    and ``off`` to ``False``.
+    """
     def _fn(v):
         if v['bool'].lower() in ('yes', '1', 'on'):
             return {attribute: True}

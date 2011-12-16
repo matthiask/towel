@@ -26,6 +26,9 @@ API Documentation
    api/forms
    api/managers
    api/modelview
+   api/paginator
+   api/queryset_transform
+   api/quick
    api/templatetags
 
 

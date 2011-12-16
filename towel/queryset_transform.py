@@ -10,7 +10,7 @@ that will be executed only when the QuerySet itself has been evaluated.
 This allows you to build optimisations like "fetch all tags for these 10 rows"
 while still benefiting from Django's lazy QuerySet evaluation.
 
-For example:
+For example::
 
     def lookup_tags(item_qs):
         item_pks = [item.pk for item in item_qs]
@@ -33,7 +33,7 @@ For example:
     for item in qs:
         print item, item.fetched_tags
 
-Prints:
+Prints::
 
     Winter comes to Ogglesbrook [<sledging>, <snow>, <winter>, <skating>]
     Summer now [<skating>, <sunny>]

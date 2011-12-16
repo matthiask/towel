@@ -30,8 +30,24 @@ def _resolve(instance, last_part):
 
 @register.filter
 def verbose_name(item):
+    """
+    Pass in anything and it tries hard to return its ``verbose_name``::
+
+        {{ form|verbose_name }}
+        {{ object|verbose_name }}
+        {{ formset|verbose_name }}
+        {{ object_list|verbose_name }}
+    """
     return _resolve(item, 'verbose_name')
 
 @register.filter
 def verbose_name_plural(item):
+    """
+    Pass in anything and it tries hard to return its ``verbose_name_plural``::
+
+        {{ form|verbose_name_plural }}
+        {{ object|verbose_name_plural }}
+        {{ formset|verbose_name_plural }}
+        {{ object_list|verbose_name_plural }}
+    """
     return _resolve(item, 'verbose_name_plural')
