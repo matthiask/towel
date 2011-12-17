@@ -222,7 +222,9 @@ class SearchForm(forms.Form):
         isn't searching right now.
         """
 
-        session_key = 'sf_%s.%s' % (self.__module__, self.__name__)
+        session_key = 'sf_%s.%s' % (
+            self.__class__.__module__,
+            self.__class__.__name__)
 
         if 'clear' in request.GET or 'n' in request.GET:
             if session_key in request.session:
