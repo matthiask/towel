@@ -8,10 +8,10 @@ register = template.Library()
 def _type_class(item):
     if isinstance(item.field.widget, forms.CheckboxInput):
         return 'checkbox'
-    elif isinstance(item.field.widget, forms.RadioSelect):
-        return 'radio'
     elif isinstance(item.field.widget, forms.DateInput):
         return 'date'
+    elif isinstance(item.field.widget, (forms.RadioSelect, forms.CheckboxSelectMultiple)):
+        return 'list'
     return ''
 
 
