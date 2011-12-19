@@ -767,8 +767,13 @@ def deletion_allowed_if_only(instance, classes):
 def safe_queryset_and(qs1, qs2):
     """
     Safe AND-ing of two querysets. If one of both queries has its
-    DISTINCT flag set, sets distinct on both querysets.
+    DISTINCT flag set, sets distinct on both querysets. Also takes extra
+    care to preserve the result of any ``reverse()`` calls.
     """
+
+    if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
+        qs1.query.standard_ordering = qs2.query.standard_ordering = False
+
     if qs1.query.distinct or qs2.query.distinct:
         return qs1.distinct() & qs2.distinct()
     return qs1 & qs2
