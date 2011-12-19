@@ -219,7 +219,7 @@ class ModelView(object):
         except self.model.DoesNotExist:
             raise Http404
 
-    def get_form(self, request, instance=None, **kwargs):
+    def get_form(self, request, instance=None, change=None, **kwargs):
         """
         Return a form class for further use by add and edit views.
 
@@ -546,7 +546,7 @@ class ModelView(object):
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
-        ModelForm = self.get_form(request)
+        ModelForm = self.get_form(request, change=False)
 
         opts = self.model._meta
 
@@ -597,7 +597,7 @@ class ModelView(object):
         if not self.editing_allowed(request, instance):
             return self.response_editing_denied(request, instance)
 
-        ModelForm = self.get_form(request, instance)
+        ModelForm = self.get_form(request, instance, change=True)
 
         opts = self.model._meta
 
