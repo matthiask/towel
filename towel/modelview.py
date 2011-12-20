@@ -718,7 +718,7 @@ class ModelView(object):
                     pretty_classes = pretty_classes[-1]
 
                 messages.error(request, _('Deletion of %(instance)s not allowed: <small>There are %(classes)s related to this object.</small>') % {
-                    'instance': object,
+                    'instance': instance,
                     'classes': pretty_classes,
                     })
             else:
