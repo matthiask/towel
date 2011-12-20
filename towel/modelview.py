@@ -17,7 +17,7 @@ from django.template import RequestContext
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
-from towel import paginator
+from towel import deletion, paginator
 
 
 def _tryreverse(*args, **kwargs):
@@ -675,6 +675,54 @@ class ModelView(object):
                 _('Deletion not allowed: <small>There are %s related to this object.</small>') % pretty_classes)
 
         return not len(related)
+
+    def save_formset_deletion_allowed_if_only(self, request, form, formset, change, classes):
+        """
+        Helper which has is most useful when used inside ``save_formsets``
+
+        To use this method properly, your model has to inherit from
+        ``towel.deletion.Model``. This is NOT enforced. If you ignore this, the
+        instances will be deleted by ``formset.save()`` as is the default with
+        Django.
+
+        Example::
+
+            def save_formsets(self, requset, form, formsets, change):
+                # Allow deleting states when the cascade includes
+                # ``SomeModel`` instances only.
+                self.save_formset_deletion_allowed_if_only(
+                    request, form, formsets['states'], change, [SomeModel])
+
+                # No special handling for other formsets
+                self.save_formset(request, form, formsets['otherformset'], change)
+
+        """
+        with deletion.protect():
+            self.save_formset(request, form, formset, change)
+
+        for instance in formset.deleted_objects:
+            related = set(related_classes(instance))
+
+            related.discard(instance.__class__)
+            for class_ in classes:
+                related.discard(class_)
+
+            if len(related):
+                pretty_classes = [unicode(class_._meta.verbose_name_plural) for class_ in related]
+                if len(pretty_classes) > 1:
+                    pretty_classes = u''.join((
+                        u', '.join(pretty_classes[:-1]),
+                        _(' and '),
+                        pretty_classes[-1]))
+                else:
+                    pretty_classes = pretty_classes[-1]
+
+                messages.error(request, _('Deletion of %(instance)s not allowed: <small>There are %(classes)s related to this object.</small>') % {
+                    'instance': object,
+                    'classes': pretty_classes,
+                    })
+            else:
+                object.delete()
 
     def delete_view(self, request, *args, **kwargs):
         """
