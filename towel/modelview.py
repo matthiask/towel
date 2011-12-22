@@ -820,6 +820,7 @@ def safe_queryset_and(qs1, qs2):
 
     * ``reverse()``
     * ``transform()``
+    * ``select_related()``
     """
 
     if qs1.query.distinct or qs2.query.distinct:
@@ -833,5 +834,21 @@ def safe_queryset_and(qs1, qs2):
 
     if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
         res.query.standard_ordering = False
+
+    select_related = [qs1.query.select_related, qs2.query.select_related]
+    if False in select_related:
+        select_related.remove(False) # We are not interested in the default value
+
+    if len(select_related) == 1:
+        res.query.select_related = select_related[0]
+    elif len(select_related) == 2:
+        if True in select_related:
+            select_related.remove(True) # prefer explicit select_related to generic select_related()
+
+        if len(select_related) > 0:
+            # If we have two explicit select_related calls, take any of them
+            res.query.select_related = select_related[0]
+        else:
+            res = res.select_related()
 
     return res
