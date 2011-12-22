@@ -816,12 +816,22 @@ def safe_queryset_and(qs1, qs2):
     """
     Safe AND-ing of two querysets. If one of both queries has its
     DISTINCT flag set, sets distinct on both querysets. Also takes extra
-    care to preserve the result of any ``reverse()`` calls.
+    care to preserve the result of the following queryset methods:
+
+    * ``reverse()``
+    * ``transform()``
     """
 
-    if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
-        qs1.query.standard_ordering = qs2.query.standard_ordering = False
-
     if qs1.query.distinct or qs2.query.distinct:
-        return qs1.distinct() & qs2.distinct()
-    return qs1 & qs2
+        res = qs1.distinct() & qs2.distinct()
+    else:
+        res = qs1 & qs2
+
+    res._transform_fns = list(set(
+        getattr(qs1, '_transform_fns', [])
+        + getattr(qs2, '_transform_fns', [])))
+
+    if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
+        res.query.standard_ordering = False
+
+    return res
