@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models, transaction
-from django.db.models.deletion import Collector
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponseRedirect
@@ -18,6 +17,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
+from towel.utils import related_classes, safe_queryset_and
 
 
 def _tryreverse(*args, **kwargs):
@@ -747,108 +747,3 @@ class ModelView(object):
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
                 })
-
-
-def querystring(data):
-    """
-    Converts the passed ``dict`` or ``MultiValueDict`` into a query string.
-    Contrary to f.e. ``urllib.urlencode``, it also knows how to handle
-    dates, decimals and Django models.
-    """
-    def _v(v):
-        if isinstance(v, models.Model):
-            return v.pk
-        elif isinstance(v, bool):
-            return v and 1 or ''
-        elif isinstance(v, datetime.date):
-            return v.strftime('%Y-%m-%d')
-        elif isinstance(v, decimal.Decimal):
-            return str(v)
-        return v.encode('utf-8')
-
-    values = []
-
-    try:
-        # Handle MultiValueDicts
-        items = data.lists()
-    except AttributeError:
-        items = data.items()
-
-    for k, v in items:
-        if v is None:
-            continue
-
-        if isinstance(v, list):
-            for v2 in v:
-                values.append((k, _v(v2)))
-        else:
-            values.append((k, _v(v)))
-
-    return urllib.urlencode(values)
-
-
-def related_classes(instance):
-    """
-    Return all classes which would be deleted if the passed instance
-    were deleted too by employing the cascade machinery of Django
-    itself.
-    """
-    collector = Collector(using=instance._state.db)
-    collector.collect([instance])
-
-    # Save collected objects for later referencing
-    instance._collected_objects = collector.data
-
-    return collector.data.keys()
-
-
-def deletion_allowed_if_only(instance, classes):
-    related = set(related_classes(instance))
-
-    related.discard(instance.__class__)
-    for class_ in classes:
-        related.discard(class_)
-
-    return not len(related)
-
-
-def safe_queryset_and(qs1, qs2):
-    """
-    Safe AND-ing of two querysets. If one of both queries has its
-    DISTINCT flag set, sets distinct on both querysets. Also takes extra
-    care to preserve the result of the following queryset methods:
-
-    * ``reverse()``
-    * ``transform()``
-    * ``select_related()``
-    """
-
-    if qs1.query.distinct or qs2.query.distinct:
-        res = qs1.distinct() & qs2.distinct()
-    else:
-        res = qs1 & qs2
-
-    res._transform_fns = list(set(
-        getattr(qs1, '_transform_fns', [])
-        + getattr(qs2, '_transform_fns', [])))
-
-    if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
-        res.query.standard_ordering = False
-
-    select_related = [qs1.query.select_related, qs2.query.select_related]
-    if False in select_related:
-        select_related.remove(False) # We are not interested in the default value
-
-    if len(select_related) == 1:
-        res.query.select_related = select_related[0]
-    elif len(select_related) == 2:
-        if True in select_related:
-            select_related.remove(True) # prefer explicit select_related to generic select_related()
-
-        if len(select_related) > 0:
-            # If we have two explicit select_related calls, take any of them
-            res.query.select_related = select_related[0]
-        else:
-            res = res.select_related()
-
-    return res
