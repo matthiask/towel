@@ -456,7 +456,7 @@ class ModelAutocompleteWidget(forms.TextInput):
     """
 
     def __init__(self, attrs=None, url=None, queryset=None):
-        assert url or queryset, 'Provide either url or queryset'
+        assert (url is None) != (queryset is None), 'Provide either url or queryset'
 
         self.url = url
         self.queryset = queryset
