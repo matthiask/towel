@@ -77,7 +77,7 @@ ModelView list tags
 
 .. function:: querystring
 
-   URl-encodes the passed ``dict`` in a format suitable for pagination. ``page``
+   URL-encodes the passed ``dict`` in a format suitable for pagination. ``page``
    and ``all`` are excluded by default::
 
        {% load modelview_list %}
@@ -88,7 +88,25 @@ ModelView list tags
        <a href="?{{ request.GET|querystring:"page,all" }}&page=1">Back to first page</a>
 
 
+.. function:: ordering_link
 
+   Shows a link suitable for changing the ordering of objects in the
+   list view::
+
+       {% ordering_link "state" request title=_('State') %}
+       {% ordering_link "date" request title=_('Due date') %}
+
+   ``ordering_link`` has an optional argument, ``base_url`` which is
+   useful if you need to customize the link part before the question
+   mark.
+
+   The resulting link has the following form::
+
+       <a class="ordering [asc|desc|]" href="base_url?o=-state">title</a>
+
+   or::
+
+       <a class="ordering [asc|desc|]" href="base_url?o=state">title</a>
 
 
 Batch tags
@@ -159,7 +177,6 @@ Form tags
        {% load towel_form_tags %}
 
        <script type="text/javascript" src="PATH_TO_JQUERY.JS"></script>
-
        <script type="text/javascript" src="{{ STATIC_URL }}towel/towel.js"></script>
        <style type="text/css">.empty { display: none; }</style>
 
@@ -167,7 +184,7 @@ Form tags
            {% form_errors form formset %}
 
            <table>
-           {% for field in form %}{% form_item field %}
+           {% for field in form %}{% form_item field %}{% endfor %}
            </table>
 
            <h2>Formset</h2>

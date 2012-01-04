@@ -18,7 +18,7 @@ Django's generic views use one class per view, and every instance only processes
 one request. Towel's ModelView is more similar to Django's admin site in that
 one instance is responsible for many URLs and handles many requests. You have
 to take care not to modify ModelView itself during request processing, because
-doing this cannot be threadsafe.
+this will not be thread-safe.
 
 
 Preparing your models, views and URLconfs for ModelView
@@ -53,22 +53,22 @@ For this guide, we assume the following model structure and relationships::
 ModelView works with an URL structure similar to the following:
 
 * ``/books/``
-* ``/books/<pk>/``
 * ``/books/add/``
+* ``/books/<pk>/``
 * ``/books/<pk>/edit/``
 * ``/books/<pk>/delete/``
 
-The regular expression used to match the detail page (here <pk>) can be customized. If you'd
-rather match on the slug, on a combination of several fields (separated by
-dashes or slashes, whatever you want) or on something else, you can do this by
-modifying ``urlconf_detail_re``. You only have to make sure that ``get_object``
-will know what to do with the extracted parameters.
+The regular expression used to match the detail page (here <pk>) can be
+customized. If you'd rather match on the slug, on a combination of 
+several fields (separated by dashes or slashes, whatever you want) or on
+something else, you can do this by modifying ``urlconf_detail_re``. You
+only have to make sure that ``get_object`` will know what to do with the
+extracted parameters.
 
-If you want to use the primary key-based URL configuration, you do not need to add
-a ``get_absolute_url`` method to your model, because ModelView will add one
-itself. It isn't considered good practice to put primary keys on the web for
-everyone to see but it might be okay for your use case.
-
+If you want to use the primary key-based URL configuration, you do not
+need to add a ``get_absolute_url`` method to your model, because ModelView
+will add one itself. It isn't considered good practice to put primary keys
+on the web for everyone to see but it might be okay for your use case.
 
 
 Object lists
@@ -139,7 +139,8 @@ here.
 
    If ``paginate_by``is given paginates the object list using the ``page`` GET
    parameter. Pagination can be switched off by passing ``all=1`` in the GET
-   request.
+   request. If you have lots of objects and want to disable the ``all=1``
+   parameter, set ``pagination_all_allowed`` to ``False``.
 
 
 .. function:: render_list(self, request, context)
@@ -262,7 +263,6 @@ especially if users want to do complex searches.
 
 Object detail pages
 ===================
-
 
 Object detail pages are handled by ``detail_view``. All parameters captured in
 the ``urlconf_detail_re`` regex are passed on to ``get_object_or_404``, which
@@ -422,6 +422,57 @@ he confirms, the instance is or the instances are deleted for good, depending
 on whether there are related objects or not.
 
 
+Deletion of inline formset instances
+------------------------------------
+
+Django's inline formsets are very convenient to edit a set of related objects
+on one page. When deletion of inline objects is enabled, it's much too easy
+to lose related data because of Django's cascaded deletion behavior. Towel
+offers helpers to allow circumventing Django's inline formset deletion behavior.
+
+.. note::
+   
+   The problem is that ``formset.save(commit=False)`` deletes objects marked
+   for deletion right away even though ``commit=False`` might be interpreted
+   as not touching the database yet.
+
+The models edited through inline formsets have to be changed a bit::
+
+    from django.db import models
+    from towel import deletion
+
+    class MyModel(deletion.Model):
+        field = models.CharField(...) # whatever
+
+``deletion.Model`` only consists of a customized ``Model.delete`` method
+which does not delete the model under certain circumstances. See the
+:ref:`api-deletion` API documentation if you need to know more.
+
+Next, you have to override ``save_formsets``::
+
+    class MyModelView(modelview.ModelView):
+        def get_formset_instances(self, request, instance=None, change=None, **kwargs):
+            args = self.extend_args_if_post(request, [])
+            kwargs['instance'] = instance
+    
+            return {
+                'mymodels': InlineFormSet(*args, **kwargs),
+                }
+    
+        def save_formsets(self, request, form, formsets, change):
+            # Only delete MyModel instances if there are no related objects
+            # attached to them
+            self.save_formset_deletion_allowed_if_only(
+                request, form, formsets['mymodels'], change, [MyModel])
+
+
+.. warning::
+
+   ``save_formset_deletion_allowed_if_only`` calls ``save_formset`` do actually
+   save the formset. If you need this customized behavior, you must not call
+   ``save_formset_deletion_allowed_if_only`` in ``save_formset`` or you'll get
+   infinite recursion.
+
 
 .. _standard-context:
 
@@ -445,7 +496,7 @@ executed too.
 Permissions
 ===========
 
-ModelView's ``get_urls``method assumes that there are two groups of users with
+ModelView's ``get_urls`` method assumes that there are two groups of users with
 potentially differing permissions: Those who are only allowed to view and those
 who may add, change or update objects.
 

@@ -12,6 +12,7 @@ PageNotAnInteger = paginator.PageNotAnInteger
 EmptyPage = paginator.EmptyPage
 
 
+#: Paginator configuration
 PAGINATION = getattr(settings, 'PAGINATION', {
     'START': 6, # items at the start
     'END': 6, # items at the end

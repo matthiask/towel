@@ -8,6 +8,11 @@ Usage::
     class SafeModel(deletion.Model):
         # fields etc.
 
+    
+    with deletion.protect():
+        instance.delete() # Does nothing
+    instance.delete() # Actually deletes the instance!
+
 
 Saving formsets::
 
