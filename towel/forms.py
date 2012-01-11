@@ -93,7 +93,7 @@ class BatchForm(forms.Form):
         return ctx
 
     def _context(self, batch_queryset):
-        raise NotImplementedError
+        raise NotImplementedError('BatchForm._context has no default implementation.')
 
     def selected_items(self, post_data, queryset):
         self.ids = queryset.values_list('id', flat=True)

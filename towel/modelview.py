@@ -208,7 +208,8 @@ class ModelView(object):
         try:
             return queryset.get(*args, **kwargs)
         except (ValueError, ValidationError):
-            raise self.model.DoesNotExist
+            raise self.model.DoesNotExist(
+                u'No %s matches the given query.' % self.model._meta.object_name)
 
     def get_object_or_404(self, request, *args, **kwargs):
         """
@@ -217,7 +218,7 @@ class ModelView(object):
         try:
             return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
-            raise Http404
+            raise Http404(u'No %s matches the given query.' % self.model._meta.object_name)
 
     def get_form(self, request, instance=None, change=None, **kwargs):
         """
