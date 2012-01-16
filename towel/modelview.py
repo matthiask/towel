@@ -540,6 +540,40 @@ class ModelView(object):
 
         return True
 
+    def process_form(self, request, instance=None, change=None):
+        """
+        form processor used by add_view and edit_view
+        """
+
+        new_instance = None
+        valid = False
+        ModelForm = self.get_form(request, instance, change)
+
+        if request.method == 'POST':
+            form = self.get_form_instance(request, ModelForm, instance=instance, change=change)
+
+            if form.is_valid():
+                new_instance = self.save_form(request, form, change=change)
+                form_validated = True
+            else:
+                new_instance = instance if (instance is not None) else self.model()
+                form_validated = False
+
+            formsets = self.get_formset_instances(request, instance=new_instance, change=change)
+            if all_valid(formsets.itervalues()) and form_validated:
+                with transaction.commit_on_success():
+                    self.save_model(request, new_instance, form, change=change)
+                    form.save_m2m()
+                    self.save_formsets(request, form, formsets, change=change)
+                    self.post_save(request, new_instance, form, formsets, change=change)
+
+                valid = True
+        else:
+            form = self.get_form_instance(request, ModelForm, instance=instance, change=change,)
+            formsets = self.get_formset_instances(request, instance=instance, change=change)
+
+        return form, formsets, new_instance, valid
+
     def add_view(self, request):
         """
         Add view with some additional formset handling
@@ -547,32 +581,12 @@ class ModelView(object):
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
-        ModelForm = self.get_form(request, change=False)
+        form, formsets, new_instance, valid = self.process_form(request, change=False)
+
+        if valid:
+            return self.response_add(request, new_instance, form, formsets)
 
         opts = self.model._meta
-
-        if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm, change=False)
-
-            if form.is_valid():
-                new_instance = self.save_form(request, form, change=False)
-                form_validated = True
-            else:
-                new_instance = self.model()
-                form_validated = False
-
-            formsets = self.get_formset_instances(request, instance=new_instance, change=False)
-            if all_valid(formsets.itervalues()) and form_validated:
-                with transaction.commit_on_success():
-                    self.save_model(request, new_instance, form, change=False)
-                    form.save_m2m()
-                    self.save_formsets(request, form, formsets, change=False)
-                    self.post_save(request, new_instance, form, formsets, change=False)
-
-                return self.response_add(request, new_instance, form, formsets)
-        else:
-            form = self.get_form_instance(request, ModelForm, change=False)
-            formsets = self.get_formset_instances(request, change=False)
 
         context = {
             'title': _('Add %s') % force_unicode(opts.verbose_name),
@@ -598,32 +612,12 @@ class ModelView(object):
         if not self.editing_allowed(request, instance):
             return self.response_editing_denied(request, instance)
 
-        ModelForm = self.get_form(request, instance, change=True)
+        form, formsets, new_instance, valid = self.process_form(request, instance=instance, change=True)
+
+        if valid:
+            return self.response_edit(request, new_instance, form, formsets)
 
         opts = self.model._meta
-
-        if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm, instance, change=True)
-
-            if form.is_valid():
-                new_instance = self.save_form(request, form, change=True)
-                form_validated = True
-            else:
-                new_instance = instance
-                form_validated = False
-
-            formsets = self.get_formset_instances(request, instance=new_instance, change=True)
-            if all_valid(formsets.itervalues()) and form_validated:
-                with transaction.commit_on_success():
-                    self.save_model(request, new_instance, form, change=True)
-                    form.save_m2m()
-                    self.save_formsets(request, form, formsets, change=True)
-                    self.post_save(request, new_instance, form, formsets, change=True)
-
-                return self.response_edit(request, new_instance, form, formsets)
-        else:
-            form = self.get_form_instance(request, ModelForm, instance, change=True)
-            formsets = self.get_formset_instances(request, instance=instance, change=True)
 
         context = {
             'title': _('Change %s') % force_unicode(opts.verbose_name),
