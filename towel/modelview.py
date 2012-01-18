@@ -723,7 +723,7 @@ class ModelView(object):
                     'classes': pretty_classes,
                     })
             else:
-                object.delete()
+                instance.delete()
 
     def delete_view(self, request, *args, **kwargs):
         """
