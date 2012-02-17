@@ -579,7 +579,7 @@ class ModelView(object):
 
         new_instance = None
         valid = False
-        ModelForm = self.get_form(request, instance, change)
+        ModelForm = self.get_form(request, instance, change=change)
 
         if request.method == 'POST':
             form = self.get_form_instance(request, ModelForm, instance=instance, change=change)
