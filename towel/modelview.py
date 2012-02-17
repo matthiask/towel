@@ -70,6 +70,38 @@ class ModelView(object):
     #: The form used for batch processing
     batch_form = None
 
+    # messages dictionary to centrally control all possible messages
+    default_messages = {
+        'object_created': (messages.SUCCESS, _('The new object has been successfully created.')),
+        'adding_denied': (messages.ERROR, ('You are not allowed to add objects.')),
+        'object_updated': (messages.SUCCESS, _('The object has been successfully updated.')),
+        'editing_denied': (messages.ERROR, _('You are not allowed to edit this object.')),
+        'object_deleted': (messages.SUCCESS, _('The object has been successfully deleted.')),
+        'deletion_denied': (messages.ERROR, _('You are not allowed to delete this object.')),
+        'deletion_denied_related': (messages.ERROR, _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
+    }
+
+    # user defined messages
+    custom_messages = {}
+
+    def add_message(self, request, message_id=None, variables={}, extra_tags=None, message=None, level=messages.INFO):
+        """
+        helper function to add messages to the request.
+        tries to get the message_id from the user defined messages. if there is no message specified, it defaults to
+        default_messages. if no message is found, no message will be displayed.
+
+        if a custom message is provided, it will override the the default and custom message
+
+        override this, if you want a different behaviour
+        """
+        message = message or self.custom_messages.get(message_id, self.default_messages.get(message_id, None))
+
+        if message:
+            if not isinstance(message, (str, unicode)):
+                level = message[0]
+                message = message[1]
+            messages.add_message(request, level, message % variables, extra_tags, fail_silently=True)
+
     def __init__(self, model, **kwargs):
         self.model = model
         for k, v in kwargs.items():
@@ -382,7 +414,7 @@ class ModelView(object):
         """
         Return the response after successful addition of a new instance
         """
-        messages.success(request, _('The new object has been successfully created.'))
+        self.add_message(request, 'object_created')
 
         if '_continue' in request.POST:
             return HttpResponseRedirect(instance.get_absolute_url() + 'edit/')
@@ -393,7 +425,7 @@ class ModelView(object):
         """
         Return the response when adding instances is denied
         """
-        messages.error(request, _('You are not allowed to add objects.'))
+        self.add_message(request, 'adding_denied')
         info = self.model._meta.app_label, self.model._meta.module_name
         url = _tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
@@ -402,7 +434,7 @@ class ModelView(object):
         """
         Return the response after an instance has been successfully edited
         """
-        messages.success(request, _('The object has been successfully updated.'))
+        self.add_message(request, 'object_updated')
 
         if '_continue' in request.POST:
             return HttpResponseRedirect('.')
@@ -413,14 +445,14 @@ class ModelView(object):
         """
         Return the response when editing the given instance is denied
         """
-        messages.error(request, _('You are not allowed to edit this object.'))
+        self.add_message(request, 'editing_denied')
         return redirect(instance)
 
     def response_delete(self, request, instance):
         """
         Return the response when an object has been successfully deleted
         """
-        messages.success(request, _('The object has been successfully deleted.'))
+        self.add_message(request, 'object_deleted')
         info = self.model._meta.app_label, self.model._meta.module_name
         url = _tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
@@ -429,7 +461,7 @@ class ModelView(object):
         """
         Return the response when deleting the given instance is not allowed
         """
-        messages.error(request, _('You are not allowed to delete this object.'))
+        self.add_message(request, 'deletion_denied')
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
@@ -666,8 +698,7 @@ class ModelView(object):
             else:
                 pretty_classes = pretty_classes[-1]
 
-            messages.error(request,
-                _('Deletion not allowed: <small>There are %s related to this object.</small>') % pretty_classes)
+            self.add_message(request, 'deletion_denied_related', {'pretty_classes' : pretty_classes })
 
         return not len(related)
 
