@@ -57,6 +57,12 @@ def pagination(context, page, paginator, where=None):
     Shows pagination links::
 
         {% pagination current_page paginator %}
+
+    The argument ``where`` can be used inside the pagination template to
+    discern between pagination at the top and at the bottom of an object
+    list (if you wish). The default object list template passes
+    ``"top"`` or ``"bottom"`` to the pagination template. The default pagination
+    template does nothing with this value though.
     """
 
     return {
@@ -86,6 +92,18 @@ def querystring(data, exclude='page,all'):
 
 @register.simple_tag
 def ordering_link(field, request, title=None, base_url=u''):
+    """
+    Shows a table column header suitable for use as a link to change the
+    ordering of objects in a list::
+
+        {% ordering_link "" request title=_("Edition") %} {# default ordering #}
+        {% ordering_link "customer" request title=_("Customer") %}
+        {% ordering_link "state" request title=_("State") %}
+
+    Required arguments are the field and the request. It is very much recommended
+    to add a title too of course.
+    """
+
     qs = querystring(request.GET, 'page,all,o')
     if request.GET.get('o') == field:
         qs = u'%s&o=-%s' % (qs, field)

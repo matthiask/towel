@@ -5,12 +5,13 @@ def related_classes(instance):
     """
     Return all classes which would be deleted if the passed instance
     were deleted too by employing the cascade machinery of Django
-    itself.
+    itself. Does **not** return instances, only classes.
     """
     collector = Collector(using=instance._state.db)
     collector.collect([instance])
 
-    # Save collected objects for later referencing
+    # Save collected objects for later referencing (well yes, it does return
+    # instances but we don't have to tell anybody :-)
     instance._collected_objects = collector.data
 
     return collector.data.keys()

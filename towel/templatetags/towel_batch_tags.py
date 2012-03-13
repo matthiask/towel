@@ -13,6 +13,11 @@ def batch_checkbox(form, id):
             {% batch_checkbox batch_form object.id %}
             {{ object }} etc...
         {% endfor %}
+
+    This tag returns an empty string if ``batch_form`` does not exist for some
+    reason. This makes it easier to write templates when you don't know if the
+    batch form will be available or not (f.e. because of a permissions
+    requirement).
     """
 
     if not form or not hasattr(form, 'ids'):
