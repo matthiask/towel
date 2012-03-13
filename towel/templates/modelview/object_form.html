@@ -24,7 +24,7 @@
     <legend>{{ formset|verbose_name_plural }}</legend>
     {{ formset.management_form }}
     {% dynamic_formset formset key %}
-        <div id="{{ form_id }}" {% if empty %}class="empty group" style="display:none"{% else %}class="group"{% endif %}>
+        <div id="{{ form_id }}" class="{% if empty %}empty{% endif %}">
             {% for field in form %}{% form_item field %}{% endfor %}
         </div>
     {% enddynamic_formset %}
