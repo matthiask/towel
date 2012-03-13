@@ -6,5 +6,6 @@
 /django
 /example
 /dist
+/build
 /towel.egg-info
 /MANIFEST
