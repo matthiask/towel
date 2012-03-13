@@ -28,7 +28,9 @@ def _tryreverse(*args, **kwargs):
 
 
 class ModelView(object):
-    """``ModelView`` offers list views, detail views and CRUD functionality"""
+    """
+    ``ModelView`` offers list views, detail views and CRUD functionality
+    """
 
     # Every view is wrapped with this decorator. Use this if you need
     # f.e. a simple way of ensuring a user is logged in before accessing

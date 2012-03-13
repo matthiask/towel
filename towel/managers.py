@@ -5,6 +5,7 @@ from django.db.models import Q
 
 from towel import queryset_transform
 
+
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
                     normspace=re.compile(r'\s{2,}').sub):

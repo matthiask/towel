@@ -8,7 +8,8 @@ Usage::
     class SafeModel(deletion.Model):
         # fields etc.
 
-    
+
+    instance = SafeModel.objects.get(...)
     with deletion.protect():
         instance.delete() # Does nothing
     instance.delete() # Actually deletes the instance!
@@ -23,6 +24,11 @@ Saving formsets::
         obj.delete() # Or do something else, like checking whether the instance
                      # should really be deleted
 
+
+This is achieved by overriding the model's ``delete()`` method with a different
+version which does nothing if protection is active. If you override the deletion
+method for some reason too, you have to ensure that the threadlocal state is
+respected too.
 """
 
 from contextlib import contextmanager

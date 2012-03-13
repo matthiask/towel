@@ -13,7 +13,14 @@ from towel import quick
 
 class BatchForm(forms.Form):
     """
-    Batch form
+    This form class can be used to provide batch editing functionality
+    in list views, similar to Django's admin actions.
+
+    You have to implement your batch processing in the ``_context()``
+    method. This method only receives one parameter, a queryset which
+    is already filtered according to the selected items on the list view.
+    Additionally, the current request is available as an attribute of the
+    form instance, ``self.request``.
 
     The method ``_context(self, batch_queryset)`` must return a
     ``dict`` instance which is added to the context afterwards.
@@ -38,8 +45,13 @@ class BatchForm(forms.Form):
                         [item.email])
                     sent += 1
                 if sent:
-                    messages.success(request, 'Sent %s emails.' % sent)
-                return {}
+                    messages.success(self.request, 'Sent %s emails.' % sent)
+                return {
+                    'batch_items': batch_queryset, # Return the batch items so that
+                                                   # the list view template has a chance
+                                                   # to display all affected instances
+                                                   # somehow.
+                    }
 
         def addresses(request):
             queryset = Address.objects.all()
@@ -60,6 +72,10 @@ class BatchForm(forms.Form):
                 </li>
             {% endfor %}
             </ul>
+
+            {# Required! Otherwise, ``BatchForm.process`` does nothing. #}
+            <input type="hidden" name="batchform" value="1" />
+
             <table>
                 {{ batch_form }}
             </table>
@@ -103,8 +119,6 @@ class BatchForm(forms.Form):
 
 class SearchForm(forms.Form):
     """
-    Search form
-
     Supports persistence of searches (stores search in the session). Requires
     not only the GET parameters but the request object itself to work
     correctly.

@@ -37,6 +37,7 @@ API Documentation
    api/queryset_transform
    api/quick
    api/templatetags
+   api/utils
 
 
 Indices and tables
