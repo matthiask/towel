@@ -138,7 +138,7 @@ class ModelView(object):
         # We should not fail if the messages framework is disabled
         kwargs.setdefault('fail_silently', True)
 
-        messages.add_message(request, level, message % variables, **kwargs)
+        messages.add_message(request, level, message, **kwargs)
 
     def __init__(self, model, **kwargs):
         self.model = model
