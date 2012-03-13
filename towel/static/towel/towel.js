@@ -17,6 +17,9 @@ function towel_add_subform(slug) {
         });
     }
 
-    form.appendTo(empty.parent()).hide().fadeIn();
+    // insert the form after the last sibling with the same tagName
+    // cannot use siblings() here, because the empty element may be the
+    // only one (if no objects exist until now)
+    form.insertAfter(empty.parent().children('[id|=' + slug + ']:last')).hide().fadeIn();
     return false;
 }
