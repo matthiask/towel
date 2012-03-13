@@ -72,7 +72,7 @@ class ModelView(object):
     #: The form used for batch processing
     batch_form = None
 
-    # messages dictionary to centrally control all possible messages
+    #: Messages dictionary to centrally control all possible messages
     default_messages = {
         'object_created': (messages.SUCCESS, _('The new object has been successfully created.')),
         'adding_denied': (messages.ERROR, ('You are not allowed to add objects.')),
@@ -83,26 +83,62 @@ class ModelView(object):
         'deletion_denied_related': (messages.ERROR, _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
     }
 
-    # user defined messages
+    #: User defined messages
     custom_messages = {}
 
-    def add_message(self, request, message_id=None, variables={}, extra_tags=None, message=None, level=messages.INFO):
+    def add_message(self, request, message, variables=None, level=None, **kwargs):
         """
-        helper function to add messages to the request.
-        tries to get the message_id from the user defined messages. if there is no message specified, it defaults to
-        default_messages. if no message is found, no message will be displayed.
+        This helper function is used to easily add messages for the current user.
 
-        if a custom message is provided, it will override the the default and custom message
+        ``message`` may either be a key for the ``custom_messages`` and
+        ``default_messages`` dictionary or a string containing the message itself.
 
-        override this, if you want a different behaviour
+        ``variables`` may be a dictionary used for string interpolation if the
+        message contains placeholders.
+
+        Some default messages already contain a message level specification
+        (currently either ``SUCCESS`` or ``ERROR``). The default for all other
+        messages is ``messages.INFO``, but this can be overridden by setting
+        the ``level`` argument.
+
+        Additional keyword arguments are passed on directly to
+        ``messages.add_message``. This can be used f.e. to easily add extra tags
+        to the message.
+
+        Usage::
+
+            # Add the default object_created message
+            self.add_message(request, 'object_created')
+
+            # Add a custom message with a custom level
+            self.add_message(request, _('Whatever you mean'), level=messages.WARNING)
+
+            # Add extra tags to a default message
+            self.add_message(request, 'deletion_denied', extra_tags='funky')
+
+            # Fail loudly, please, if messages aren't enabled
+            self.add_message(request, 'editing_denied', fail_silently=False)
         """
-        message = message or self.custom_messages.get(message_id, self.default_messages.get(message_id, None))
 
-        if message:
-            if not isinstance(message, (str, unicode)):
-                level = message[0]
-                message = message[1]
-            messages.add_message(request, level, message % variables, extra_tags, fail_silently=True)
+        if message in self.custom_messages:
+            message = self.custom_messages[message]
+        elif message in self.default_messages:
+            message = self.default_messages[message]
+
+        if not isinstance(message, (str, unicode)):
+            level = message[0]
+            message = message[1]
+
+        if variables:
+            message = message % variables
+
+        if level is None:
+            level = messages.INFO
+
+        # We should not fail if the messages framework is disabled
+        kwargs.setdefault('fail_silently', True)
+
+        messages.add_message(request, level, message % variables, **kwargs)
 
     def __init__(self, model, **kwargs):
         self.model = model
