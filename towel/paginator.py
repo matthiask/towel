@@ -1,9 +1,32 @@
 """
-Drop-in replacement for Django's ``django.core.paginator`` with additional goodies
+Drop-in replacement for Django's ``django.core.paginator`` with additional
+goodness
+
+Django's paginator class has a ``page_range`` method returning a list of all
+available pages. If you got lots and lots of pages this is not very helpful.
+Towel's page class (**not** paginator class!) sports a ``page_range`` method
+too which only returns a few pages at the beginning and at the end of the page
+range and a few pages around the current page.
+
+All you have to do to use this module is replacing all imports from
+``django.core.paginator`` with ``towel.paginator``. All important classes and
+all exceptions are available inside this module too.
+
+The page range parameters can be customized by adding a ``PAGINATION`` setting.
+The defaults are as follows::
+
+    PAGINATION = {
+        'START': 6, # pages at the beginning of the range
+        'END': 6, # pages at the end of the range
+        'AROUND': 5, # pages around the current page
+        }
 """
 
 from django.conf import settings
 from django.core import paginator
+
+
+__all__ = ('InvalidPage', 'PageNotAnInteger', 'EmptyPage', 'Paginator', 'Page')
 
 
 # Import useful exceptions into the local scope
@@ -88,4 +111,3 @@ class Page(paginator.Page):
 
             else:
                 yield None # Ellipsis marker
-
