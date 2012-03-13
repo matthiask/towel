@@ -20,7 +20,7 @@
 </fieldset>
 
 {% for key, formset in formsets.items %}
-<fieldset id="{{ key }}-formset">
+<fieldset>
     <legend>{{ formset|verbose_name_plural }}</legend>
     {{ formset.management_form }}
     {% dynamic_formset formset key %}
