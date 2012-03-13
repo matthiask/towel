@@ -22,6 +22,9 @@ sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('..'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'conf'
 
+# -- Make Django shut up
+SECRET_KEY = 'YAY'
+
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
