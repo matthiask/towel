@@ -5,22 +5,24 @@
 {% block title %}{{ title }} {{ object }} - {{ block.super }}{% endblock %}
 
 {% block content %}
-<h2>{{ title }} {{ object }}</h2>
+<h2><a href="{{ object.get_absolute_url }}">{{ title }}: {{ object }}</a></h2>
+
+<p>{% blocktrans %}Do you really want to delete {{ object }}?{% endblocktrans %}</p>
 
 {% if collected_objects %}
 <p>{% trans "You are about to delete the following objects:" %}
 <ul>
 {% for opts, count in collected_objects %}
-    <li>{% if count == 1 %}1 {{ opts.verbose_name }}{% else %}{{ count }} {{ opts.verbose_name_plural }}{% endif %}</li>
+    <li>{{ count }} {% if count == 1 %}{{ opts.verbose_name }}{% else %}{{ opts.verbose_name_plural }}{% endif %}</li>
 {% endfor %}
 </ul>
 {% endif %}
 
 <form method="post" action=".">{% csrf_token %}
-    <div class="buttons">
+    <div class="buttons cf">
         <button type="submit">{% trans "delete"|capfirst %}</button>
         <a href="{{ object.get_absolute_url }}" class="button">
-            <span>{% trans "cancel"|capfirst %}</span></a>
+            {% trans "cancel"|capfirst %}</a>
     </div>
 </form>
 {% endblock %}

@@ -2,7 +2,7 @@
 
 {% load i18n modelview_detail %}
 
-{% block title %}{{ object }} - {{ verbose_name }} - {{ block.super }}{% endblock %}
+{% block title %}{{ object }} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <h2>{{ object }}</h2>
@@ -16,9 +16,9 @@
 {% endfor %}
 </table>
 
-<div class="buttons">
-    <a href="delete/" class="button"><span>{% trans "delete"|capfirst %}</span></a>
-    <a href="edit/"class="button"><span>{% trans "edit"|capfirst %}</span></a>
+<div class="buttons cf">
+    <a href="delete/" class="button">{% trans "delete"|capfirst %}</a>
+    <a href="edit/"class="button">{% trans "edit"|capfirst %}</a>
 </div>
 
 {% endblock %}
