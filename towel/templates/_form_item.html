@@ -1,4 +1,16 @@
-<tr class="{{ additional_classes|default_if_none:"" }} {% if item.field.required %}required {% endif %}{% if item.errors %}invalid {% endif %} {{ type_class }}">
-    <th>{{ item.label_tag }}</th>
-    <td>{{ item }}{% if item.field.help_text %}<p class="help">{{ item.field.help_text }}</p>{% endif %}</td>
-</tr>
+{% if "list" in type_class %}
+<div class="{{ additional_classes|default_if_none:"" }} {% if item.field.required %}required {% endif %}{% if item.errors %}invalid {% endif %} {{ type_class }}">
+    <label for="{{ item.auto_id }}">{{ item.label }}{% if item.field.required %}*{% endif %}
+        {% if item.field.help_text %}<span class="help">({{ item.field.help_text }})</span>{% endif %}
+    </label>
+    {{ item }}
+</div>
+{% else %}
+<p class="{{ additional_classes|default_if_none:"" }} {% if item.field.required %}required {% endif %}{% if item.errors %}invalid {% endif %} {{ type_class }}">
+{% if is_checkbox %}{{ item }}{% endif %}
+    <label for="{{ item.auto_id }}">{{ item.label }}{% if item.field.required %}*{% endif %}
+        {% if item.field.help_text %}<span class="help">({{ item.field.help_text }})</span>{% endif %}
+    </label>
+{% if not is_checkbox %}{{ item }}{% endif %}
+</p>
+{% endif %}
