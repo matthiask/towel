@@ -72,9 +72,7 @@
 
         {% block batch_buttons %}
         <div class="buttons">
-            <a href="#" class="button right"
-                onclick="return conditional_submit_batch_form('batchform')">
-                <span>{% trans "Submit" %}</span></a>
+            <button type="submit" class="button right">{% trans "Submit" %}</button>
         </div>
         {% endblock %}
     </div>
