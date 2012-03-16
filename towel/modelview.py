@@ -811,3 +811,59 @@ class ModelView(object):
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
                 })
+
+
+class _MVUHelper(object):
+    def __init__(self, viewname_pattern, kwargs):
+        self.viewname_pattern = viewname_pattern
+        self.kwargs = kwargs
+
+    def __getitem__(self, item):
+        try:
+            return reverse(self.viewname_pattern % item, **self.kwargs)
+        except NoReverseMatch:
+            return reverse(self.viewname_pattern % item)
+
+
+class ModelViewURLs(object):
+    """
+    Usage::
+
+        class MyModel(models.Model):
+            urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
+
+            def get_absolute_url(self):
+                return self.urls['detail']
+
+            def get_edit_url(self):
+                return self.urls['edit']
+
+            # ... etc
+    """
+
+    def __init__(self, reverse_args_fn=None):
+        """
+        Despite the name, ``reverse_args_fn`` is allowed to return kwargs
+        (a dict instance) too
+        """
+        if reverse_args_fn:
+            self.reverse_args_fn = reverse_args_fn
+        else:
+            self.reverse_args_fn = lambda obj: {'pk': obj.pk}
+
+    def __get__(self, obj, objtype=None):
+        if not hasattr(obj, '_modelviewurls_cache'):
+            kwargs = {}
+            data = self.reverse_args_fn(obj)
+            if isinstance(data, dict):
+                kwargs['kwargs'] = data
+            else:
+                kwargs['args'] = data
+
+            viewname_pattern = '%s_%s_%%s' % (
+                obj._meta.app_label,
+                obj._meta.module_name,
+                )
+
+            obj._modelviewurls_cache = _MVUHelper(viewname_pattern, kwargs)
+        return obj._modelviewurls_cache
