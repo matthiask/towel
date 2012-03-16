@@ -93,7 +93,7 @@ class BatchForm(forms.Form):
 
         if request.method == 'POST' and 'batchform' in request.POST:
             self.process = True
-            super(BatchForm, self).__init__(request.POST, *args, **kwargs)
+            super(BatchForm, self).__init__(request.POST, request.FILES, *args, **kwargs)
         else:
             super(BatchForm, self).__init__(*args, **kwargs)
 

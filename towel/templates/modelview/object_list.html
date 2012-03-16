@@ -32,7 +32,7 @@
 
 {% if paginator %}{% pagination page paginator "top" %}{% endif %}
 
-{% if batch_form %}<form id="batchform" method="post" action="{{ request.get_full_path }}">{% csrf_token %}{% endif %}
+{% if batch_form %}<form id="batchform" method="post" action="{{ request.get_full_path }}" enctype="multipart/form-data">{% csrf_token %}{% endif %}
 
 {% block objects %}
 <table class="objects">
