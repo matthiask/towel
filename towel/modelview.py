@@ -821,8 +821,12 @@ class _MVUHelper(object):
     def __getitem__(self, item):
         try:
             return reverse(self.viewname_pattern % item, **self.kwargs)
-        except NoReverseMatch:
-            return reverse(self.viewname_pattern % item)
+        except NoReverseMatch, e:
+            try:
+                return reverse(self.viewname_pattern % item)
+            except NoReverseMatch:
+                # Re-raise exception with kwargs; it's more informative
+                raise e
 
 
 class ModelViewURLs(object):
