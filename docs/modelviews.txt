@@ -59,7 +59,7 @@ ModelView works with an URL structure similar to the following:
 * ``/books/<pk>/delete/``
 
 The regular expression used to match the detail page (here <pk>) can be
-customized. If you'd rather match on the slug, on a combination of 
+customized. If you'd rather match on the slug, on a combination of
 several fields (separated by dashes or slashes, whatever you want) or on
 something else, you can do this by modifying ``urlconf_detail_re``. You
 only have to make sure that ``get_object`` will know what to do with the
@@ -300,13 +300,13 @@ to helper methods.
    ``*args`` and ``**kwargs`` are passed as they are directly into ``get_object``.
 
 
-.. function:: get_form(self, request, instance=None, **kwargs)
+.. function:: get_form(self, request, instance=None, change=None, **kwargs)
 
    Return a Django form class. The default implementation returns the result
    of ``modelform_factory(self.model, **kwargs)``.
 
 
-.. function:: get_form_instance(self, request, form_class, instance=None, **kwargs)
+.. function:: get_form_instance(self, request, form_class, instance=None, change=None, **kwargs)
 
    Instantiate the form, for the given instance in the editing case.
 
@@ -320,7 +320,7 @@ to helper methods.
    if ``request.method`` is ``POST``.
 
 
-.. function:: get_formset_instances(self, request, instance=None, **kwargs)
+.. function:: get_formset_instances(self, request, instance=None, change=None, **kwargs)
 
    Returns an empty ``dict`` by default. Construct your formsets if you want
    any in this method::
@@ -328,7 +328,7 @@ to helper methods.
        BookFormSet = inlineformset_factory(Publisher, Book)
 
        class PublisherModelView(ModelView):
-           def get_formset_instances(self, request, instance=None, **kwargs):
+           def get_formset_instances(self, request, instance=None, change=None, **kwargs):
                args = self.extend_args_if_post(request, [])
                kwargs.setdefault('instance', instance)
 
@@ -431,7 +431,7 @@ to lose related data because of Django's cascaded deletion behavior. Towel
 offers helpers to allow circumventing Django's inline formset deletion behavior.
 
 .. note::
-   
+
    The problem is that ``formset.save(commit=False)`` deletes objects marked
    for deletion right away even though ``commit=False`` might be interpreted
    as not touching the database yet.
@@ -454,11 +454,11 @@ Next, you have to override ``save_formsets``::
         def get_formset_instances(self, request, instance=None, change=None, **kwargs):
             args = self.extend_args_if_post(request, [])
             kwargs['instance'] = instance
-    
+
             return {
                 'mymodels': InlineFormSet(*args, **kwargs),
                 }
-    
+
         def save_formsets(self, request, form, formsets, change):
             # Only delete MyModel instances if there are no related objects
             # attached to them
