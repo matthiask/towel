@@ -63,6 +63,9 @@ class ModelView(object):
     #: The paginator class used for pagination
     paginator_class = paginator.Paginator
 
+    #: The editing form class
+    form_class = None
+
     #: Search form class
     search_form = None
 
@@ -298,7 +301,7 @@ class ModelView(object):
         for creating and editing objects.
         """
 
-        return modelform_factory(self.model, **kwargs)
+        return self.form_class or modelform_factory(self.model, **kwargs)
 
     def extend_args_if_post(self, request, args):
         """
