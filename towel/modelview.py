@@ -145,8 +145,11 @@ class ModelView(object):
 
     def __init__(self, model, **kwargs):
         self.model = model
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise TypeError('%s() received an invalid keyword %r' % (
+                    self.__class__.__name__, key))
+            setattr(self, key, value)
 
         if not hasattr(self.model, 'get_absolute_url'):
             # Add a simple primary key based URL to the model if it does not have one yet
