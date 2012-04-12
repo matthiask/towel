@@ -401,6 +401,51 @@ class SearchForm(forms.Form):
         return self.apply_ordering(queryset, data.get('o'))
 
 
+class WarningsForm(forms.BaseForm):
+    """
+    Form subclass which allows implementing validation warnings
+
+    In contrast to Django's ``ValidationError``, these warnings may
+    be ignored by checking a checkbox.
+
+    The warnings support consists of the following methods and properties:
+
+    * ``WarningsForm.add_warning(<warning>)``: Adds a new warning message
+    * ``WarningsForm.warnings``: A property which returns a list of warnings,
+      or an empty list if there are no warnings.
+    * ``WarningsForm.is_valid()``: Overridden ``Form.is_valid()`` implementation
+      which returns ``False`` for otherwise valid forms with warnings, if those
+      warnings have not been explicitly ignored (by checking a checkbox or by
+      passing ``ignore_warnings=True`` to ``is_valid()``.
+    * An additional form field named ``ignore_warnings`` is available - this
+      field should only be displayed if ``WarningsForm.warnings`` is non-emtpy.
+    """
+    def __init__(self, *args, **kwargs):
+        super(WarningsForm, self).__init__(*args, **kwargs)
+
+        self.fields['ignore_warnings'] = forms.BooleanField(
+            label=_('Ignore warnings'), required=False)
+
+    def add_warning(self, warning):
+        if not hasattr(self, '_warnings'):
+            self._warnings = []
+        self._warnings.append(warning)
+
+    @property
+    def warnings(self):
+        return getattr(self, '_warnings', [])
+
+    def is_valid(self, ignore_warnings=False):
+        if not super(WarningsForm, self).is_valid():
+            return False
+
+        if self.warnings and not (ignore_warnings or
+                self.cleaned_data.get('ignore_warnings')):
+            return False
+
+        return True
+
+
 class StrippedTextInput(forms.TextInput):
     """
     ``TextInput`` form widget subclass returning stripped contents only
