@@ -181,9 +181,9 @@ def bool_mapper(attribute):
     and ``off`` to ``False``.
     """
     def _fn(v):
-        if v['bool'].lower() in ('yes', '1', 'on'):
+        if v['bool'].lower() in ('yes', '1', 'on', 'true'):
             return {attribute: True}
-        elif v['bool'].lower() in ('no', '0', 'off'):
+        elif v['bool'].lower() in ('no', '0', 'off', 'false'):
             return {attribute: False}
         return {}
     return _fn
