@@ -411,8 +411,8 @@ class WarningsForm(forms.BaseForm):
     The warnings support consists of the following methods and properties:
 
     * ``WarningsForm.add_warning(<warning>)``: Adds a new warning message
-    * ``WarningsForm.warnings``: A property which returns a list of warnings,
-      or an empty list if there are no warnings.
+    * ``WarningsForm.warnings``: A list of warnings or an empty list if there are
+      none.
     * ``WarningsForm.is_valid()``: Overridden ``Form.is_valid()`` implementation
       which returns ``False`` for otherwise valid forms with warnings, if those
       warnings have not been explicitly ignored (by checking a checkbox or by
@@ -425,17 +425,19 @@ class WarningsForm(forms.BaseForm):
 
         self.fields['ignore_warnings'] = forms.BooleanField(
             label=_('Ignore warnings'), required=False)
+        self.warnings = []
 
     def add_warning(self, warning):
-        if not hasattr(self, '_warnings'):
-            self._warnings = []
-        self._warnings.append(warning)
-
-    @property
-    def warnings(self):
-        return getattr(self, '_warnings', [])
+        """
+        Adds a new warning, should be called while cleaning the data
+        """
+        self.warnings.append(warning)
 
     def is_valid(self, ignore_warnings=False):
+        """
+        ``is_valid()`` override which returns ``False`` for forms with warnings
+        if these warnings haven't been explicitly ignored
+        """
         if not super(WarningsForm, self).is_valid():
             return False
 
