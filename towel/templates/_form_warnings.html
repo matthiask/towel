@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="box warning cf">
+    <strong>{% trans "Please review the following warnings:" %}</strong>
+    <ul>
+        {% for warning in form.warnings %}
+            <li>{{ warning }}</li>
+        {% endfor %}
+    </ul>
+    <label for="{{ form.ignore_warnings.auto_id }}">
+        {{ form.ignore_warnings }} {{ form.ignore_warnings.label }}
+    </label>
+</div>

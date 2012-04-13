@@ -122,6 +122,21 @@ class FormErrorsNode(template.Node):
             })
 
 
+@register.simple_tag
+def form_warnings(form):
+    """
+    Shows the validation warnings in a nicely formatted way, including the
+    checkbox to ignore the warnings
+    """
+
+    if form.warnings:
+        return render_to_string('_form_warnings.html', {
+            'form': form,
+            })
+
+    return u''
+
+
 @register.tag
 def dynamic_formset(parser, token):
     """
