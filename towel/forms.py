@@ -478,7 +478,7 @@ class StrippedTextarea(forms.Textarea):
         return super(StrippedTextarea, self).render(*args, **kwargs)
 
 
-def stripped_formfield_callback(field, **kwargs):
+def towel_formfield_callback(field, **kwargs):
     """
     Use this callback as ``formfield_callback`` if you want to use stripped
     text inputs and textareas automatically without manually specifying the
@@ -495,6 +495,16 @@ def stripped_formfield_callback(field, **kwargs):
         kwargs['widget'] = forms.DateInput(attrs={'class': 'dateinput'})
 
     return field.formfield(**kwargs)
+
+#: Backwards compatibility, provide the function under the old name
+#: ``stripped_formfield_callback`` too.
+def stripped_formfield_callback(field, **kwargs):
+    import warnings
+    warnings.warn(
+        'stripped_formfield_callback has been renamed to towel_formfield_callback,'
+        ' please start using the new name.',
+        DeprecationWarning, stacklevel=2)
+    return towel_formfield_callback(field, **kwargs)
 
 
 class ModelAutocompleteWidget(forms.TextInput):
