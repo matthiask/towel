@@ -55,10 +55,11 @@ class SearchManager(queryset_transform.TransformManager):
 
         return self._search(query)
 
-    def _search(self, query, fields=None):
-        queryset = self.get_query_set()
-
-        fields = fields if fields else self.search_fields
+    def _search(self, query, fields=None, queryset=None):
+        if queryset is None:
+            queryset = self.get_query_set()
+        if fields is None:
+            fields = self.search_fields
 
         if not query or not fields:
             return queryset
