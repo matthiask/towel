@@ -55,10 +55,12 @@ class SearchManager(queryset_transform.TransformManager):
 
         return self._search(query)
 
-    def _search(self, query):
+    def _search(self, query, fields=None):
         queryset = self.get_query_set()
 
-        if not query or not self.search_fields:
+        fields = fields if fields else self.search_fields
+
+        if not query or not fields:
             return queryset
 
         for keyword in normalize_query(query):
@@ -72,11 +74,11 @@ class SearchManager(queryset_transform.TransformManager):
 
             if negate:
                 q = reduce(lambda p, q: p&q,
-                    (~Q(**{'%s__icontains' % field: keyword}) for field in self.search_fields),
+                    (~Q(**{'%s__icontains' % field: keyword}) for field in fields),
                     Q())
             else:
                 q = reduce(lambda p, q: p|q,
-                    (Q(**{'%s__icontains' % field: keyword}) for field in self.search_fields),
+                    (Q(**{'%s__icontains' % field: keyword}) for field in fields),
                     Q())
 
             queryset = queryset.filter(q)
