@@ -825,8 +825,19 @@ class _MVUHelper(object):
         self.kwargs = kwargs
 
     def __getitem__(self, item):
+        return self.url(item)
+
+    def url(self, item, *args, **kwargs):
+        kw = self.kwargs.copy()
+        if args:
+            kw.setdefault('args', [])
+            kw['args'].extend(args)
+        elif kwargs:
+            kw.setdefault('kwargs', {})
+            kw['kwargs'].update(kwargs)
+
         try:
-            return reverse(self.viewname_pattern % item, **self.kwargs)
+            return reverse(self.viewname_pattern % item, **kw)
         except NoReverseMatch, e:
             try:
                 return reverse(self.viewname_pattern % item)
