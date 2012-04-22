@@ -129,7 +129,7 @@ def form_warnings(form):
     checkbox to ignore the warnings
     """
 
-    if form.warnings:
+    if getattr(form, 'warnings', None):
         return render_to_string('_form_warnings.html', {
             'form': form,
             })
