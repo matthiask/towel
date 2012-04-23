@@ -47,6 +47,11 @@ class EditableNode(template.Node):
 
     def _render(self, context, edit=None, used=None):
         output = self.nodelist.render(context)
+        if edit is None and used is None:
+            return output
+        elif used is None:
+            used = edit
+
         try:
             counter = context['towel_editable_counter']
         except KeyError:
