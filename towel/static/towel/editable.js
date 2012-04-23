@@ -23,7 +23,7 @@ var TowelEditable = {
             return;
 
         var editfields = $elem.data('edit'),
-            qstring = '_edit=' + $elem.data('edit').replace(',', '&_edit=');
+            qstring = '_edit=' + $elem.data('edit').replace(/,/g, '&_edit=');
 
         if (editfields)
             $.get(TowelEditable.edit_url + qstring, TowelEditable.get_editor($elem));
