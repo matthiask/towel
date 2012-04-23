@@ -30,6 +30,7 @@ API Documentation
    :maxdepth: 2
 
    api/deletion
+   api/editable
    api/forms
    api/managers
    api/modelview
