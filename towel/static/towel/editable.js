@@ -30,7 +30,7 @@ var TowelEditable = {
     },
 
     init: function(edit_url) {
-        TowelEditable.edit_url = edit_url;
+        TowelEditable.edit_url = edit_url + (edit_url.indexOf('?')===-1 ? '?' : '&');
         $('body').delegate('.towel_editable', 'click', function() {
             return TowelEditable.onclick(this);
         });
