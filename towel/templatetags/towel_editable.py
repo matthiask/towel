@@ -11,6 +11,11 @@ register = template.Library()
 
 
 def generate_counter(start=0):
+    """
+    Returns a generator which returns a steady stream of numbers
+
+    Takes the start value as an argument (defaults to zero).
+    """
     while True:
         yield start
         start += 1
@@ -28,6 +33,22 @@ def flatatt(attrs):
 
 @register.tag
 def editable(parser, token):
+    """
+    Defines an editable or live-updateable template region
+
+    Editable regions::
+
+        {% editable edit="title,description" %}
+            <h2>{{ title }}</h2>
+            <p>{{ description|linebreaksbr }}</p>
+        {% endeditable %}
+
+    Only live-updated regions, no editing support:
+
+        {% editable used="title,description %}
+            {{ title }} ...
+        {% endeditable %}
+    """
     nodelist = parser.parse(('endeditable',))
     parser.delete_first_token()
 

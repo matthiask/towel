@@ -6,6 +6,18 @@ from django.http import HttpResponse
 
 
 def editfields(modelview, request, instance):
+    """
+    Processes requests for editing regions defined by the ``{% editable %}``
+    template tag
+
+    This method assumes that editing permissions have been checked already.
+
+    If the list of fields (passed as ``_edit`` values in either GET or POST)
+    contains fields not available on the model itself, this method calls
+    ``get_formset_instances()`` with all other fields in the ``formsets``
+    keyword argument and assumes that ``get_formset_instances`` will return
+    the appropriate formsets.
+    """
     # Get base modelform
     ModelForm = modelview.get_form(request, instance=instance, change=True)
 
