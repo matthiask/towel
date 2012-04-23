@@ -1,6 +1,7 @@
 import json
 
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 
@@ -22,22 +23,36 @@ class ModelView(modelview.ModelView):
         # which are in Meta.fields as well. We don't have to do anything with
         # Meta.exclude luckily because Meta.exclude always trumps Meta.fields.
         editfields = request.REQUEST.getlist('_edit')
+
+        modelfields, otherfields = [], []
+        for f in editfields:
+            try:
+                self.model._meta.get_field(f)
+                modelfields.append(f)
+            except models.FieldDoesNotExist:
+                otherfields.append(f)
+
         fields = getattr(ModelForm.Meta, 'fields', None)
         if fields:
             # Do not use sets to preserve ordering
-            editfields = [f for f in editfields if f in fields]
+            modelfields = [f for f in modelfields if f in fields]
 
-        if not editfields:
+        if not (modelfields or otherfields):
             return HttpResponse('')
 
         # Construct new ModelForm with only a restricted set of fields
-        ModelForm = modelform_factory(self.model, form=ModelForm, fields=editfields)
+        ModelForm = modelform_factory(self.model, form=ModelForm, fields=modelfields)
+        formsets = {}
 
         if request.method == 'POST':
             form = ModelForm(request.POST, request.FILES, instance=instance)
+            formsets = self.get_formset_instances(request, instance=instance, change=True,
+                formsets=otherfields)
 
-            if form.is_valid():
+            if form.is_valid() and all(f.is_valid() for f in formsets.values()):
                 instance = form.save()
+                for formset in formsets.values():
+                    formset.save()
 
                 towel_editable = {}
                 self.render_detail(request, {
@@ -56,11 +71,14 @@ class ModelView(modelview.ModelView):
                 return HttpResponse(json.dumps(towel_editable))
         else:
             form = ModelForm(instance=instance)
+            formsets = self.get_formset_instances(request, instance=instance, change=True,
+                formsets=otherfields)
 
         return self.render(request,
             self.get_template(request, 'editfields'),
             self.get_context(request, {
                 self.template_object_name: instance,
                 'form': form,
+                'formsets': formsets,
                 'editfields': editfields,
                 }))
