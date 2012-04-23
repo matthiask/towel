@@ -1,7 +1,7 @@
 {% load i18n towel_form_tags %}
 <form method="post" action="{{ object.urls.editfields }}" enctype="multipart/form-data">
   {% csrf_token %}
-  {% for field in editfields %}<input type="hidden" name="_editfields" value="{{ field }}">
+  {% for field in editfields %}<input type="hidden" name="_edit" value="{{ field }}">
   {% endfor %}
 
   {% form_errors form %}

@@ -1,6 +1,7 @@
 import re
 
 from django import template
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 from towel.utils import parse_args_and_kwargs, resolve_args_and_kwargs
@@ -13,6 +14,16 @@ def generate_counter(start=0):
     while True:
         yield start
         start += 1
+
+
+def flatatt(attrs):
+    """
+    Convert a dictionary of attributes to a single string.
+    The returned string will contain a leading space followed by key="value",
+    XML-style pairs.  It is assumed that the keys do not need to be XML-escaped.
+    If the passed dictionary is empty, then return an empty string.
+    """
+    return u''.join([u' %s="%s"' % (k, conditional_escape(v)) for k, v in attrs.items()])
 
 
 @register.tag
@@ -56,6 +67,13 @@ class EditableNode(template.Node):
             # Ignore this silently -- towel_editable will not be available most of the time
             pass
 
-        return mark_safe(
-            u'<span id="%s" class="towel_editable" data-editfields="%s" data-visiblefields="%s">%s</span>' % (
-                ident, edit, used, output))
+        attrs = {
+            'id': ident,
+            }
+        if edit:
+            attrs['class'] = 'towel_editable'
+            attrs['data-edit'] = edit
+        if used:
+            attrs['data-used'] = used
+
+        return mark_safe('<span %s>%s</span>' % (flatatt(attrs), output))

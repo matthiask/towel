@@ -22,12 +22,15 @@ var TowelEditable = {
         if ($elem.find('form').length)
             return;
 
-        var qstring = '_editfields=' + $elem.data('editfields').replace(',', '&_editfields=');
-        $.get(TowelEditable.editfields_url + qstring, TowelEditable.get_editor($elem));
+        var editfields = $elem.data('edit'),
+            qstring = '_edit=' + $elem.data('edit').replace(',', '&_edit=');
+
+        if (editfields)
+            $.get(TowelEditable.edit_url + qstring, TowelEditable.get_editor($elem));
     },
 
-    init: function(editfields_url) {
-        TowelEditable.editfields_url = editfields_url;
+    init: function(edit_url) {
+        TowelEditable.edit_url = edit_url;
         $('body').delegate('.towel_editable', 'click', function() {
             return TowelEditable.onclick(this);
         });

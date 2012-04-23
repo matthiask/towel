@@ -18,14 +18,17 @@ class ModelView(modelview.ModelView):
         ModelForm = self.get_form(request, instance=instance, change=True)
 
         # Compile list of fields to be edited. If the base modelform already
-        # specifies Meta.fields, make sure that _editfields only contains fields
+        # specifies Meta.fields, make sure that _edit only contains fields
         # which are in Meta.fields as well. We don't have to do anything with
         # Meta.exclude luckily because Meta.exclude always trumps Meta.fields.
-        editfields = request.REQUEST.getlist('_editfields')
+        editfields = request.REQUEST.getlist('_edit')
         fields = getattr(ModelForm.Meta, 'fields', None)
         if fields:
             # Do not use sets to preserve ordering
             editfields = [f for f in editfields if f in fields]
+
+        if not editfields:
+            return HttpResponse('')
 
         # Construct new ModelForm with only a restricted set of fields
         ModelForm = modelform_factory(self.model, form=ModelForm, fields=editfields)
