@@ -5,7 +5,7 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponse
 
 
-def editfields(modelview, request, instance):
+def editfields(modelview, request, instance, form_class=None):
     """
     Processes requests for editing regions defined by the ``{% editable %}``
     template tag
@@ -19,7 +19,8 @@ def editfields(modelview, request, instance):
     the appropriate formsets.
     """
     # Get base modelform
-    ModelForm = modelview.get_form(request, instance=instance, change=True)
+    if not form_class:
+        form_class = modelview.get_form(request, instance=instance, change=True)
 
     # Compile list of fields to be edited. If the base modelform already
     # specifies Meta.fields, make sure that _edit only contains fields
@@ -35,7 +36,7 @@ def editfields(modelview, request, instance):
         except models.FieldDoesNotExist:
             otherfields.append(f)
 
-    fields = getattr(ModelForm.Meta, 'fields', None)
+    fields = getattr(form_class.Meta, 'fields', None)
     if fields:
         # Do not use sets to preserve ordering
         modelfields = [f for f in modelfields if f in fields]
@@ -43,12 +44,12 @@ def editfields(modelview, request, instance):
     if not (modelfields or otherfields):
         return HttpResponse('')
 
-    # Construct new ModelForm with only a restricted set of fields
-    ModelForm = modelform_factory(modelview.model, form=ModelForm, fields=modelfields)
+    # Construct new form_class with only a restricted set of fields
+    form_class = modelform_factory(modelview.model, form=form_class, fields=modelfields)
     formsets = {}
 
     if request.method == 'POST':
-        form = ModelForm(request.POST, request.FILES, instance=instance)
+        form = form_class(request.POST, request.FILES, instance=instance)
         if otherfields:
             formsets = modelview.get_formset_instances(request, instance=instance, change=True,
                 formsets=otherfields)
@@ -74,7 +75,7 @@ def editfields(modelview, request, instance):
 
             return HttpResponse(json.dumps(towel_editable))
     else:
-        form = ModelForm(instance=instance)
+        form = form_class(instance=instance)
         if otherfields:
             formsets = modelview.get_formset_instances(request, instance=instance, change=True,
                 formsets=otherfields)
