@@ -1,9 +1,9 @@
+import json
 import pickle
 
 from django import forms
 from django.db import models
 from django.forms.util import flatatt
-from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -599,7 +599,7 @@ $(function() {
                 return u'\'%s\'' % self.url()
             return u'\'%s\'' % self.url
         else:
-            data = simplejson.dumps([{
+            data = json.dumps([{
                 'label': unicode(o),
                 'value': o.id,
                 } for o in self.queryset.all()])
@@ -694,5 +694,5 @@ $(function() {
     def _source(self):
         return u'''function(request, response) {
             response($.ui.autocomplete.filter(%(data)s, extractLast(request.term))); }''' % {
-                'data': simplejson.dumps([unicode(o) for o in self.queryset._clone()]),
+                'data': json.dumps([unicode(o) for o in self.queryset._clone()]),
                 }
