@@ -194,7 +194,7 @@ class ModelView(object):
         ``crud_view_decorator``. If you need additional URLs, use
         ``additional_urls`` instead.
         """
-        from django.conf.urls.defaults import patterns, url
+        from django.conf.urls import patterns, url
         info = self.model._meta.app_label, self.model._meta.module_name
 
         urlpatterns = patterns('',
