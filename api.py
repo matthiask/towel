@@ -51,6 +51,12 @@ class API(object):
         return HttpResponse(json.dumps(response), mimetype='application/json')
 
 
+def api_reverse(model, ident, **kwargs):
+    opts = model._meta
+    return reverse('api_%s_%s_%s' % (opts.app_label, opts.module_name, ident),
+        kwargs=kwargs)
+
+
 class Resource(generic.View):
     """
     Request-response cycle
@@ -112,9 +118,7 @@ class Resource(generic.View):
         )
 
     def reverse(self, ident, **kwargs):
-        opts = self.model._meta
-        return reverse('api_%s_%s_%s' % (opts.app_label, opts.module_name, ident),
-            kwargs=kwargs)
+        return api_reverse(self.model, ident, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
