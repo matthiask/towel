@@ -4,6 +4,7 @@ from urllib import urlencode
 
 from django.conf.urls import patterns, include, url
 from django.core import paginator
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -157,7 +158,9 @@ class Resource(generic.View):
         # Should also patch the Vary: header to include the Accept: header
         # too, because otherwise cache control is not working as it should
         # patch_vary_headers(response, ('Accept',))
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(
+            json.dumps(response, cls=DjangoJSONEncoder),
+            mimetype='application/json')
 
     def get_query_set(self):
         if self.queryset:
@@ -205,10 +208,21 @@ class Resource(generic.View):
         return Objects(queryset, page, set_, single)
 
     def serialize_instance(self, instance):
-        return {
-            '__unicode__': unicode(instance),
+        opts = instance._meta
+        data = {
             '__uri__': self.reverse('detail', pk=instance.pk),
+            '__unicode__': unicode(instance),
             }
+
+        for f in opts.fields: # Leave out opts.many_to_many
+            if f.name == 'id':
+                continue
+            elif f.rel:
+                continue
+
+            data[f.name] = f.value_from_object(instance)
+
+        return data
 
     def get(self, request, *args, **kwargs):
         objects = self.objects()
