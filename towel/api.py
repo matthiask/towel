@@ -84,13 +84,13 @@ class API(object):
             }
         for model, urls, prefix in self.resources:
             response[model.__name__.lower()] = {
-                '__uri__': api_reverse(model, 'list'),
+                '__uri__': api_reverse(model, 'list', api_name=self.name),
                 }
 
         return HttpResponse(json.dumps(response), mimetype='application/json')
 
 
-def api_reverse(model, ident, **kwargs):
+def api_reverse(model, ident, api_name='api', **kwargs):
     """
     Determines the URL of API endpoints for arbitrary models
 
@@ -107,7 +107,7 @@ def api_reverse(model, ident, **kwargs):
         api_reverse(instance, 'detail', pk=instance.pk)
     """
     opts = model._meta
-    return reverse('api_%s_%s_%s' % (opts.app_label, opts.module_name, ident),
+    return reverse('_'.join((api_name, opts.app_label, opts.module_name, ident)),
         kwargs=kwargs)
 
 
@@ -135,6 +135,8 @@ class Resource(generic.View):
       - OPTIONS (unsupported)
       - TRACE (unsupported)
     """
+
+    api_name = None
     model = None
     queryset = None
     paginate_by = 20
@@ -142,12 +144,21 @@ class Resource(generic.View):
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
 
     @classonlymethod
-    def urls(cls, canonical=True, **initkwargs):
+    def urls(cls, canonical=True, api_name='api', decorator=None, **initkwargs):
         """
         Instantiates the view and adds URL entries for the list, set and detail flavors
 
-        All keyword arguments are forwarded to ``Resource.as_view()``. This method
-        requires either a ``model`` or a ``queryset`` keyword argument.
+        This method requires either ``model`` or ``queryset`` as keyword argument.
+
+        If ``canonical`` is ``True``, names are added to the URL patterns for ``reverse()``
+        support. ``api_name`` defines the prefix used. If you specify anything, be sure to
+        pass this value to ``api_reverse()`` calls too.
+
+        ``decorator`` may be used to decorate the view. Only use function decorators,
+        NOT method decorators here.
+
+        All other keyword arguments are forwarded to ``Resource.as_view()``. This
+        method requires either a ``model`` or a ``queryset`` keyword argument.
 
         Usage::
 
@@ -159,16 +170,16 @@ class Resource(generic.View):
         model = initkwargs.get('model') or initkwargs.get('queryset').model
         initkwargs.setdefault('model', model)
 
-        view = csrf_exempt(cls.as_view(**initkwargs))
+        view = csrf_exempt(cls.as_view(api_name=api_name, **initkwargs))
 
         name = lambda ident: None
         if canonical:
             opts = model._meta
-            name = lambda ident: 'api_%s_%s_%s' % (
-                opts.app_label,
-                opts.module_name,
-                ident,
-                )
+            name = lambda ident: '_'.join((
+                api_name, opts.app_label, opts.module_name, ident))
+
+        if decorator:
+            view = decorator(view)
 
         return patterns('',
             url(r'^$', view, name=name('list')),
@@ -292,7 +303,8 @@ class Resource(generic.View):
         """
         opts = instance._meta
         data = {
-            '__uri__': api_reverse(self.model, 'detail', pk=instance.pk),
+            '__uri__': api_reverse(self.model, 'detail', api_name=self.api_name,
+                pk=instance.pk),
             '__unicode__': unicode(instance),
             }
 
@@ -301,7 +313,7 @@ class Resource(generic.View):
                 continue
             elif f.rel:
                 try:
-                    data[f.name] = api_reverse(f.rel.to, 'detail',
+                    data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api_name,
                         pk=f.value_from_object(instance))
                 except NoReverseMatch:
                     continue
@@ -336,7 +348,7 @@ class Resource(generic.View):
                 }
         else:
             page = objects.page
-            list_url = api_reverse(self.model, 'list')
+            list_url = api_reverse(self.model, 'list', api_name=self.api_name)
             meta = {
                 'pages': page.paginator.num_pages,
                 'count': page.paginator.count,
