@@ -1,3 +1,4 @@
+from collections import namedtuple
 import json
 from urllib import urlencode
 
@@ -9,6 +10,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import classonlymethod
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+
+
+Objects = namedtuple('Objects', 'queryset page list single')
 
 
 class Resource(generic.View):
@@ -123,8 +127,7 @@ class Resource(generic.View):
 
     def objects(self):
         """
-        Returns a tuple of ``(queryset, list, single)`` denoting the objects
-        which should be processed by the request:
+        Returns a namedtuple with the following attributes:
 
         - ``queryset``: Available items, filtered and all (if applicable).
         - ``page``: Current page
@@ -159,7 +162,7 @@ class Resource(generic.View):
             except EmptyPage:
                 page = p.page(p.num_pages)
 
-        return queryset, page, list, single
+        return Objects(queryset, page, list, single)
 
     def serialize_instance(self, instance):
         return {
@@ -169,25 +172,32 @@ class Resource(generic.View):
             }
 
     def get(self, request, *args, **kwargs):
-        queryset, page, list, single = self.objects()
+        objects = self.objects()
 
-        if single:
-            return self.serialize_instance(single)
-        elif list:
+        if objects.single:
+            return self.serialize_instance(objects.single)
+        elif objects.list:
             return {
-                'objects': [self.serialize_instance(instance) for instance in list],
+                'objects': [self.serialize_instance(instance) for instance in objects.list],
                 }
         else:
+            page = objects.page
             list_url = self.reverse('list')
+            meta = {
+                'pages': page.paginator.num_pages,
+                'count': page.paginator.count,
+                'current': page.number,
+                }
+            if page.number > 1:
+                meta['previous'] = u'%s?%s' % (list_url, urlencode({
+                    'page': page.number - 1,
+                    }))
+            if page.number < page.paginator.num_pages:
+                meta['next'] = u'%s?%s' % (list_url, urlencode({
+                    'page': page.number + 1,
+                    }))
+
             return {
                 'objects': [self.serialize_instance(instance) for instance in page],
-                'meta': {
-                    # TODO stop ignoring filters
-                    'previous': u'%s?%s' % (list_url, urlencode({
-                        'page': page.number - 1,
-                        })),
-                    'next': u'%s?%s' % (list_url, urlencode({
-                        'page': page.number + 1,
-                        })),
-                    },
+                'meta': meta,
                 }
