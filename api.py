@@ -202,7 +202,6 @@ class Resource(generic.View):
 
     def serialize_instance(self, instance):
         return {
-            'pk': instance.pk,
             '__unicode__': unicode(instance),
             '__uri__': self.reverse('detail', pk=instance.pk),
             }
