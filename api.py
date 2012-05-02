@@ -27,7 +27,7 @@ class API(object):
     @property
     def urls(self):
         urlpatterns = [
-            url(r'^$', self),
+            url(r'^$', self, name='api_%s' % self.name),
             ]
 
         for model, urls, prefix in self.resources:
@@ -40,7 +40,7 @@ class API(object):
 
         response = {
             'name': self.name,
-            '__uri__': request.path,
+            '__uri__': reverse('api_%s' % self.name),
             }
         for model, urls, prefix in self.resources:
             response[model.__name__.lower()] = {
