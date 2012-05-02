@@ -17,15 +17,52 @@ Objects = namedtuple('Objects', 'queryset page set single')
 
 
 class API(object):
+    """
+    This is the main API object. It does not do much except give an overview over
+    all resources. It will hold the necessary bits to have more than one API
+    with the same models or resources at the same time (f.e. versions).
+
+    Usage::
+
+        api_v1 = API('v1')
+        api_v1.register(Customer, Resource.urls(model=Customer))
+        api_v1.register(Store, Resource.urls(model=Store))
+        api_v1.register(Product, Resource.urls(model=Product))
+
+        urlpatterns = patterns('',
+            url(r'^v1/', include(api_v1.urls)),
+        )
+    """
+
     def __init__(self, name):
         self.name = name
         self.resources = []
 
     def register(self, model, urls, prefix=None):
+        """
+        Registers another resource on this API. The first argument is the Django
+        model exposed through the URL patterns passed as the second argument. The
+        third argument can be optionally used to override the URL prefix for the
+        given model. The default is to lowercase the model name.o
+
+        Usage::
+
+            api_v1.register(Product, Resource.urls(model=Product))
+
+            # Use 'customers' instead of 'customer'
+            api_v1.register(Customer, Resource.urls(model=Customer), r'^customers/')
+        """
         self.resources.append((model, urls, prefix or r'^%s/' % model.__name__.lower()))
 
     @property
     def urls(self):
+        """
+        Inclusion point in your own URLconf
+
+        Pass the return value to ``include()``.
+        """
+        # TODO should probably use some sort of namespacing here so that
+        # the same models may be used in different API versions
         urlpatterns = [
             url(r'^$', self, name='api_%s' % self.name),
             ]
@@ -36,6 +73,9 @@ class API(object):
         return patterns('', *urlpatterns)
 
     def __call__(self, request):
+        """
+        Main API view, returns a list of all available resources
+        """
         # TODO remove hardcoded shit :-(
 
         response = {
@@ -51,6 +91,21 @@ class API(object):
 
 
 def api_reverse(model, ident, **kwargs):
+    """
+    Determines the URL of API endpoints for arbitrary models
+
+    ``model`` is the Django model you want to use, ident should be one of
+    ``list``, ``set`` or ``detail`` at the moment, additional keyword arguments
+    are forwarded to the ``django.core.urlresolvers.reverse`` call.
+
+    Usage::
+
+        api_reverse(Product, 'detail', pk=42)
+
+    Passing an instance works too::
+
+        api_reverse(instance, 'detail', pk=instance.pk)
+    """
     opts = model._meta
     return reverse('api_%s_%s_%s' % (opts.app_label, opts.module_name, ident),
         kwargs=kwargs)
@@ -89,6 +144,11 @@ class Resource(generic.View):
     @classonlymethod
     def urls(cls, canonical=True, **initkwargs):
         """
+        Instantiates the view and adds URL entries for the list, set and detail flavors
+
+        All keyword arguments are forwarded to ``Resource.as_view()``. This method
+        requires either a ``model`` or a ``queryset`` keyword argument.
+
         Usage::
 
             urlpatterns = patterns('',
@@ -117,6 +177,22 @@ class Resource(generic.View):
         )
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        This method is almost the same as Django's own ``generic.View.dispatch()``,
+        but there are a few subtle differences:
+
+        - It uses ``self.request``, ``self.args`` and ``self.kwargs`` in all places
+        - It calls ``self.unserialize_request()`` after assigning the aforementioned
+          variables on ``self`` which may modify all aspects and all variables (f.e.
+          deserialize a JSON request and serialize it again to look like a standard
+          POST request) and only then determines whether the request should be handled
+          by this view at all.
+        - The return value of the ``get()``, ``post()`` etc. methods is passed to
+          ``self.serialize_response()`` and only then returned to the client. The
+          processing methods should return data (a ``dict`` instance most of the time)
+          which is then serialized into the requested format or some different supported
+          format.
+        """
         self.request = request
         self.args = args
         self.kwargs = kwargs
@@ -144,6 +220,10 @@ class Resource(generic.View):
         pass
 
     def serialize_response(self, response):
+        """
+        Serializes the response into an appropriate format for the wire such as
+        JSON. ``HttpResponse`` instances are returned directly.
+        """
         if isinstance(response, HttpResponse):
             return response
 
@@ -158,6 +238,10 @@ class Resource(generic.View):
             mimetype='application/json')
 
     def get_query_set(self):
+        """
+        Returns the queryset used by this resource. If you need access or visibility control,
+        add it here.
+        """
         if self.queryset:
             return self.queryset._clone()
         elif self.model:
@@ -203,6 +287,9 @@ class Resource(generic.View):
         return Objects(queryset, page, set_, single)
 
     def serialize_instance(self, instance):
+        """
+        Serializes a single model instance.
+        """
         opts = instance._meta
         data = {
             '__uri__': api_reverse(self.model, 'detail', pk=instance.pk),
@@ -225,6 +312,20 @@ class Resource(generic.View):
         return data
 
     def get(self, request, *args, **kwargs):
+        """
+        Processes GET requests by returning lists, sets or detail data. All of these
+        URLs are supported by this implementation:
+
+        - ``resource/``: Paginated list of objects, first page
+        - ``resource/?page=3``: Paginated list of objects, third page
+        - ``resource/42/``: Object with primary key of 42
+        - ``resource/1;3;5/``: Set of the three objects with a primary key of
+          1, 3 and 5. The last item may have a semicolon too for simplicity, it
+          will be ignored. The following URI would be equivalent: ``resource/1;;3;5;``
+          (but it is bad style).
+
+        Filtering or searching is not supported at the moment.
+        """
         objects = self.objects()
 
         if objects.single:
