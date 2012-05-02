@@ -2,7 +2,7 @@ from collections import namedtuple
 import json
 from urllib import urlencode
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, include, url
 from django.core import paginator
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
@@ -13,6 +13,40 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 Objects = namedtuple('Objects', 'queryset page set single')
+
+
+class API(object):
+    def __init__(self, name):
+        self.name = name
+        self.resources = []
+
+    def register(self, model, urls, prefix=None):
+        self.resources.append((model, urls, prefix or r'^%s/' % model.__name__.lower()))
+
+    @property
+    def urls(self):
+        urlpatterns = [
+            url(r'^$', self),
+            ]
+
+        for model, urls, prefix in self.resources:
+            urlpatterns.append(url(prefix, include(urls)))
+
+        return patterns('', *urlpatterns)
+
+    def __call__(self, request):
+        # TODO remove hardcoded shit :-(
+
+        response = {}
+        for model, urls, prefix in self.resources:
+            opts = model._meta
+            response[model.__name__.lower()] = {
+                'name': unicode(opts.verbose_name),
+                '__uri__': reverse('api_%s_%s_list' % (
+                    opts.app_label, opts.module_name)),
+                }
+
+        return HttpResponse(json.dumps(response), mimetype='application/json')
 
 
 class Resource(generic.View):
