@@ -311,9 +311,7 @@ class Resource(generic.View):
             }
 
         for f in opts.fields: # Leave out opts.many_to_many
-            if f.name == 'id':
-                continue
-            elif f.rel:
+            if f.rel:
                 try:
                     data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api_name,
                         pk=f.value_from_object(instance))
