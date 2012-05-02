@@ -136,7 +136,7 @@ class Resource(generic.View):
             single = get_object_or_404(queryset, pk=self.kwargs['pk'])
 
         elif 'pks' in self.kwargs:
-            pks = set(self.kwargs['pks'].split(';'))
+            pks = set(pk for pk in self.kwargs['pks'].split(';') if pk)
             list = queryset.in_bulk(pks).values()
 
             if len(pks) != len(list):
