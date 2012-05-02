@@ -143,6 +143,8 @@ class Resource(generic.View):
                 raise Http404('Some objects do not exist.')
 
         else:
+            # TODO apply filters / searches
+
             p = paginator.Paginator(queryset, self.paginate_by)
 
             try:
