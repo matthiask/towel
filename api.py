@@ -12,7 +12,7 @@ from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
 
-Objects = namedtuple('Objects', 'queryset page list single')
+Objects = namedtuple('Objects', 'queryset page set single')
 
 
 class Resource(generic.View):
@@ -131,23 +131,23 @@ class Resource(generic.View):
 
         - ``queryset``: Available items, filtered and all (if applicable).
         - ``page``: Current page
-        - ``list``: List of objects or ``None`` if not applicable. Will be used for
+        - ``set``: List of objects or ``None`` if not applicable. Will be used for
           requests such as ``/api/product/1;3/``.
         - ``single``: Single instances if applicable, used for URIs such as
           ``/api/product/1/``.
 
         Raises a 404 if the referenced items do not exist.
         """
-        queryset, page, list, single = self.get_query_set(), None, None, None
+        queryset, page, set_, single = self.get_query_set(), None, None, None
 
         if 'pk' in self.kwargs:
             single = get_object_or_404(queryset, pk=self.kwargs['pk'])
 
         elif 'pks' in self.kwargs:
             pks = set(pk for pk in self.kwargs['pks'].split(';') if pk)
-            list = queryset.in_bulk(pks).values()
+            set_ = queryset.in_bulk(pks).values()
 
-            if len(pks) != len(list):
+            if len(pks) != len(set_):
                 raise Http404('Some objects do not exist.')
 
         else:
@@ -162,7 +162,7 @@ class Resource(generic.View):
             except EmptyPage:
                 page = p.page(p.num_pages)
 
-        return Objects(queryset, page, list, single)
+        return Objects(queryset, page, set_, single)
 
     def serialize_instance(self, instance):
         return {
@@ -176,9 +176,9 @@ class Resource(generic.View):
 
         if objects.single:
             return self.serialize_instance(objects.single)
-        elif objects.list:
+        elif objects.set:
             return {
-                'objects': [self.serialize_instance(instance) for instance in objects.list],
+                'objects': [self.serialize_instance(instance) for instance in objects.set],
                 }
         else:
             page = objects.page
