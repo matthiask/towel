@@ -39,6 +39,7 @@ class API(object):
 
         response = {
             'name': self.name,
+            '__uri__': request.path,
             }
         for model, urls, prefix in self.resources:
             opts = model._meta
