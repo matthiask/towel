@@ -1,4 +1,5 @@
 import json
+from urllib import urlencode
 
 from django.conf.urls import patterns, url
 from django.core import paginator
@@ -167,7 +168,7 @@ class Resource(generic.View):
         return {
             'pk': instance.pk,
             '__unicode__': unicode(instance),
-            'resource_uri': self.reverse('detail', pk=instance.pk),
+            '__uri__': self.reverse('detail', pk=instance.pk),
             }
 
     def reverse(self, ident, **kwargs):
@@ -185,9 +186,18 @@ class Resource(generic.View):
                 'objects': [self.serialize_instance(instance) for instance in list],
                 }
         else:
+            list_url = self.reverse('list')
             return {
                 'objects': [self.serialize_instance(instance) for instance in page],
-                'meta': {},
+                'meta': {
+                    # TODO stop ignoring filters
+                    'previous': u'%s?%s' % (list_url, urlencode({
+                        'page': page.number - 1,
+                        })),
+                    'next': u'%s?%s' % (list_url, urlencode({
+                        'page': page.number + 1,
+                        })),
+                    },
                 }
 
     def post(self, request, *args, **kwargs):
