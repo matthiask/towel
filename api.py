@@ -167,11 +167,13 @@ class Resource(generic.View):
         return {
             'pk': instance.pk,
             '__unicode__': unicode(instance),
-            'resource_uri': reverse(
+            'resource_uri': self.reverse('detail', pk=instance.pk),
             }
 
     def reverse(self, ident, **kwargs):
-        pass
+        opts = self.model._meta
+        return reverse('api_%s_%s_%s' % (opts.app_label, opts.module_name, ident),
+            kwargs=kwargs)
 
     def get(self, request, *args, **kwargs):
         queryset, page, list, single = self.objects()
