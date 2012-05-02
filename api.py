@@ -5,7 +5,7 @@ from urllib import urlencode
 from django.conf.urls import patterns, include, url
 from django.core import paginator
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import classonlymethod
@@ -43,10 +43,8 @@ class API(object):
             '__uri__': request.path,
             }
         for model, urls, prefix in self.resources:
-            opts = model._meta
             response[model.__name__.lower()] = {
-                '__uri__': reverse('api_%s_%s_list' % (
-                    opts.app_label, opts.module_name)),
+                '__uri__': api_reverse(model, 'list'),
                 }
 
         return HttpResponse(json.dumps(response), mimetype='application/json')
@@ -117,9 +115,6 @@ class Resource(generic.View):
             url(r'^(?P<pk>\d+)/$', view, name=name('detail')),
             url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view, name=name('set')),
         )
-
-    def reverse(self, ident, **kwargs):
-        return api_reverse(self.model, ident, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         self.request = request
@@ -210,7 +205,7 @@ class Resource(generic.View):
     def serialize_instance(self, instance):
         opts = instance._meta
         data = {
-            '__uri__': self.reverse('detail', pk=instance.pk),
+            '__uri__': api_reverse(self.model, 'detail', pk=instance.pk),
             '__unicode__': unicode(instance),
             }
 
@@ -218,9 +213,14 @@ class Resource(generic.View):
             if f.name == 'id':
                 continue
             elif f.rel:
-                continue
+                try:
+                    data[f.name] = api_reverse(f.rel.to, 'detail',
+                        pk=f.value_from_object(instance))
+                except NoReverseMatch:
+                    continue
 
-            data[f.name] = f.value_from_object(instance)
+            else:
+                data[f.name] = f.value_from_object(instance)
 
         return data
 
@@ -235,7 +235,7 @@ class Resource(generic.View):
                 }
         else:
             page = objects.page
-            list_url = self.reverse('list')
+            list_url = api_reverse(self.model, 'list')
             meta = {
                 'pages': page.paginator.num_pages,
                 'count': page.paginator.count,
