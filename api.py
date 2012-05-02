@@ -1,12 +1,19 @@
 import json
 
 from django.conf.urls import patterns, url
+from django.core import paginator
+from django.core.urlresolvers import reverse
 from django.db.models import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import classonlymethod
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+
+
+#: Automatically incremented identifier for each resource
+#: Used for naming URL patterns and reversing them
+RESOURCE_INIT_COUNTER = 0
 
 
 class Resource(generic.View):
@@ -35,11 +42,12 @@ class Resource(generic.View):
     """
     model = None
     queryset = None
+    paginate_by = 20
 
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
 
     @classonlymethod
-    def urls(cls, **initkwargs):
+    def urls(cls, canonical=True, **initkwargs):
         """
         Usage::
 
@@ -48,12 +56,24 @@ class Resource(generic.View):
             )
         """
 
+        model = initkwargs.get('model') or initkwargs.get('queryset').model
+        initkwargs.setdefault('model', model)
+
         view = csrf_exempt(cls.as_view(**initkwargs))
 
+        name = lambda ident: None
+        if canonical:
+            opts = model._meta
+            name = lambda ident: 'api_%s_%s_%s' % (
+                opts.app_label,
+                opts.module_name,
+                ident,
+                )
+
         return patterns('',
-            url(r'^$', view),
-            url(r'^(?P<pk>\d+)/$', view),
-            url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view),
+            url(r'^$', view, name=name('list')),
+            url(r'^(?P<pk>\d+)/$', view, name=name('detail')),
+            url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view, name=name('set')),
         )
 
     def dispatch(self, request, *args, **kwargs):
@@ -107,6 +127,7 @@ class Resource(generic.View):
         which should be processed by the request:
 
         - ``queryset``: Available items, filtered and all (if applicable).
+        - ``page``: Current page
         - ``list``: List of objects or ``None`` if not applicable. Will be used for
           requests such as ``/api/product/1;3/``.
         - ``single``: Single instances if applicable, used for URIs such as
@@ -114,9 +135,7 @@ class Resource(generic.View):
 
         Raises a 404 if the referenced items do not exist.
         """
-        queryset, list, single = self.get_query_set(), None, None
-
-        # TODO pagination, filtering
+        queryset, page, list, single = self.get_query_set(), None, None, None
 
         if 'pk' in self.kwargs:
             single = get_object_or_404(queryset, pk=self.kwargs['pk'])
@@ -125,23 +144,37 @@ class Resource(generic.View):
             except ObjectDoesNotExist:
                 raise Http404('Object does not exist.')
 
-        if 'pks' in self.kwargs:
+        elif 'pks' in self.kwargs:
             pks = set(self.kwargs['pks'].split(';'))
             list = queryset.in_bulk(pks).values()
 
             if len(pks) != len(list):
                 raise Http404('Some objects do not exist.')
 
-        return queryset, list, single
+        else:
+            p = paginator.Paginator(queryset, self.paginate_by)
+
+            try:
+                page = p.page(self.request.GET.get('page'))
+            except paginator.PageNotAnInteger:
+                page = p.page(1)
+            except EmptyPage:
+                page = p.page(p.num_pages)
+
+        return queryset, page, list, single
 
     def serialize_instance(self, instance):
         return {
             'pk': instance.pk,
             '__unicode__': unicode(instance),
+            'resource_uri': reverse(
             }
 
+    def reverse(self, ident, **kwargs):
+        pass
+
     def get(self, request, *args, **kwargs):
-        queryset, list, single = self.objects()
+        queryset, page, list, single = self.objects()
 
         if single:
             return self.serialize_instance(single)
@@ -151,7 +184,7 @@ class Resource(generic.View):
                 }
         else:
             return {
-                'objects': [self.serialize_instance(instance) for instance in queryset],
+                'objects': [self.serialize_instance(instance) for instance in page],
                 'meta': {},
                 }
 
