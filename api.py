@@ -4,17 +4,11 @@ from urllib import urlencode
 from django.conf.urls import patterns, url
 from django.core import paginator
 from django.core.urlresolvers import reverse
-from django.db.models import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import classonlymethod
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
-
-
-#: Automatically incremented identifier for each resource
-#: Used for naming URL patterns and reversing them
-RESOURCE_INIT_COUNTER = 0
 
 
 class Resource(generic.View):
@@ -140,10 +134,6 @@ class Resource(generic.View):
 
         if 'pk' in self.kwargs:
             single = get_object_or_404(queryset, pk=self.kwargs['pk'])
-            try:
-                single = queryset.get(pk=self.kwargs['pk'])
-            except ObjectDoesNotExist:
-                raise Http404('Object does not exist.')
 
         elif 'pks' in self.kwargs:
             pks = set(self.kwargs['pks'].split(';'))
