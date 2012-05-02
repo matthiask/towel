@@ -144,7 +144,7 @@ class Resource(generic.View):
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
 
     @classonlymethod
-    def urls(cls, canonical=True, api_name='api', decorator=None, **initkwargs):
+    def urls(cls, canonical=True, api_name='api', decorators=None, **initkwargs):
         """
         Instantiates the view and adds URL entries for the list, set and detail flavors
 
@@ -154,8 +154,9 @@ class Resource(generic.View):
         support. ``api_name`` defines the prefix used. If you specify anything, be sure to
         pass this value to ``api_reverse()`` calls too.
 
-        ``decorator`` may be used to decorate the view. Only use function decorators,
-        NOT method decorators here.
+        ``decorators`` may be used to decorate the view. The decorators will be applied
+        in reverse, the order is therefore the same as with the ``@`` notation.  Only use
+        function decorators, NOT method decorators here.
 
         All other keyword arguments are forwarded to ``Resource.as_view()``. This
         method requires either a ``model`` or a ``queryset`` keyword argument.
@@ -178,8 +179,9 @@ class Resource(generic.View):
             name = lambda ident: '_'.join((
                 api_name, opts.app_label, opts.module_name, ident))
 
-        if decorator:
-            view = decorator(view)
+        if decorators:
+            for dec in reversed(decorators):
+                view = dec(view)
 
         return patterns('',
             url(r'^$', view, name=name('list')),
