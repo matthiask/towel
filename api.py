@@ -37,11 +37,12 @@ class API(object):
     def __call__(self, request):
         # TODO remove hardcoded shit :-(
 
-        response = {}
+        response = {
+            'name': self.name,
+            }
         for model, urls, prefix in self.resources:
             opts = model._meta
             response[model.__name__.lower()] = {
-                'name': unicode(opts.verbose_name),
                 '__uri__': reverse('api_%s_%s_list' % (
                     opts.app_label, opts.module_name)),
                 }
