@@ -25,9 +25,9 @@ class API(object):
     Usage::
 
         api_v1 = API('v1')
-        api_v1.register(Customer, Resource.urls(model=Customer))
-        api_v1.register(Store, Resource.urls(model=Store))
-        api_v1.register(Product, Resource.urls(model=Product))
+        api_v1.register(Customer, Resource.urls(model=Customer, api_name='v1'))
+        api_v1.register(Store, Resource.urls(model=Store, api_name='v1'))
+        api_v1.register(Product, Resource.urls(model=Product, api_name='v1'))
 
         urlpatterns = patterns('',
             url(r'^v1/', include(api_v1.urls)),
@@ -47,10 +47,11 @@ class API(object):
 
         Usage::
 
-            api_v1.register(Product, Resource.urls(model=Product))
+            api_v1.register(Product, Resource.urls(model=Product, api_name='v1'))
 
             # Use 'customers' instead of 'customer'
-            api_v1.register(Customer, Resource.urls(model=Customer), r'^customers/')
+            api_v1.register(Customer, Resource.urls(model=Customer, api_name='v1'),
+                r'^customers/')
         """
         self.resources.append((model, urls, prefix or r'^%s/' % model.__name__.lower()))
 
@@ -61,8 +62,6 @@ class API(object):
 
         Pass the return value to ``include()``.
         """
-        # TODO should probably use some sort of namespacing here so that
-        # the same models may be used in different API versions
         urlpatterns = [
             url(r'^$', self, name='api_%s' % self.name),
             ]
@@ -76,8 +75,6 @@ class API(object):
         """
         Main API view, returns a list of all available resources
         """
-        # TODO remove hardcoded shit :-(
-
         response = {
             'name': self.name,
             '__uri__': reverse('api_%s' % self.name),
@@ -87,6 +84,7 @@ class API(object):
                 '__uri__': api_reverse(model, 'list', api_name=self.name),
                 }
 
+        # TODO content negotiation :-(
         return HttpResponse(json.dumps(response), mimetype='application/json')
 
 
