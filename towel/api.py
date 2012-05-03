@@ -131,7 +131,7 @@ class API(object):
         if 'model' not in view_init:
             view_init['model'] = view_init.get('queryset').model or model
 
-        view = view_class.as_view(api_name=self.name, **view_init)
+        view = view_class.as_view(api=self, **view_init)
 
         name = lambda ident: None
         if canonical:
@@ -186,8 +186,8 @@ class Resource(generic.View):
     Resource for exposing Django models somewhat RESTy
     """
 
-    #: The name of the API to which this resource is bound to.
-    api_name = None
+    #: The API to which this resource is bound to.
+    api = None
 
     #: The model exposed by this resource.
     model = None
@@ -338,7 +338,7 @@ class Resource(generic.View):
         """
         opts = instance._meta
         data = {
-            '__uri__': api_reverse(instance, 'detail', api_name=self.api_name,
+            '__uri__': api_reverse(instance, 'detail', api_name=self.api.name,
                 pk=instance.pk, fail_silently=True),
             '__unicode__': unicode(instance),
             }
@@ -356,7 +356,7 @@ class Resource(generic.View):
 
                 else:
                     try:
-                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api_name,
+                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api.name,
                             pk=f.value_from_object(instance))
                     except NoReverseMatch:
                         continue
@@ -376,7 +376,7 @@ class Resource(generic.View):
             else:
                 try:
                     data[f.name] = [{
-                        '__uri__': api_reverse(f.rel.to, 'detail', api_name=self.api_name,
+                        '__uri__': api_reverse(f.rel.to, 'detail', api_name=self.api.name,
                             pk=pk, fail_silently=True),
                         } for pk in f.value_from_object(instance)]
                 except NoReverseMatch:
@@ -411,7 +411,7 @@ class Resource(generic.View):
                 }
         else:
             page = objects.page
-            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api_name)
+            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
             meta = {
                 'pages': page.paginator.num_pages,
                 'count': page.paginator.count,
