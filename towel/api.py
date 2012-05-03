@@ -155,7 +155,7 @@ class API(object):
             })
 
 
-def api_reverse(model, ident, api_name='api', **kwargs):
+def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
     """
     Determines the canonical URL of API endpoints for arbitrary models
 
@@ -172,8 +172,13 @@ def api_reverse(model, ident, api_name='api', **kwargs):
         api_reverse(instance, 'detail', pk=instance.pk)
     """
     opts = model._meta
-    return reverse('_'.join((api_name, opts.app_label, opts.module_name, ident)),
-        kwargs=kwargs)
+    try:
+        return reverse('_'.join((api_name, opts.app_label, opts.module_name, ident)),
+            kwargs=kwargs)
+    except NoReverseMatch:
+        if fail_silently:
+            return None
+        raise
 
 
 class Resource(generic.View):
@@ -323,29 +328,38 @@ class Resource(generic.View):
 
         return Objects(queryset, page, set_, single)
 
-    def serialize_instance(self, instance):
+    def serialize_instance(self, instance, inline_depth=0):
         """
         Serializes a single model instance.
+
+        If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
+        objects are inlined. The performance implications of this feature might be
+        severe!
         """
         opts = instance._meta
         data = {
             '__uri__': api_reverse(instance, 'detail', api_name=self.api_name,
-                pk=instance.pk),
+                pk=instance.pk, fail_silently=True),
             '__unicode__': unicode(instance),
             }
 
         for f in opts.fields: # Leave out opts.many_to_many
             if f.rel:
-                try:
-                    data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api_name,
-                        pk=f.value_from_object(instance))
-                except NoReverseMatch:
-                    continue
+                if inline_depth > 0:
+                    if getattr(instance, f.name):
+                        data[f.name] = self.serialize_instance(
+                            getattr(instance, f.name),
+                            inline_depth=inline_depth-1,
+                            )
+                    else:
+                        data[f.name] = None
 
-                # TODO make this configurable -- include data inline instead of
-                # only showing URLs
-                #if getattr(instance, f.name):
-                    #data[f.name] = self.serialize_instance(getattr(instance, f.name))
+                else:
+                    try:
+                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api_name,
+                            pk=f.value_from_object(instance))
+                    except NoReverseMatch:
+                        continue
 
             else:
                 data[f.name] = f.value_from_object(instance)
@@ -353,6 +367,20 @@ class Resource(generic.View):
                 if f.choices:
                     data.setdefault('__pretty__', {})[f.name] = unicode(
                         dict(f.choices).get(data[f.name], '-'))
+
+        for f in opts.many_to_many:
+            if inline_depth > 0:
+                data[f.name] = [
+                    self.serialize_instance(obj, inline_depth=inline_depth-1)
+                    for obj in getattr(instance, f.name).all()]
+            else:
+                try:
+                    data[f.name] = [{
+                        '__uri__': api_reverse(f.rel.to, 'detail', api_name=self.api_name,
+                            pk=pk, fail_silently=True),
+                        } for pk in f.value_from_object(instance)]
+                except NoReverseMatch:
+                    continue
 
         return data
 
@@ -374,6 +402,8 @@ class Resource(generic.View):
         objects = self.objects()
 
         if objects.single:
+            if request.GET.get('full'):
+                return self.serialize_instance(objects.single, inline_depth=1)
             return self.serialize_instance(objects.single)
         elif objects.set:
             return {
