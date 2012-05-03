@@ -8,7 +8,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import classonlymethod
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
@@ -38,23 +37,6 @@ class API(object):
         self.name = name
         self.resources = []
 
-    def register(self, model, urls, prefix=None):
-        """
-        Registers another resource on this API. The first argument is the Django
-        model exposed through the URL patterns passed as the second argument. The
-        third argument can be optionally used to override the URL prefix for the
-        given model. The default is to lowercase the model name.o
-
-        Usage::
-
-            api_v1.register(Product, Resource.urls(model=Product, api_name='v1'))
-
-            # Use 'customers' instead of 'customer'
-            api_v1.register(Customer, Resource.urls(model=Customer, api_name='v1'),
-                r'^customers/')
-        """
-        self.resources.append((model, urls, prefix or r'^%s/' % model.__name__.lower()))
-
     @property
     def urls(self):
         """
@@ -66,8 +48,11 @@ class API(object):
             url(r'^$', self, name='api_%s' % self.name),
             ]
 
-        for model, urls, prefix in self.resources:
-            urlpatterns.append(url(prefix, include(urls)))
+        for resource in self.resources:
+            urlpatterns.append(url(
+                resource['prefix'],
+                include(resource['urlpatterns']),
+                ))
 
         return patterns('', *urlpatterns)
 
@@ -76,16 +61,103 @@ class API(object):
         Main API view, returns a list of all available resources
         """
         response = {
-            'name': self.name,
+            '__unicode__': self.name,
             '__uri__': reverse('api_%s' % self.name),
+            'resources': [],
             }
-        for model, urls, prefix in self.resources:
-            response[model.__name__.lower()] = {
-                '__uri__': api_reverse(model, 'list', api_name=self.name),
+
+        for resource in self.resources:
+            r = {
+                '__unicode__': resource['model'].__name__.lower(),
+                '__uri__': u''.join((response['__uri__'], resource['prefix'].strip('^')),
                 }
+
+            response['resources'].append(r)
+            if resource['canonical']:
+                response[resource['model'].__name__.lower()] = r
 
         # TODO content negotiation :-(
         return HttpResponse(json.dumps(response), mimetype='application/json')
+
+    def register(self, model, view_class=None, canonical=True,
+            decorators=[csrf_exempt], prefix=None, view_init=None):
+        """
+        Registers another resource on this API. The sole required argument is the
+        Django model which should be exposed. The other arguments are:
+
+        - ``view_class``: The resource view class used, defaults to
+          :class:`towel.api.Resource`.
+        - ``canonical``: Whether this resource is the canonical location of the
+          model in this API. Allows registering the same model several times in
+          the API (only one location should be the canonical location!)
+        - ``decorators``: A list of decorators which should be applied to the
+          view. Function decorators only, method decorators aren't supported. The
+          list is applied in reverse, the order is therefore the same as with the
+          ``@`` notation. It's recommended to always pass ``csrf_exempt`` here,
+          otherwise API POSTing will have to include a valid CSRF middleware token.
+        - ``prefix``: The prefix for this model, defaults to the model name in
+          lowercase. You should include a caret and a trailing slash if you specify
+          this yourself (``prefix=r'^library/'``).
+        - ``view_init``: Python dictionary which contains keyword arguments used
+          during the instantiation of the ``view_class``.
+
+        Usage::
+
+            api_v1 = API('v1')
+
+            api_v1.register(
+                Customer,
+                view_init={
+                    'queryset': Customer.objects.filter(is_active=True),
+                    'paginate_by': 10,
+                    })
+
+            api_v1.register(
+                Product,
+                view_init={
+                    'queryset': Product.objects.filter(is_active=True)
+                    'paginate_by': 10,
+                    })
+
+            api_v1.register(
+                Product,
+                canonical=False,
+                prefix=r'^library/',
+                view_class=LibraryResource,
+                view_init={
+                    'queryset': Product.objects.filter(is_active=True),
+                    'paginate_by': 10,
+                    })
+        """
+
+        view_class = view_class or Resource
+        view_init = view_init or {}
+
+        if 'model' not in view_init:
+            view_init['model'] = view_init.get('queryset').model or model
+
+        view = view_class.as_view(api_name=self.name, **view_init)
+
+        name = lambda ident: None
+        if canonical:
+            opts = model._meta
+            name = lambda ident: '_'.join((
+                self.name, opts.app_label, opts.module_name, ident))
+
+        if decorators:
+            for dec in reversed(decorators):
+                view = dec(view)
+
+        self.resources.append({
+            'model': model,
+            'canonical': canonical,
+            'prefix': prefix or r'^%s/' % model.__name__.lower(),
+            'urlpatterns': patterns('',
+                url(r'^$', view, name=name('list')),
+                url(r'^(?P<pk>\d+)/$', view, name=name('detail')),
+                url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view, name=name('set')),
+                ),
+            })
 
 
 def api_reverse(model, ident, api_name='api', **kwargs):
@@ -140,52 +212,6 @@ class Resource(generic.View):
     paginate_by = 20
 
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
-
-    @classonlymethod
-    def urls(cls, canonical=True, api_name='api', decorators=None, **initkwargs):
-        """
-        Instantiates the view and adds URL entries for the list, set and detail flavors
-
-        This method requires either ``model`` or ``queryset`` as keyword argument.
-
-        If ``canonical`` is ``True``, names are added to the URL patterns for ``reverse()``
-        support. ``api_name`` defines the prefix used. If you specify anything, be sure to
-        pass this value to ``api_reverse()`` calls too.
-
-        ``decorators`` may be used to decorate the view. The decorators will be applied
-        in reverse, the order is therefore the same as with the ``@`` notation.  Only use
-        function decorators, NOT method decorators here.
-
-        All other keyword arguments are forwarded to ``Resource.as_view()``. This
-        method requires either a ``model`` or a ``queryset`` keyword argument.
-
-        Usage::
-
-            urlpatterns = patterns('',
-                url(r'^v1/product/', include(api.Resource.urls(model=Product))),
-            )
-        """
-
-        model = initkwargs.get('model') or initkwargs.get('queryset').model
-        initkwargs.setdefault('model', model)
-
-        view = csrf_exempt(cls.as_view(api_name=api_name, **initkwargs))
-
-        name = lambda ident: None
-        if canonical:
-            opts = model._meta
-            name = lambda ident: '_'.join((
-                api_name, opts.app_label, opts.module_name, ident))
-
-        if decorators:
-            for dec in reversed(decorators):
-                view = dec(view)
-
-        return patterns('',
-            url(r'^$', view, name=name('list')),
-            url(r'^(?P<pk>\d+)/$', view, name=name('detail')),
-            url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view, name=name('set')),
-        )
 
     def dispatch(self, request, *args, **kwargs):
         """
