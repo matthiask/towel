@@ -24,9 +24,30 @@ class API(object):
     Usage::
 
         api_v1 = API('v1')
-        api_v1.register(Customer, Resource.urls(model=Customer, api_name='v1'))
-        api_v1.register(Store, Resource.urls(model=Store, api_name='v1'))
-        api_v1.register(Product, Resource.urls(model=Product, api_name='v1'))
+
+        api_v1.register(
+            Customer,
+            view_init={
+                'queryset': Customer.objects.filter(is_active=True),
+                'paginate_by': 10,
+                })
+
+        api_v1.register(
+            Product,
+            view_init={
+                'queryset': Product.objects.filter(is_active=True)
+                'paginate_by': 10,
+                })
+
+        api_v1.register(
+            Product,
+            canonical=False,
+            prefix=r'^library/',
+            view_class=LibraryResource,
+            view_init={
+                'queryset': Product.objects.filter(is_active=True),
+                'paginate_by': 10,
+                })
 
         urlpatterns = patterns('',
             url(r'^v1/', include(api_v1.urls)),
@@ -100,34 +121,6 @@ class API(object):
           this yourself (``prefix=r'^library/'``).
         - ``view_init``: Python dictionary which contains keyword arguments used
           during the instantiation of the ``view_class``.
-
-        Usage::
-
-            api_v1 = API('v1')
-
-            api_v1.register(
-                Customer,
-                view_init={
-                    'queryset': Customer.objects.filter(is_active=True),
-                    'paginate_by': 10,
-                    })
-
-            api_v1.register(
-                Product,
-                view_init={
-                    'queryset': Product.objects.filter(is_active=True)
-                    'paginate_by': 10,
-                    })
-
-            api_v1.register(
-                Product,
-                canonical=False,
-                prefix=r'^library/',
-                view_class=LibraryResource,
-                view_init={
-                    'queryset': Product.objects.filter(is_active=True),
-                    'paginate_by': 10,
-                    })
         """
 
         view_class = view_class or Resource
@@ -162,7 +155,7 @@ class API(object):
 
 def api_reverse(model, ident, api_name='api', **kwargs):
     """
-    Determines the URL of API endpoints for arbitrary models
+    Determines the canonical URL of API endpoints for arbitrary models
 
     ``model`` is the Django model you want to use, ident should be one of
     ``list``, ``set`` or ``detail`` at the moment, additional keyword arguments
@@ -183,34 +176,24 @@ def api_reverse(model, ident, api_name='api', **kwargs):
 
 class Resource(generic.View):
     """
-    Request-response cycle
-    ======================
-
-    - Incoming request with a certain HTTP verb
-      - Standardize incoming data (PUTted JSON, POSTed multipart, whatever)
-
-    - Process verbs
-      - GET & HEAD
-        - list
-        - detail
-      - POST
-        - process
-        - create
-      - PUT (Complete resource)
-        - replace or create
-      - PATCH
-        - patch, incomplete resources allowed
-      - DELETE
-        - obvious :-)
-      - OPTIONS (unsupported)
-      - TRACE (unsupported)
+    Resource for exposing Django models somewhat RESTy
     """
 
+    #: The name of the API to which this resource is bound to.
     api_name = None
+
+    #: The model exposed by this resource.
     model = None
+
+    #: Prefiltered queryset for this resource. Defaults to ``model._default_manager.all()``
+    #: if unset.
     queryset = None
+
+    #: Paginate list views
     paginate_by = 20
 
+    #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
+    #: we allow ``patch``, but do not allow ``options`` and ``trace``.
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
 
     def dispatch(self, request, *args, **kwargs):

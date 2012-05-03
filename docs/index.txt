@@ -29,6 +29,7 @@ API Documentation
 .. toctree::
    :maxdepth: 2
 
+   api/api
    api/deletion
    api/editable
    api/forms
