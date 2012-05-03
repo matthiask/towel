@@ -417,9 +417,8 @@ class Resource(generic.View):
         objects = self.objects()
 
         if objects.single:
-            if request.GET.get('full'):
-                return self.api.serialize_instance(objects.single, inline_depth=1)
-            return self.api.serialize_instance(objects.single)
+            return self.api.serialize_instance(objects.single,
+                inline_depth=1 if request.GET.get('full') else 0)
         elif objects.set:
             return {
                 'objects': [self.api.serialize_instance(instance) for instance in objects.set],
