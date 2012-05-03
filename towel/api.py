@@ -59,6 +59,7 @@ class API(object):
     def __init__(self, name):
         self.name = name
         self.resources = []
+        self.serializers = {}
 
     @property
     def urls(self):
@@ -154,6 +155,18 @@ class API(object):
                 ),
             })
 
+    def serializer(self, model, serializer_class=None):
+        """
+        Creates and returns a serializer instance for the given model.
+
+        The serializer class may be customized optionally. It defaults to
+        :class:`towel.api.Serializer`.
+        """
+        if model not in self.serializers:
+            serializer_class = serializer_class or Serializer
+            self.serializers[model] = serializer_class(self)
+        return self.serializers[model]
+
 
 def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
     """
@@ -202,6 +215,9 @@ class Resource(generic.View):
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
     #: we allow ``patch``, but do not allow ``options`` and ``trace``.
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
+
+    #: Serializer instance
+    serializer_class = None
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -329,6 +345,64 @@ class Resource(generic.View):
         return Objects(queryset, page, set_, single)
 
     def serialize_instance(self, instance, inline_depth=0):
+        serializer = self.api.serializer(instance.__class__,
+            serializer_class=self.serializer_class)
+
+        return serializer.serialize_instance(instance, inline_depth=inline_depth)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Processes GET requests by returning lists, sets or detail data. All of these
+        URLs are supported by this implementation:
+
+        - ``resource/``: Paginated list of objects, first page
+        - ``resource/?page=3``: Paginated list of objects, third page
+        - ``resource/42/``: Object with primary key of 42
+        - ``resource/1;3;5/``: Set of the three objects with a primary key of
+          1, 3 and 5. The last item may have a semicolon too for simplicity, it
+          will be ignored. The following URI would be equivalent: ``resource/1;;3;5;``
+          (but it is bad style).
+
+        Filtering or searching is not supported at the moment.
+        """
+        objects = self.objects()
+
+        if objects.single:
+            if request.GET.get('full'):
+                return self.serialize_instance(objects.single, inline_depth=1)
+            return self.serialize_instance(objects.single)
+        elif objects.set:
+            return {
+                'objects': [self.serialize_instance(instance) for instance in objects.set],
+                }
+        else:
+            page = objects.page
+            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
+            meta = {
+                'pages': page.paginator.num_pages,
+                'count': page.paginator.count,
+                'current': page.number,
+                }
+            if page.number > 1:
+                meta['previous'] = u'%s?%s' % (list_url, urlencode({
+                    'page': page.number - 1,
+                    }))
+            if page.number < page.paginator.num_pages:
+                meta['next'] = u'%s?%s' % (list_url, urlencode({
+                    'page': page.number + 1,
+                    }))
+
+            return {
+                'objects': [self.serialize_instance(instance) for instance in page],
+                'meta': meta,
+                }
+
+
+class Serializer(object):
+    def __init__(self, api):
+        self.api = api
+
+    def serialize_instance(self, instance, inline_depth=0):
         """
         Serializes a single model instance.
 
@@ -383,50 +457,3 @@ class Resource(generic.View):
                     data[f.name] = related
 
         return data
-
-    def get(self, request, *args, **kwargs):
-        """
-        Processes GET requests by returning lists, sets or detail data. All of these
-        URLs are supported by this implementation:
-
-        - ``resource/``: Paginated list of objects, first page
-        - ``resource/?page=3``: Paginated list of objects, third page
-        - ``resource/42/``: Object with primary key of 42
-        - ``resource/1;3;5/``: Set of the three objects with a primary key of
-          1, 3 and 5. The last item may have a semicolon too for simplicity, it
-          will be ignored. The following URI would be equivalent: ``resource/1;;3;5;``
-          (but it is bad style).
-
-        Filtering or searching is not supported at the moment.
-        """
-        objects = self.objects()
-
-        if objects.single:
-            if request.GET.get('full'):
-                return self.serialize_instance(objects.single, inline_depth=1)
-            return self.serialize_instance(objects.single)
-        elif objects.set:
-            return {
-                'objects': [self.serialize_instance(instance) for instance in objects.set],
-                }
-        else:
-            page = objects.page
-            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
-            meta = {
-                'pages': page.paginator.num_pages,
-                'count': page.paginator.count,
-                'current': page.number,
-                }
-            if page.number > 1:
-                meta['previous'] = u'%s?%s' % (list_url, urlencode({
-                    'page': page.number - 1,
-                    }))
-            if page.number < page.paginator.num_pages:
-                meta['next'] = u'%s?%s' % (list_url, urlencode({
-                    'page': page.number + 1,
-                    }))
-
-            return {
-                'objects': [self.serialize_instance(instance) for instance in page],
-                'meta': meta,
-                }
