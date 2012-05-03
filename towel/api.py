@@ -334,8 +334,8 @@ class Resource(generic.View):
                 data[f.name] = f.value_from_object(instance)
 
                 if f.choices:
-                    data.setdefault('__pretty__', {})[f.name] =\
-                        unicode(dict(f.choices).get(data[f.name], '-'))
+                    data.setdefault('__pretty__', {})[f.name] = unicode(
+                        dict(f.choices).get(data[f.name], '-'))
 
         return data
 
