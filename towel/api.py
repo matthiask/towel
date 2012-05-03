@@ -1,5 +1,6 @@
 from collections import namedtuple
 import json
+import mimeparse
 from urllib import urlencode
 
 from django.conf.urls import patterns, include, url
@@ -8,6 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.cache import patch_vary_headers
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
@@ -247,15 +249,30 @@ class Resource(generic.View):
         if isinstance(response, HttpResponse):
             return response
 
-        # TODO content type negotiation :-)
-        # Steal code here:
+        formats = [
+            ('application/json', {
+                'handler': lambda response, output_format, config: (
+                    HttpResponse(json.dumps(response, cls=DjangoJSONEncoder),
+                        mimetype='application/json')),
+                }),
+            #('text/html', {
+                #'handler': self.serialize_response_html,
+                #}),
+            ]
+
+        # Thanks!
         # https://github.com/toastdriven/django-tastypie/blob/master/tastypie/utils/mime.py
-        # Should also patch the Vary: header to include the Accept: header
-        # too, because otherwise cache control is not working as it should
-        # patch_vary_headers(response, ('Accept',))
-        return HttpResponse(
-            json.dumps(response, cls=DjangoJSONEncoder),
-            mimetype='application/json')
+        try:
+            output_format = mimeparse.best_match(
+                reversed([format for format, config in formats]),
+                self.request.META.get('HTTP_ACCEPT'))
+        except IndexError:
+            output_format = 'application/json'
+
+        config = dict(formats)[output_format]
+        response = config['handler'](response, output_format, config)
+        patch_vary_headers(response, ('Accept',))
+        return response
 
     def get_query_set(self):
         """
