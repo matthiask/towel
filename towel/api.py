@@ -312,7 +312,7 @@ class Resource(generic.View):
         """
         opts = instance._meta
         data = {
-            '__uri__': api_reverse(self.model, 'detail', api_name=self.api_name,
+            '__uri__': api_reverse(instance, 'detail', api_name=self.api_name,
                 pk=instance.pk),
             '__unicode__': unicode(instance),
             }
@@ -355,7 +355,7 @@ class Resource(generic.View):
                 }
         else:
             page = objects.page
-            list_url = api_reverse(self.model, 'list', api_name=self.api_name)
+            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api_name)
             meta = {
                 'pages': page.paginator.num_pages,
                 'count': page.paginator.count,
