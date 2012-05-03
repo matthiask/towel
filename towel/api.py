@@ -336,12 +336,17 @@ class Resource(generic.View):
         objects are inlined. The performance implications of this feature might be
         severe!
         """
-        opts = instance._meta
+        uri = api_reverse(instance, 'detail', api_name=self.api.name,
+            pk=instance.pk, fail_silently=True)
+
+        if uri is None:
+            return None
+
         data = {
-            '__uri__': api_reverse(instance, 'detail', api_name=self.api.name,
-                pk=instance.pk, fail_silently=True),
+            '__uri__': uri,
             '__unicode__': unicode(instance),
             }
+        opts = instance._meta
 
         for f in opts.fields: # Leave out opts.many_to_many
             if f.rel:
@@ -370,17 +375,12 @@ class Resource(generic.View):
 
         for f in opts.many_to_many:
             if inline_depth > 0:
-                data[f.name] = [
+                related = [
                     self.serialize_instance(obj, inline_depth=inline_depth-1)
                     for obj in getattr(instance, f.name).all()]
-            else:
-                try:
-                    data[f.name] = [{
-                        '__uri__': api_reverse(f.rel.to, 'detail', api_name=self.api.name,
-                            pk=pk, fail_silently=True),
-                        } for pk in f.value_from_object(instance)]
-                except NoReverseMatch:
-                    continue
+
+                if any(related):
+                    data[f.name] = related
 
         return data
 
