@@ -328,6 +328,10 @@ class Resource(generic.View):
             else:
                 data[f.name] = f.value_from_object(instance)
 
+                if f.choices:
+                    data.setdefault('__pretty__', {})[f.name] =\
+                        unicode(dict(f.choices).get(data[f.name], '-'))
+
         return data
 
     def get(self, request, *args, **kwargs):
