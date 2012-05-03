@@ -361,6 +361,10 @@ class Resource(generic.View):
             return self.model._default_manager.all()
 
     def apply_filters(self, queryset):
+        """
+        Applies filters to the queryset. This method will only be called for
+        list views, not when the user requested sets or single instances.
+        """
         return queryset
 
     def objects(self):
