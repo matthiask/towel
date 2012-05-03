@@ -175,7 +175,7 @@ class API(object):
             }
         opts = instance._meta
 
-        for f in opts.fields: # Leave out opts.many_to_many
+        for f in opts.fields:
             if f.rel:
                 if inline_depth > 0:
                     if getattr(instance, f.name):
