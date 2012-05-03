@@ -325,6 +325,11 @@ class Resource(generic.View):
                 except NoReverseMatch:
                     continue
 
+                # TODO make this configurable -- include data inline instead of
+                # only showing URLs
+                #if getattr(instance, f.name):
+                    #data[f.name] = self.serialize_instance(getattr(instance, f.name))
+
             else:
                 data[f.name] = f.value_from_object(instance)
 
