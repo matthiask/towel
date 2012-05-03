@@ -155,17 +155,61 @@ class API(object):
                 ),
             })
 
-    def serializer(self, model, serializer_class=None):
+    def serialize_instance(self, instance, inline_depth=0):
         """
-        Creates and returns a serializer instance for the given model.
+        Serializes a single model instance.
 
-        The serializer class may be customized optionally. It defaults to
-        :class:`towel.api.Serializer`.
+        If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
+        objects are inlined. The performance implications of this feature might be
+        severe!
         """
-        if model not in self.serializers:
-            serializer_class = serializer_class or Serializer
-            self.serializers[model] = serializer_class(self)
-        return self.serializers[model]
+        uri = api_reverse(instance, 'detail', api_name=self.name,
+            pk=instance.pk, fail_silently=True)
+
+        if uri is None:
+            return None
+
+        data = {
+            '__uri__': uri,
+            '__unicode__': unicode(instance),
+            }
+        opts = instance._meta
+
+        for f in opts.fields: # Leave out opts.many_to_many
+            if f.rel:
+                if inline_depth > 0:
+                    if getattr(instance, f.name):
+                        data[f.name] = self.serialize_instance(
+                            getattr(instance, f.name),
+                            inline_depth=inline_depth-1,
+                            )
+                    else:
+                        data[f.name] = None
+
+                else:
+                    try:
+                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.name,
+                            pk=f.value_from_object(instance))
+                    except NoReverseMatch:
+                        continue
+
+            else:
+                data[f.name] = f.value_from_object(instance)
+
+                if f.choices:
+                    data.setdefault('__pretty__', {})[f.name] = unicode(
+                        dict(f.choices).get(data[f.name], '-'))
+
+        for f in opts.many_to_many:
+            if inline_depth > 0:
+                related = [
+                    self.serialize_instance(obj, inline_depth=inline_depth-1)
+                    for obj in getattr(instance, f.name).all()]
+
+                if any(related):
+                    data[f.name] = related
+
+        return data
 
 
 def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
@@ -215,9 +259,6 @@ class Resource(generic.View):
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
     #: we allow ``patch``, but do not allow ``options`` and ``trace``.
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
-
-    #: Serializer instance
-    serializer_class = None
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -344,12 +385,6 @@ class Resource(generic.View):
 
         return Objects(queryset, page, set_, single)
 
-    def serialize_instance(self, instance, inline_depth=0):
-        serializer = self.api.serializer(instance.__class__,
-            serializer_class=self.serializer_class)
-
-        return serializer.serialize_instance(instance, inline_depth=inline_depth)
-
     def get(self, request, *args, **kwargs):
         """
         Processes GET requests by returning lists, sets or detail data. All of these
@@ -369,11 +404,11 @@ class Resource(generic.View):
 
         if objects.single:
             if request.GET.get('full'):
-                return self.serialize_instance(objects.single, inline_depth=1)
-            return self.serialize_instance(objects.single)
+                return self.api.serialize_instance(objects.single, inline_depth=1)
+            return self.api.serialize_instance(objects.single)
         elif objects.set:
             return {
-                'objects': [self.serialize_instance(instance) for instance in objects.set],
+                'objects': [self.api.serialize_instance(instance) for instance in objects.set],
                 }
         else:
             page = objects.page
@@ -393,67 +428,6 @@ class Resource(generic.View):
                     }))
 
             return {
-                'objects': [self.serialize_instance(instance) for instance in page],
+                'objects': [self.api.serialize_instance(instance) for instance in page],
                 'meta': meta,
                 }
-
-
-class Serializer(object):
-    def __init__(self, api):
-        self.api = api
-
-    def serialize_instance(self, instance, inline_depth=0):
-        """
-        Serializes a single model instance.
-
-        If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
-        objects are inlined. The performance implications of this feature might be
-        severe!
-        """
-        uri = api_reverse(instance, 'detail', api_name=self.api.name,
-            pk=instance.pk, fail_silently=True)
-
-        if uri is None:
-            return None
-
-        data = {
-            '__uri__': uri,
-            '__unicode__': unicode(instance),
-            }
-        opts = instance._meta
-
-        for f in opts.fields: # Leave out opts.many_to_many
-            if f.rel:
-                if inline_depth > 0:
-                    if getattr(instance, f.name):
-                        data[f.name] = self.serialize_instance(
-                            getattr(instance, f.name),
-                            inline_depth=inline_depth-1,
-                            )
-                    else:
-                        data[f.name] = None
-
-                else:
-                    try:
-                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.api.name,
-                            pk=f.value_from_object(instance))
-                    except NoReverseMatch:
-                        continue
-
-            else:
-                data[f.name] = f.value_from_object(instance)
-
-                if f.choices:
-                    data.setdefault('__pretty__', {})[f.name] = unicode(
-                        dict(f.choices).get(data[f.name], '-'))
-
-        for f in opts.many_to_many:
-            if inline_depth > 0:
-                related = [
-                    self.serialize_instance(obj, inline_depth=inline_depth-1)
-                    for obj in getattr(instance, f.name).all()]
-
-                if any(related):
-                    data[f.name] = related
-
-        return data
