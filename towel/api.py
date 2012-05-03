@@ -69,7 +69,7 @@ class API(object):
         for resource in self.resources:
             r = {
                 '__unicode__': resource['model'].__name__.lower(),
-                '__uri__': u''.join((response['__uri__'], resource['prefix'].strip('^')),
+                '__uri__': u''.join((response['__uri__'], resource['prefix'].strip('^'))),
                 }
 
             response['resources'].append(r)
