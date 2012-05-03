@@ -360,6 +360,9 @@ class Resource(generic.View):
         elif self.model:
             return self.model._default_manager.all()
 
+    def apply_filters(self, queryset):
+        return queryset
+
     def objects(self):
         """
         Returns a namedtuple with the following attributes:
@@ -386,6 +389,7 @@ class Resource(generic.View):
                 raise Http404('Some objects do not exist.')
 
         else:
+            queryset = self.apply_filters(queryset)
             p = paginator.Paginator(queryset, self.paginate_by)
 
             try:
