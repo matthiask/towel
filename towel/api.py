@@ -162,6 +162,18 @@ class API(object):
         If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
         objects are inlined. The performance implications of this feature might be
         severe!
+
+        This implementation has a few characteristics you should be aware of:
+
+        - Only objects which have a canonical URI inside this particular API are
+          serialized; if no such URI exists, this method returns ``None``.
+        - Many to many relations are only processed if ``inline_depth`` has a
+          positive value. The reason for this design decision is that the database
+          has to be queried for showing the URIs of related objects anyway and
+          because of that we either show the full objects or nothing at all.
+        - Some fields (currently only fields with choices) have a machine readable
+          and a prettified value. The prettified values are delivered inside the
+          ``__pretty__`` dictionary for your convenience.
         """
         uri = api_reverse(instance, 'detail', api_name=self.name,
             pk=instance.pk, fail_silently=True)
@@ -172,6 +184,7 @@ class API(object):
         data = {
             '__uri__': uri,
             '__unicode__': unicode(instance),
+            '__pretty__': {},
             }
         opts = instance._meta
 
@@ -197,11 +210,12 @@ class API(object):
                 data[f.name] = f.value_from_object(instance)
 
                 if f.choices:
-                    data.setdefault('__pretty__', {})[f.name] = unicode(
+                    # TODO this code does not support grouped choices yet
+                    data['__pretty__'][f.name] = unicode(
                         dict(f.choices).get(data[f.name], '-'))
 
-        for f in opts.many_to_many:
-            if inline_depth > 0:
+        if inline_depth > 0:
+            for f in opts.many_to_many:
                 related = [
                     self.serialize_instance(obj, inline_depth=inline_depth-1)
                     for obj in getattr(instance, f.name).all()]
