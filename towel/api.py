@@ -104,7 +104,8 @@ class API(object):
         return HttpResponse(json.dumps(response), mimetype='application/json')
 
     def register(self, model, view_class=None, canonical=True,
-            decorators=[csrf_exempt], prefix=None, view_init=None):
+            decorators=[csrf_exempt], prefix=None, view_init=None,
+            serializer=None):
         """
         Registers another resource on this API. The sole required argument is the
         Django model which should be exposed. The other arguments are:
@@ -124,6 +125,9 @@ class API(object):
           this yourself (``prefix=r'^library/'``).
         - ``view_init``: Python dictionary which contains keyword arguments used
           during the instantiation of the ``view_class``.
+        - ``serializer``: Function which takes a model instance, the API instance
+          and additional keyword arguments (accept ``**kwargs`` for forward
+          compatibility) and returns the serialized representation as a Python dict.
         """
 
         view_class = view_class or Resource
@@ -155,75 +159,83 @@ class API(object):
                 ),
             })
 
-    def serialize_instance(self, instance, inline_depth=0):
-        """
-        Serializes a single model instance.
+        if serializer:
+            self.serializers[model] = serializer
 
-        If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
-        objects are inlined. The performance implications of this feature might be
-        severe!
+    def serialize_instance(self, instance, **kwargs):
+        serializer = self.serializers.get(instance.__class__, serialize_model_instance)
+        return serializer(instance, api=self, **kwargs)
 
-        This implementation has a few characteristics you should be aware of:
 
-        - Only objects which have a canonical URI inside this particular API are
-          serialized; if no such URI exists, this method returns ``None``.
-        - Many to many relations are only processed if ``inline_depth`` has a
-          positive value. The reason for this design decision is that the database
-          has to be queried for showing the URIs of related objects anyway and
-          because of that we either show the full objects or nothing at all.
-        - Some fields (currently only fields with choices) have a machine readable
-          and a prettified value. The prettified values are delivered inside the
-          ``__pretty__`` dictionary for your convenience.
-        """
-        uri = api_reverse(instance, 'detail', api_name=self.name,
-            pk=instance.pk, fail_silently=True)
+def serialize_model_instance(instance, api, inline_depth=0):
+    """
+    Serializes a single model instance.
 
-        if uri is None:
-            return None
+    If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
+    objects are inlined. The performance implications of this feature might be
+    severe!
 
-        data = {
-            '__uri__': uri,
-            '__unicode__': unicode(instance),
-            '__pretty__': {},
-            }
-        opts = instance._meta
+    This implementation has a few characteristics you should be aware of:
 
-        for f in opts.fields:
-            if f.rel:
-                if inline_depth > 0:
-                    if getattr(instance, f.name):
-                        data[f.name] = self.serialize_instance(
-                            getattr(instance, f.name),
-                            inline_depth=inline_depth-1,
-                            )
-                    else:
-                        data[f.name] = None
+    - Only objects which have a canonical URI inside this particular API are
+      serialized; if no such URI exists, this method returns ``None``.
+    - Many to many relations are only processed if ``inline_depth`` has a
+      positive value. The reason for this design decision is that the database
+      has to be queried for showing the URIs of related objects anyway and
+      because of that we either show the full objects or nothing at all.
+    - Some fields (currently only fields with choices) have a machine readable
+      and a prettified value. The prettified values are delivered inside the
+      ``__pretty__`` dictionary for your convenience.
+    """
+    uri = api_reverse(instance, 'detail', api_name=api.name,
+        pk=instance.pk, fail_silently=True)
 
+    if uri is None:
+        return None
+
+    data = {
+        '__uri__': uri,
+        '__unicode__': unicode(instance),
+        '__pretty__': {},
+        }
+    opts = instance._meta
+
+    for f in opts.fields:
+        if f.rel:
+            if inline_depth > 0:
+                if getattr(instance, f.name):
+                    data[f.name] = api.serialize_instance(
+                        getattr(instance, f.name),
+                        inline_depth=inline_depth-1,
+                        )
                 else:
-                    try:
-                        data[f.name] = api_reverse(f.rel.to, 'detail', api_name=self.name,
-                            pk=f.value_from_object(instance))
-                    except NoReverseMatch:
-                        continue
+                    data[f.name] = None
 
             else:
-                data[f.name] = f.value_from_object(instance)
+                try:
+                    data[f.name] = api_reverse(f.rel.to, 'detail', api_name=api.name,
+                        pk=f.value_from_object(instance))
+                except NoReverseMatch:
+                    continue
 
-                if f.choices:
-                    # TODO this code does not support grouped choices yet
-                    data['__pretty__'][f.name] = unicode(
-                        dict(f.choices).get(data[f.name], '-'))
+        else:
+            data[f.name] = f.value_from_object(instance)
 
-        if inline_depth > 0:
-            for f in opts.many_to_many:
-                related = [
-                    self.serialize_instance(obj, inline_depth=inline_depth-1)
-                    for obj in getattr(instance, f.name).all()]
+            if f.choices:
+                # TODO this code does not support grouped choices yet
+                data['__pretty__'][f.name] = unicode(
+                    dict(f.choices).get(data[f.name], '-'))
 
-                if any(related):
-                    data[f.name] = related
+    if inline_depth > 0:
+        for f in opts.many_to_many:
+            related = [
+                api.serialize_instance(obj, inline_depth=inline_depth-1)
+                for obj in getattr(instance, f.name).all()]
 
-        return data
+            if any(related):
+                data[f.name] = related
+
+    return data
 
 
 def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
