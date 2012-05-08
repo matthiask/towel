@@ -188,6 +188,8 @@ def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
       ``__pretty__`` dictionary for your convenience.
     """
 
+    # It's not exactly a fatal error, but it helps during development. This
+    # statement will disappear in the future.
     assert not kwargs, 'Unknown keyword arguments to serialize_model_instance'
 
     uri = api_reverse(instance, 'detail', api_name=api.name,
