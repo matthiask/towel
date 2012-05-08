@@ -226,10 +226,9 @@ def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
         else:
             data[f.name] = f.value_from_object(instance)
 
-            if f.choices:
-                # TODO this code does not support grouped choices yet
+            if f.flatchoices:
                 data['__pretty__'][f.name] = unicode(
-                    dict(f.choices).get(data[f.name], '-'))
+                    dict(f.flatchoices).get(data[f.name], '-'))
 
     if inline_depth > 0:
         for f in opts.many_to_many:
