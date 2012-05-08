@@ -167,7 +167,7 @@ class API(object):
         return serializer(instance, api=self, **kwargs)
 
 
-def serialize_model_instance(instance, api, inline_depth=0):
+def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
     """
     Serializes a single model instance.
 
@@ -187,6 +187,9 @@ def serialize_model_instance(instance, api, inline_depth=0):
       and a prettified value. The prettified values are delivered inside the
       ``__pretty__`` dictionary for your convenience.
     """
+
+    assert not kwargs, 'Unknown keyword arguments to serialize_model_instance'
+
     uri = api_reverse(instance, 'detail', api_name=api.name,
         pk=instance.pk, fail_silently=True)
 
