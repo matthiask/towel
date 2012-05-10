@@ -198,13 +198,16 @@ class API(object):
         return serializer(instance, api=self, **kwargs)
 
 
-def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
+def serialize_model_instance(instance, api, inline_depth=0, exclude=(), **kwargs):
     """
     Serializes a single model instance.
 
     If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
     objects are inlined. The performance implications of this feature might be
     severe!
+
+    The ``exclude`` parameter is especially helpful when used together with
+    ``functools.partial``.
 
     This implementation has a few characteristics you should be aware of:
 
@@ -237,6 +240,9 @@ def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
     opts = instance._meta
 
     for f in opts.fields:
+        if f.name in exclude:
+            continue
+
         if f.rel:
             if inline_depth > 0:
                 if getattr(instance, f.name):
@@ -263,6 +269,9 @@ def serialize_model_instance(instance, api, inline_depth=0, **kwargs):
 
     if inline_depth > 0:
         for f in opts.many_to_many:
+            if f.name in exclude:
+                continue
+
             related = [
                 api.serialize_instance(obj, inline_depth=inline_depth-1)
                 for obj in getattr(instance, f.name).all()]
