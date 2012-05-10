@@ -429,6 +429,10 @@ class Resource(generic.View):
             # Do not allow more than max_limit_per_page entries in one request, ever
             limit = min(limit, self.max_limit_per_page)
 
+            # Sanitize range
+            offset = max(offset, 0)
+            limit = max(limit, 0)
+
             page = Page(
                 queryset[offset:offset+limit],
                 offset,
