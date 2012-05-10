@@ -1,10 +1,10 @@
 from collections import namedtuple
 import json
 import mimeparse
+import operator
 from urllib import urlencode
 
 from django.conf.urls import patterns, include, url
-from django.core import paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.http import Http404, HttpResponse
@@ -14,7 +14,11 @@ from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
 
+#: The return value of ``Resource.objects``
 Objects = namedtuple('Objects', 'queryset page set single')
+
+#: The ``page`` object from ``Resource.objects``
+Page = namedtuple('Page', 'queryset offset limit total')
 
 
 class API(object):
@@ -283,8 +287,9 @@ class Resource(generic.View):
     #: if unset.
     queryset = None
 
-    #: Paginate list views
-    paginate_by = 20
+    #: Limits
+    limit_per_page = 20
+    max_limit_per_page = 1000
 
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
     #: we allow ``patch``, but do not allow ``options`` and ``trace``.
@@ -410,14 +415,26 @@ class Resource(generic.View):
 
         else:
             queryset = self.apply_filters(queryset)
-            p = paginator.Paginator(queryset, self.paginate_by)
 
             try:
-                page = p.page(self.request.GET.get('page'))
-            except paginator.PageNotAnInteger:
-                page = p.page(1)
-            except EmptyPage:
-                page = p.page(p.num_pages)
+                offset = int(self.request.GET.get('offset'))
+            except (TypeError, ValueError):
+                offset = 0
+
+            try:
+                limit = int(self.request.GET.get('limit'))
+            except (TypeError, ValueError):
+                limit = self.limit_per_page
+
+            # Do not allow more than max_limit_per_page entries in one request, ever
+            limit = min(limit, self.max_limit_per_page)
+
+            page = Page(
+                queryset[offset:offset+limit],
+                offset,
+                limit,
+                queryset.count(),
+                )
 
         return Objects(queryset, page, set_, single)
 
@@ -449,20 +466,42 @@ class Resource(generic.View):
             page = objects.page
             list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
             meta = {
-                'pages': page.paginator.num_pages,
-                'count': page.paginator.count,
-                'current': page.number,
+                'offset': page.offset,
+                'limit': page.limit,
+                'total': page.total,
+                'previous': None,
+                'next': None,
                 }
-            if page.number > 1:
-                meta['previous'] = u'%s?%s' % (list_url, urlencode({
-                    'page': page.number - 1,
-                    }))
-            if page.number < page.paginator.num_pages:
-                meta['next'] = u'%s?%s' % (list_url, urlencode({
-                    'page': page.number + 1,
-                    }))
+
+            if page.offset > 0:
+                meta['previous'] = u'%s?%s' % (list_url, querystring(
+                    self.request.GET,
+                    exclude=('offset', 'limit'),
+                    offset=max(0, page.offset - page.limit),
+                    limit=page.limit,
+                    ))
+
+            if page.offset + page.limit < page.total:
+                meta['next'] = u'%s?%s' % (list_url, querystring(
+                    self.request.GET,
+                    exclude=('offset', 'limit'),
+                    offset=page.offset + page.limit,
+                    limit=page.limit,
+                    ))
 
             return {
-                'objects': [self.api.serialize_instance(instance) for instance in page],
+                'objects': [self.api.serialize_instance(instance) for instance in page.queryset],
                 'meta': meta,
                 }
+
+
+def querystring(data, exclude=(), **kwargs):
+    items = reduce(operator.add, (
+        list((k, v.encode('utf-8')) for v in values)
+        for k, values in data.iterlists() if k not in exclude
+        ), [])
+
+    for k, v in kwargs.iteritems():
+        items.append((k, unicode(v).encode('utf-8')))
+
+    return urlencode(items)
