@@ -14,6 +14,33 @@ from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
 
+class APIException(Exception):
+    """
+    Custom exception which signals a problem detected somewhere inside
+    the API machinery.
+
+    Usage::
+
+        raise ClientError('Not acceptable', status=406)
+
+    or::
+
+        raise ServerError('Not implemented, go away', status=501)
+    """
+    default_status = 400
+
+    def __init__(self, error, **kwargs):
+        super(Exception, self).__init__(error)
+        self.kwargs = kwargs
+
+
+class ClientError(APIException):
+    pass
+
+class ServerError(APIException):
+    default_status = 500
+
+
 #: The return value of ``Resource.objects``
 Objects = namedtuple('Objects', 'queryset page set single')
 
@@ -325,8 +352,14 @@ class Resource(generic.View):
         else:
             handler = self.http_method_not_allowed
 
-        return self.serialize_response(handler(
-            self.request, *self.args, **self.kwargs))
+        try:
+            return self.serialize_response(handler(
+                self.request, *self.args, **self.kwargs))
+        except Http404 as e:
+            return self.serialize_response({'error': e[0]}, status=404)
+        except APIException as e:
+            return self.serialize_response({'error': e[0]},
+                status=e.kwargs.get('status', e.default_status))
 
     def unserialize_request(self):
         """
@@ -338,7 +371,7 @@ class Resource(generic.View):
         """
         pass
 
-    def serialize_response(self, response):
+    def serialize_response(self, response, status=200):
         """
         Serializes the response into an appropriate format for the wire such as
         JSON. ``HttpResponse`` instances are returned directly.
@@ -350,7 +383,7 @@ class Resource(generic.View):
             ('application/json', {
                 'handler': lambda response, output_format, config: (
                     HttpResponse(json.dumps(response, cls=DjangoJSONEncoder),
-                        mimetype='application/json')),
+                        mimetype='application/json', status=status)),
                 }),
             #('text/html', {
                 #'handler': self.serialize_response_html,
