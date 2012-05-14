@@ -133,6 +133,7 @@ def model_choices_mapper(data, attribute):
             ]
     """
     reverse = dict((unicode(v), k) for k, v in data)
+
     def _fn(v):
         try:
             return {attribute: reverse[v['value']]}
@@ -162,7 +163,7 @@ def due_mapper(attribute):
         day = [today.year, today.month, today.day]
         try:
             for i, n in enumerate(due.split('.')):
-                day[2-i] = int(n, 10)
+                day[2 - i] = int(n, 10)
         except (IndexError, TypeError, ValueError):
             pass
 

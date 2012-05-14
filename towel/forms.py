@@ -496,6 +496,7 @@ def towel_formfield_callback(field, **kwargs):
 
     return field.formfield(**kwargs)
 
+
 #: Backwards compatibility, provide the function under the old name
 #: ``stripped_formfield_callback`` too.
 def stripped_formfield_callback(field, **kwargs):
@@ -618,6 +619,7 @@ $(function() {
 class InvalidEntry(object):
     pk = None
 
+
 class MultipleAutocompletionWidget(forms.TextInput):
     def __init__(self, attrs=None, queryset=None):
         self.queryset = queryset
@@ -627,7 +629,8 @@ class MultipleAutocompletionWidget(forms.TextInput):
         return dict((unicode(o).lower(), o) for o in self.queryset._clone())
 
     def render(self, name, value, attrs=None, choices=()):
-        if value is None: value = []
+        if value is None:
+            value = []
         final_attrs = self.build_attrs(attrs, name=name, type='text')
 
         if value:

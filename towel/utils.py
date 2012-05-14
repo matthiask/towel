@@ -45,13 +45,15 @@ def safe_queryset_and(qs1, qs2):
 
     select_related = [qs1.query.select_related, qs2.query.select_related]
     if False in select_related:
-        select_related.remove(False) # We are not interested in the default value
+        # We are not interested in the default value
+        select_related.remove(False)
 
     if len(select_related) == 1:
         res.query.select_related = select_related[0]
     elif len(select_related) == 2:
         if True in select_related:
-            select_related.remove(True) # prefer explicit select_related to generic select_related()
+            # Prefer explicit select_related to generic select_related()
+            select_related.remove(True)
 
         if len(select_related) > 0:
             # If we have two explicit select_related calls, take any of them
@@ -63,6 +65,7 @@ def safe_queryset_and(qs1, qs2):
 
 
 kwarg_re = re.compile("(?:(\w+)=)?(.+)")
+
 
 def parse_args_and_kwargs(parser, bits):
     """

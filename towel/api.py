@@ -38,12 +38,14 @@ class APIException(Exception):
 class ClientError(APIException):
     pass
 
+
 class ServerError(APIException):
     default_status = 500
 
 
 #: The return value of ``Resource.objects``
 Objects = namedtuple('Objects', 'queryset page set single')
+
 
 #: The ``page`` object from ``Resource.objects``
 Page = namedtuple('Page', 'queryset offset limit total')
@@ -253,7 +255,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                 if getattr(instance, f.name):
                     data[f.name] = api.serialize_instance(
                         getattr(instance, f.name),
-                        inline_depth=inline_depth-1,
+                        inline_depth=inline_depth - 1,
                         )
                 else:
                     data[f.name] = None
@@ -283,7 +285,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                 continue
 
             related = [
-                api.serialize_instance(obj, inline_depth=inline_depth-1)
+                api.serialize_instance(obj, inline_depth=inline_depth - 1)
                 for obj in getattr(instance, f.name).all()]
 
             if any(related):
@@ -486,7 +488,7 @@ class Resource(generic.View):
             limit = max(limit, 0)
 
             page = Page(
-                queryset[offset:offset+limit],
+                queryset[offset:offset + limit],
                 offset,
                 limit,
                 queryset.count(),

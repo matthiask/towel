@@ -82,6 +82,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django.db import models
 
+
 class TransformQuerySet(models.query.QuerySet):
     def __init__(self, *args, **kwargs):
         super(TransformQuerySet, self).__init__(*args, **kwargs)
@@ -105,6 +106,7 @@ class TransformQuerySet(models.query.QuerySet):
                 fn(results)
             return iter(results)
         return result_iter
+
 
 class TransformManager(models.Manager):
     def get_query_set(self):

@@ -37,16 +37,16 @@ EmptyPage = paginator.EmptyPage
 
 #: Paginator configuration
 PAGINATION = getattr(settings, 'PAGINATION', {
-    'START': 6, # items at the start
-    'END': 6, # items at the end
-    'AROUND': 5, # items around the current page
+    'START': 6,   # items at the start
+    'END': 6,     # items at the end
+    'AROUND': 5,  # items around the current page
     })
 
 
 def filter_adjacent(iterable):
     """Collapse identical adjacent values"""
-    current = type('Marker', (object,), {}) # Generate an object guaranteed to
-                                            # not exist inside the iterable
+    # Generate an object guaranteed to not exist inside the iterable
+    current = type('Marker', (object,), {})
 
     for item in iterable:
         if item != current:
@@ -110,4 +110,4 @@ class Page(paginator.Page):
                 yield i
 
             else:
-                yield None # Ellipsis marker
+                yield None  # Ellipsis marker

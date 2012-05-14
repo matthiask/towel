@@ -66,7 +66,7 @@ class SearchManager(queryset_transform.TransformManager):
 
         for keyword in normalize_query(query):
             negate = False
-            if len(keyword)>1:
+            if len(keyword) > 1:
                 if keyword[0] == '-':
                     keyword = keyword[1:]
                     negate = True
@@ -74,11 +74,11 @@ class SearchManager(queryset_transform.TransformManager):
                     keyword = keyword[1:]
 
             if negate:
-                q = reduce(lambda p, q: p&q,
+                q = reduce(lambda p, q: p & q,
                     (~Q(**{'%s__icontains' % field: keyword}) for field in fields),
                     Q())
             else:
-                q = reduce(lambda p, q: p|q,
+                q = reduce(lambda p, q: p | q,
                     (Q(**{'%s__icontains' % field: keyword}) for field in fields),
                     Q())
 

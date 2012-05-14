@@ -7,11 +7,12 @@ register = template.Library()
 
 
 PATHS = [
-    '_meta', # model
+    '_meta',
     'queryset.model._meta',
     'instance._meta',
     'model._meta',
 ]
+
 
 def _resolve(instance, last_part):
     for path in PATHS:
@@ -39,6 +40,7 @@ def verbose_name(item):
         {{ object_list|verbose_name }}
     """
     return _resolve(item, 'verbose_name')
+
 
 @register.filter
 def verbose_name_plural(item):

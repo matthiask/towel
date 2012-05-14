@@ -37,6 +37,7 @@ class ModelView(object):
     # any view here.
     def view_decorator(self, func):
         return func
+
     def crud_view_decorator(self, func):
         return self.view_decorator(func)
 
@@ -742,7 +743,8 @@ class ModelView(object):
             else:
                 pretty_classes = pretty_classes[-1]
 
-            self.add_message(request, 'deletion_denied_related', {'pretty_classes' : pretty_classes })
+            self.add_message(request, 'deletion_denied_related',
+                {'pretty_classes': pretty_classes})
 
         return not len(related)
 
