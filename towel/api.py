@@ -199,7 +199,8 @@ class API(object):
         return serializer(instance, api=self, **kwargs)
 
 
-def serialize_model_instance(instance, api, inline_depth=0, exclude=(), **kwargs):
+def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
+        only_registered=True, **kwargs):
     """
     Serializes a single model instance.
 
@@ -209,6 +210,9 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(), **kwargs
 
     The ``exclude`` parameter is especially helpful when used together with
     ``functools.partial``.
+
+    Set ``only_registered=False`` if you want to serialize models which do not
+    have a canonical URI inside this API.
 
     This implementation has a few characteristics you should be aware of:
 
@@ -230,7 +234,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(), **kwargs
     uri = api_reverse(instance, 'detail', api_name=api.name,
         pk=instance.pk, fail_silently=True)
 
-    if uri is None:
+    if uri is None and only_registered:
         return None
 
     data = {
