@@ -7,6 +7,7 @@ from urllib import urlencode
 from django.conf.urls import patterns, include, url
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import NoReverseMatch, reverse
+from django.db import models
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_vary_headers
@@ -259,6 +260,11 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(), **kwargs
                         pk=f.value_from_object(instance))
                 except NoReverseMatch:
                     continue
+
+        elif isinstance(f, models.FileField):
+            # XXX add additional informations to the seralization?
+            value = f.value_from_object(instance)
+            data[f.name] = value.url
 
         else:
             data[f.name] = f.value_from_object(instance)
