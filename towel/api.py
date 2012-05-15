@@ -137,8 +137,8 @@ class API(object):
             if resource['canonical']:
                 response[resource['model'].__name__.lower()] = r
 
-        # TODO content negotiation :-(
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return Serializer().serialize(response, request=request,
+            output_format=request.GET.get('format'))
 
     def register(self, model, view_class=None, canonical=True,
             decorators=[csrf_exempt], prefix=None, view_init=None,
@@ -324,67 +324,101 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
         raise
 
 
-def serialize_response_xml(response, output_format, config):
-    root = Element('response')
+class Serializer(object):
+    def serialize(self, data, output_format=None, request=None, status=200):
+        if output_format is None and request is None:
+            raise TypeError('Provide at least one of output_format and request.')
 
-    valuetypes = {
-        int: 'integer',
-        long: 'integer',
-        float: 'float',
-        Decimal: 'decimal',
-        bool: 'boolean',
-        list: 'list',
-        tuple: 'tuple',
-        dict: 'hash',
-        basestring: 'string',
-        str: 'string',
-        unicode: 'string',
-        date: 'date',
-        datetime: 'datetime',
-        }
-    valuetypes_tuple = tuple(valuetypes.keys())
+        if output_format is None:
+            # Thanks!
+            # https://github.com/toastdriven/django-tastypie/blob/master/tastypie/utils/mime.py
+            try:
+                output_format = mimeparse.best_match(reversed([
+                    'application/xml',
+                    'application/json',
+                    ]),
+                    request.META.get('HTTP_ACCEPT'))
+            except IndexError:
+                pass
 
-    def _serialize(parent, data, name=''):
-        if isinstance(data, dict):
-            object = SubElement(parent, 'object', attrib={
-                'name': name,
-                'type': 'hash',
-                })
-            for key, value in data.iteritems():
-                _serialize(object, value, name=key)
+        if output_format in ('application/json', 'json'):
+            response = self.to_json(data)
 
-        elif hasattr(data, '__iter__'):
-            objects = SubElement(parent, 'objects', {
-                'name': name,
-                'type': 'list',
-                })
-            for value in data:
-                _serialize(objects, value)
-
-        elif isinstance(data, valuetypes_tuple):
-            value = SubElement(parent, 'value', attrib={
-                'name': name,
-                'type': valuetypes.get(type(data), 'unknown'),
-                })
-
-            value.text = data if isinstance(data, basestring) else unicode(data)
-
-        elif data is None:
-            SubElement(parent, 'value', attrib={
-                'name': name,
-                'type': 'null',
-                })
+        elif output_format in ('application/xml', 'xml'):
+            response = self.to_xml(data)
 
         else:
-            raise NotImplementedError('Unable to handle %r' % data)
+            raise ClientError('Not acceptable', status=406)
 
-    root = Element('response')
-    _serialize(root, response)
+        patch_vary_headers(response, ('Accept',))
+        response.status = status
+        return response
 
-    return HttpResponse(
-        tostring(root, xml_declaration=True, encoding='utf-8'),
-        mimetype='application/xml',
-        )
+    def to_json(self, data):
+        return HttpResponse(
+            json.dumps(data, cls=DjangoJSONEncoder),
+            mimetype='application/json',
+            )
+
+    def to_xml(self, data):
+        valuetypes = {
+            int: 'integer',
+            long: 'integer',
+            float: 'float',
+            Decimal: 'decimal',
+            bool: 'boolean',
+            list: 'list',
+            tuple: 'tuple',
+            dict: 'hash',
+            basestring: 'string',
+            str: 'string',
+            unicode: 'string',
+            date: 'date',
+            datetime: 'datetime',
+            }
+        valuetypes_tuple = tuple(valuetypes.keys())
+
+        def _serialize(parent, data, name=''):
+            if isinstance(data, dict):
+                object = SubElement(parent, 'object', attrib={
+                    'name': name,
+                    'type': 'hash',
+                    })
+                for key, value in data.iteritems():
+                    _serialize(object, value, name=key)
+
+            elif hasattr(data, '__iter__'):
+                objects = SubElement(parent, 'objects', {
+                    'name': name,
+                    'type': 'list',
+                    })
+                for value in data:
+                    _serialize(objects, value)
+
+            elif isinstance(data, valuetypes_tuple):
+                value = SubElement(parent, 'value', attrib={
+                    'name': name,
+                    'type': valuetypes.get(type(data), 'unknown'),
+                    })
+
+                value.text = data if isinstance(data, basestring) else unicode(data)
+
+            elif data is None:
+                SubElement(parent, 'value', attrib={
+                    'name': name,
+                    'type': 'null',
+                    })
+
+            else:
+                raise NotImplementedError('Unable to handle %r' % data)
+
+        root = Element('response')
+        _serialize(root, data)
+
+        return HttpResponse(
+            tostring(root, xml_declaration=True, encoding='utf-8'),
+            mimetype='application/xml',
+            )
 
 
 class Resource(generic.View):
@@ -467,34 +501,8 @@ class Resource(generic.View):
         if isinstance(response, HttpResponse):
             return response
 
-        formats = [
-            ('application/xml', {
-                'handler': serialize_response_xml,
-                }),
-            ('application/json', {
-                'handler': lambda response, output_format, config: (
-                    HttpResponse(json.dumps(response, cls=DjangoJSONEncoder),
-                        mimetype='application/json')),
-                }),
-            #('text/html', {
-                #'handler': self.serialize_response_html,
-                #}),
-            ]
-
-        # Thanks!
-        # https://github.com/toastdriven/django-tastypie/blob/master/tastypie/utils/mime.py
-        try:
-            output_format = mimeparse.best_match(
-                reversed([fmt for fmt, config in formats]),
-                self.request.META.get('HTTP_ACCEPT'))
-        except IndexError:
-            output_format = 'application/json'
-
-        config = dict(formats)[output_format]
-        response = config['handler'](response, output_format, config)
-        patch_vary_headers(response, ('Accept',))
-        response.status = status
-        return response
+        return Serializer().serialize(response, request=self.request, status=status,
+            output_format=self.request.GET.get('format'))
 
     def get_query_set(self):
         """
