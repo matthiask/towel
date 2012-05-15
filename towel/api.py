@@ -243,11 +243,12 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
         '__uri__': uri,
         '__unicode__': unicode(instance),
         '__pretty__': {},
+        '__pk__': instance.pk,
         }
     opts = instance._meta
 
     for f in opts.fields:
-        if f.name in exclude:
+        if f.name in exclude or f.primary_key:
             continue
 
         if f.rel:
