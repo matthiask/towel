@@ -348,10 +348,13 @@ class Serializer(object):
             response = self.to_xml(data)
 
         else:
-            raise ClientError('Not acceptable', status=406)
+            # Cannot raise ClientError here because the APIException handler
+            # calls into this method too.
+            response = HttpResponse('Not acceptable')
+            status = 406
 
         patch_vary_headers(response, ('Accept',))
-        response.status = status
+        response.status_code = status
         return response
 
     def to_json(self, data):
