@@ -1,5 +1,8 @@
 from collections import namedtuple
+from datetime import date, datetime
+from decimal import Decimal
 import json
+from lxml.etree import Element, SubElement, tostring
 import mimeparse
 import operator
 from urllib import urlencode
@@ -321,6 +324,69 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
         raise
 
 
+def serialize_response_xml(response, output_format, config):
+    root = Element('response')
+
+    valuetypes = {
+        int: 'integer',
+        long: 'integer',
+        float: 'float',
+        Decimal: 'decimal',
+        bool: 'boolean',
+        list: 'list',
+        tuple: 'tuple',
+        dict: 'hash',
+        basestring: 'string',
+        str: 'string',
+        unicode: 'string',
+        date: 'date',
+        datetime: 'datetime',
+        }
+    valuetypes_tuple = tuple(valuetypes.keys())
+
+    def _serialize(parent, data, name=''):
+        if isinstance(data, dict):
+            object = SubElement(parent, 'object', attrib={
+                'name': name,
+                'type': 'hash',
+                })
+            for key, value in data.iteritems():
+                _serialize(object, value, name=key)
+
+        elif hasattr(data, '__iter__'):
+            objects = SubElement(parent, 'objects', {
+                'name': name,
+                'type': 'list',
+                })
+            for value in data:
+                _serialize(objects, value)
+
+        elif isinstance(data, valuetypes_tuple):
+            value = SubElement(parent, 'value', attrib={
+                'name': name,
+                'type': valuetypes.get(type(data), 'unknown'),
+                })
+
+            value.text = data if isinstance(data, basestring) else unicode(data)
+
+        elif data is None:
+            SubElement(parent, 'value', attrib={
+                'name': name,
+                'type': 'null',
+                })
+
+        else:
+            raise NotImplementedError('Unable to handle %r' % data)
+
+    root = Element('response')
+    _serialize(root, response)
+
+    return HttpResponse(
+        tostring(root, xml_declaration=True, encoding='utf-8'),
+        mimetype='application/xml',
+        )
+
+
 class Resource(generic.View):
     """
     Resource for exposing Django models somewhat RESTy
@@ -402,10 +468,13 @@ class Resource(generic.View):
             return response
 
         formats = [
+            ('application/xml', {
+                'handler': serialize_response_xml,
+                }),
             ('application/json', {
                 'handler': lambda response, output_format, config: (
                     HttpResponse(json.dumps(response, cls=DjangoJSONEncoder),
-                        mimetype='application/json', status=status)),
+                        mimetype='application/json')),
                 }),
             #('text/html', {
                 #'handler': self.serialize_response_html,
@@ -416,7 +485,7 @@ class Resource(generic.View):
         # https://github.com/toastdriven/django-tastypie/blob/master/tastypie/utils/mime.py
         try:
             output_format = mimeparse.best_match(
-                reversed([format for format, config in formats]),
+                reversed([fmt for fmt, config in formats]),
                 self.request.META.get('HTTP_ACCEPT'))
         except IndexError:
             output_format = 'application/json'
@@ -424,6 +493,7 @@ class Resource(generic.View):
         config = dict(formats)[output_format]
         response = config['handler'](response, output_format, config)
         patch_vary_headers(response, ('Accept',))
+        response.status = status
         return response
 
     def get_query_set(self):
