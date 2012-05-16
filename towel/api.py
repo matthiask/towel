@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import date, datetime
 from decimal import Decimal
+import httplib
 import json
 from lxml.etree import Element, SubElement, tostring
 import mimeparse
@@ -25,25 +26,25 @@ class APIException(Exception):
 
     Usage::
 
-        raise ClientError('Not acceptable', status=406)
+        # Use official W3C error names from ``httplib.responses``
+        raise ClientError(status=406)
 
     or::
 
         raise ServerError('Not implemented, go away', status=501)
     """
+
+    #: The default response is '400 Bad request'
     default_status = 400
 
-    def __init__(self, error, **kwargs):
+    def __init__(self, error_message=None, status=None):
         super(Exception, self).__init__(error)
-        self.kwargs = kwargs
 
-
-class ClientError(APIException):
-    pass
-
-
-class ServerError(APIException):
-    default_status = 500
+        self.status = self.default_status if status is None else status
+        if error_message is None:
+            self.error_message = httplib.responses.get(self.status, '')
+        else:
+            self.error_message = error_message
 
 
 #: The return value of ``Resource.objects``
@@ -483,8 +484,9 @@ class Resource(generic.View):
         except Http404 as e:
             return self.serialize_response({'error': e[0]}, status=404)
         except APIException as e:
-            return self.serialize_response({'error': e[0]},
-                status=e.kwargs.get('status', e.default_status))
+            return self.serialize_response({
+                'error': e.error_message,
+                }, status=e.status)
 
     def unserialize_request(self):
         """
