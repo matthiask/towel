@@ -69,14 +69,12 @@ class API(object):
             Customer,
             view_init={
                 'queryset': Customer.objects.filter(is_active=True),
-                'paginate_by': 10,
                 })
 
         api_v1.register(
             Product,
             view_init={
                 'queryset': Product.objects.filter(is_active=True)
-                'paginate_by': 10,
                 })
 
         api_v1.register(
@@ -86,7 +84,6 @@ class API(object):
             view_class=LibraryResource,
             view_init={
                 'queryset': Product.objects.filter(is_active=True),
-                'paginate_by': 10,
                 })
 
         urlpatterns = patterns('',
