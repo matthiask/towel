@@ -63,10 +63,18 @@ class API(object):
 
     Usage::
 
+        # ... other imports ...
+        from functools import partial
+        from towel.api import API, serialize_model_instance
+
         api_v1 = API('v1')
 
+        # Customize serialization: Never include phone numbers and email
+        # addresses of customers in API output.
         api_v1.register(
             Customer,
+            serializer=partial(serialize_model_instance,
+                exclude=('phone', 'email')),
             view_init={
                 'queryset': Customer.objects.filter(is_active=True),
                 })
@@ -101,7 +109,13 @@ class API(object):
         """
         Inclusion point in your own URLconf
 
-        Pass the return value to ``include()``.
+        Usage::
+
+            from .views import api_v1
+
+            urlpatterns = patterns('',
+                url(r'^api/v1/', include(api_v1.urls)),
+            )
         """
         urlpatterns = [
             url(r'^$', self, name='api_%s' % self.name),
@@ -198,6 +212,13 @@ class API(object):
             self.serializers[model] = serializer
 
     def serialize_instance(self, instance, **kwargs):
+        """
+        Returns a serialized version of the passed model instance
+
+        This method should always be used for serialization, because it knows
+        about custom serializers specified when registering resources with this
+        API.
+        """
         serializer = self.serializers.get(instance.__class__, serialize_model_instance)
         return serializer(instance, api=self, **kwargs)
 
@@ -209,7 +230,11 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
     If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
     objects are inlined. The performance implications of this feature might be
-    severe!
+    severe! Note: Additional arguments specified when calling
+    ``serialize_model_instance`` such as ``exclude``, ``only_registered`` and
+    further keyword arguments are currently **not** forwarded to inlined
+    objects. Those parameters should be set upon resource registration time as
+    documented in the ``API`` docstring above.
 
     The ``exclude`` parameter is especially helpful when used together with
     ``functools.partial``.
@@ -220,7 +245,8 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
     This implementation has a few characteristics you should be aware of:
 
     - Only objects which have a canonical URI inside this particular API are
-      serialized; if no such URI exists, this method returns ``None``.
+      serialized; if no such URI exists, this method returns ``None``. This
+      behavior can be overridden by passing ``only_registered=False``.
     - Many to many relations are only processed if ``inline_depth`` has a
       positive value. The reason for this design decision is that the database
       has to be queried for showing the URIs of related objects anyway and
@@ -228,6 +254,9 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
     - Some fields (currently only fields with choices) have a machine readable
       and a prettified value. The prettified values are delivered inside the
       ``__pretty__`` dictionary for your convenience.
+    - The primary key of the model instance is always available as
+      ``__pk__``. The primary key field on the model itself is skipped during
+      the serialization.
     """
 
     # It's not exactly a fatal error, but it helps during development. This
@@ -255,6 +284,9 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
         if f.rel:
             if inline_depth > 0:
                 if getattr(instance, f.name):
+                    # XXX What about only_registered, kwargs? Should they be passed
+                    # to other calls as well, or should we assume that customization
+                    # can only happen using functools.partial upon registration time?
                     data[f.name] = api.serialize_instance(
                         getattr(instance, f.name),
                         inline_depth=inline_depth - 1,
@@ -323,7 +355,46 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
 
 
 class Serializer(object):
+    """
+    API response serializer
+
+    Handles content type negotiation using the HTTP Accept header if the format
+    isn't overridden.
+    """
     def serialize(self, data, output_format=None, request=None, status=200):
+        """
+        Returns a ``HttpResponse`` containing the serialized response in the format
+        specified explicitly in ``output_format`` (either as a MIME type or as a simple
+        identifier) or according to the HTTP Accept header specified in the passed
+        request instance. The default status code is ``200 OK``, if that does not fit
+        you'll have to specify a different code yourself.
+
+        Returns a ``406 Not acceptable`` response if the requested format is unknown
+        or unsupported. Currently, the following formats are supported:
+
+        - ``json`` or ``application/json``
+        - ``xml`` or ``application/xml``
+
+        Usage::
+
+            return Serializer().serialize(
+                {'response': 'Hello world'},
+                output_format='xml',
+                status=200)
+        or::
+
+            return Serializer().serialize(
+                {'response': 'Hello world'},
+                output_format='application/json',
+                status=200)
+
+        or::
+
+            return Serializer().serialize(
+                {'response': 'Hello world'},
+                request=request,
+                status=200)
+        """
         if output_format is None and request is None:
             raise TypeError('Provide at least one of output_format and request.')
 
@@ -437,8 +508,9 @@ class Resource(generic.View):
     #: if unset.
     queryset = None
 
-    #: Limits
+    #: Default instance count for list views
     limit_per_page = 20
+    #: Higher values than this will not be accepted for ``limit``
     max_limit_per_page = 1000
 
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
@@ -493,6 +565,7 @@ class Resource(generic.View):
         The "real" processing methods should not have to distinguish between
         varying request types anymore.
         """
+        # TODO Actually implement this :-)
         pass
 
     def serialize_response(self, response, status=200):
@@ -518,14 +591,15 @@ class Resource(generic.View):
 
     def apply_filters(self, queryset):
         """
-        Applies filters to the queryset. This method will only be called for
-        list views, not when the user requested sets or single instances.
+        Applies filters and search queries to the queryset. This method will
+        only be called for list views, not when the user requested sets or
+        single instances.
         """
         return queryset
 
     def objects(self):
         """
-        Returns a namedtuple with the following attributes:
+        Returns a ``namedtuple`` with the following attributes:
 
         - ``queryset``: Available items, filtered and all (if applicable).
         - ``page``: Current page
@@ -534,7 +608,8 @@ class Resource(generic.View):
         - ``single``: Single instances if applicable, used for URIs such as
           ``/api/product/1/``.
 
-        Raises a 404 if the referenced items do not exist.
+        Raises a ``Http404`` exception if the referenced items do not exist in
+        the queryset returned by ``Resource.get_query_set()``.
         """
         queryset, page, set_, single = self.get_query_set(), None, None, None
 
@@ -595,6 +670,8 @@ class Resource(generic.View):
         objects = self.objects()
 
         if objects.single:
+            # TODO make inline_depth configurable, or remove the support for
+            # ``?full=1`` completely and let the developer decide.
             return self.api.serialize_instance(objects.single,
                 inline_depth=1 if request.GET.get('full') else 0)
         elif objects.set:
@@ -635,6 +712,23 @@ class Resource(generic.View):
 
 
 def querystring(data, exclude=(), **kwargs):
+    """
+    Returns a properly encoded querystring
+
+    The supported arguments are as follows:
+
+    - ``data`` should be a ``MultiValueDict`` instance (i.e. ``request.GET``)
+    - ``exclude`` is a list of keys from ``data`` which should be skipped
+    - Additional key-value pairs are accepted as keyword arguments
+
+    Usage::
+
+        next_page_url = querystring(
+            request.GET,
+            exclude=('page',),
+            page=current + 1,
+            )
+    """
     items = reduce(operator.add, (
         list((k, v.encode('utf-8')) for v in values)
         for k, values in data.iterlists() if k not in exclude
