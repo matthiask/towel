@@ -515,6 +515,7 @@ class Resource(generic.View):
 
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
     #: we allow ``patch``, but do not allow ``options`` and ``trace``.
+    # TODO OPTIONS support
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
 
     def dispatch(self, request, *args, **kwargs):
