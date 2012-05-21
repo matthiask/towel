@@ -516,7 +516,7 @@ class Resource(generic.View):
     #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
     #: we allow ``patch``, but do not allow ``options`` and ``trace``.
     # TODO OPTIONS support
-    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch']
+    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch', 'options']
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -710,6 +710,16 @@ class Resource(generic.View):
                 'objects': [self.api.serialize_instance(instance) for instance in page.queryset],
                 'meta': meta,
                 }
+
+    def options(self, request, *args, **kwargs):
+        # XXX This will be removed as soon as we switch to Django 1.5 only
+        response = HttpResponse()
+        response['Allow'] = ', '.join(self._allowed_methods())
+        response['Content-Length'] = 0
+        return response
+
+    def _allowed_methods(self):
+        return [m.upper() for m in self.http_method_names if hasattr(self, m)]
 
 
 def querystring(data, exclude=(), **kwargs):
