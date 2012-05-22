@@ -282,17 +282,24 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
             continue
 
         if f.rel:
+            try:
+                data[f.name] = api_reverse(f.rel.to, 'detail', api_name=api.name,
+                    pk=f.value_from_object(instance))
+            except NoReverseMatch:
+                if only_registered:
+                    continue
+
             if inline_depth > 0:
-                if getattr(instance, f.name):
+                related = getattr(instance, f.name)
+
+                if related:
                     # XXX What about only_registered, kwargs? Should they be passed
                     # to other calls as well, or should we assume that customization
                     # can only happen using functools.partial upon registration time?
                     data[f.name] = api.serialize_instance(
-                        getattr(instance, f.name),
+                        related,
                         inline_depth=inline_depth - 1,
                         )
-                else:
-                    data[f.name] = None
 
             else:
                 try:
