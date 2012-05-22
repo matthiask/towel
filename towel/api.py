@@ -485,7 +485,8 @@ class Serializer(object):
                 raise NotImplementedError('Unable to handle %r' % data)
 
         root = Element('response')
-        _serialize(root, data)
+        for key, value in data.iteritems():
+            _serialize(root, value, name=key)
 
         return HttpResponse(
             tostring(root, xml_declaration=True, encoding='utf-8'),
