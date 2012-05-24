@@ -38,7 +38,7 @@ class APIException(Exception):
     default_status = httplib.BAD_REQUEST
 
     def __init__(self, error_message=None, status=None):
-        super(Exception, self).__init__(error)
+        super(Exception, self).__init__(error_message)
 
         self.status = self.default_status if status is None else status
         if error_message is None:
