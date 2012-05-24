@@ -210,7 +210,10 @@ class API(object):
         view_init = view_init or {}
 
         if 'model' not in view_init:
-            view_init['model'] = view_init.get('queryset').model or model
+            if 'queryset' in view_init:
+                view_init['model'] = view_init['queryset'].model
+            else:
+                view_init['model'] = model
 
         view = view_class.as_view(api=self, **view_init)
 
