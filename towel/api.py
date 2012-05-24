@@ -103,6 +103,8 @@ class API(object):
         self.name = name
         self.resources = []
         self.serializers = {}
+        # TODO accept decorators argument here; API.register should
+        # default to this set of decorators
 
     @property
     def urls(self):
@@ -118,7 +120,7 @@ class API(object):
             )
         """
         urlpatterns = [
-            url(r'^$', self, name='api_%s' % self.name),
+            url(r'^$', csrf_exempt(self), name='api_%s' % self.name),
             ]
 
         for resource in self.resources:
