@@ -97,14 +97,20 @@ class API(object):
         urlpatterns = patterns('',
             url(r'^v1/', include(api_v1.urls)),
         )
+
+    With authentication::
+
+        api_v2 = API('v2', decorators=[csrf_exempt, login_required])
+
+        # register resources as before
     """
 
-    def __init__(self, name):
+    def __init__(self, name, decorators=[csrf_exempt]):
         self.name = name
+        self.decorators = decorators
+
         self.resources = []
         self.serializers = {}
-        # TODO accept decorators argument here; API.register should
-        # default to this set of decorators
 
     @property
     def urls(self):
@@ -119,8 +125,14 @@ class API(object):
                 url(r'^api/v1/', include(api_v1.urls)),
             )
         """
+
+        def view(request):
+            return self.root(request)
+        for dec in reversed(self.decorators):
+            view = dec(view)
+
         urlpatterns = [
-            url(r'^$', csrf_exempt(self), name='api_%s' % self.name),
+            url(r'^$', csrf_exempt(view), name='api_%s' % self.name),
             ]
 
         for resource in self.resources:
@@ -131,7 +143,7 @@ class API(object):
 
         return patterns('', *urlpatterns)
 
-    def __call__(self, request):
+    def root(self, request):
         """
         Main API view, returns a list of all available resources
         """
@@ -167,7 +179,7 @@ class API(object):
             output_format=request.GET.get('format'))
 
     def register(self, model, view_class=None, canonical=True,
-            decorators=[csrf_exempt], prefix=None, view_init=None,
+            decorators=None, prefix=None, view_init=None,
             serializer=None):
         """
         Registers another resource on this API. The sole required argument is the
@@ -181,7 +193,8 @@ class API(object):
         - ``decorators``: A list of decorators which should be applied to the
           view. Function decorators only, method decorators aren't supported. The
           list is applied in reverse, the order is therefore the same as with the
-          ``@`` notation. It's recommended to always pass ``csrf_exempt`` here,
+          ``@`` notation. If unset, the set of decorators is determined from the API
+          initialization. Pass an empty list if you want no decorators at all.
           otherwise API POSTing will have to include a valid CSRF middleware token.
         - ``prefix``: The prefix for this model, defaults to the model name in
           lowercase. You should include a caret and a trailing slash if you specify
@@ -206,6 +219,9 @@ class API(object):
             opts = model._meta
             name = lambda ident: '_'.join((
                 self.name, opts.app_label, opts.module_name, ident))
+
+        if decorators is None:
+            decorators = self.decorators
 
         if decorators:
             for dec in reversed(decorators):
