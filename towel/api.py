@@ -719,12 +719,16 @@ class Resource(generic.View):
         if objects.single:
             # TODO make inline_depth configurable, or remove the support for
             # ``?full=1`` completely and let the developer decide.
-            return self.api.serialize_instance(objects.single,
-                inline_depth=1 if request.GET.get('full') else 0)
+            kw = {}
+            if request.GET.get('full'):
+                kw['inline_depth'] = 1
+            return self.api.serialize_instance(objects.single, **kw)
+
         elif objects.set:
             return {
                 'objects': [self.api.serialize_instance(instance) for instance in objects.set],
                 }
+
         else:
             page = objects.page
             list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
