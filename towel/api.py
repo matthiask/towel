@@ -135,6 +135,18 @@ class API(object):
         """
         Main API view, returns a list of all available resources
         """
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response['Allow'] = 'GET, HEAD'
+            response['Content-Length'] = 0
+            return response
+
+        elif request.method not in ('GET', 'HEAD'):
+            return Serializer().serialize({
+                'error': 'Not acceptable',
+                }, request=request, status=httplib.METHOD_NOT_ALLOWED,
+                output_format=request.GET.get('format'))
+
         response = {
             '__unicode__': self.name,
             '__uri__': reverse('api_%s' % self.name),
