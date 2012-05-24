@@ -401,7 +401,8 @@ class Serializer(object):
     Handles content type negotiation using the HTTP Accept header if the format
     isn't overridden.
     """
-    def serialize(self, data, output_format=None, request=None, status=httplib.OK):
+    def serialize(self, data, output_format=None, request=None, status=httplib.OK,
+            headers={}):
         """
         Returns a ``HttpResponse`` containing the serialized response in the format
         specified explicitly in ``output_format`` (either as a MIME type or as a simple
@@ -462,6 +463,9 @@ class Serializer(object):
             # calls into this method too.
             response = HttpResponse('Not acceptable')
             status = httplib.NOT_ACCEPTABLE
+
+        for key, value in headers.iteritems():
+            response[key] = value
 
         patch_vary_headers(response, ('Accept',))
         response.status_code = status
@@ -611,7 +615,7 @@ class Resource(generic.View):
         # TODO Actually implement this :-)
         pass
 
-    def serialize_response(self, response, status=httplib.OK):
+    def serialize_response(self, response, status=httplib.OK, headers={}):
         """
         Serializes the response into an appropriate format for the wire such as
         JSON. ``HttpResponse`` instances are returned directly.
@@ -620,7 +624,7 @@ class Resource(generic.View):
             return response
 
         return Serializer().serialize(response, request=self.request, status=status,
-            output_format=self.request.GET.get('format'))
+            output_format=self.request.GET.get('format'), headers=headers)
 
     def get_query_set(self):
         """
