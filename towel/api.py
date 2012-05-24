@@ -27,15 +27,15 @@ class APIException(Exception):
     Usage::
 
         # Use official W3C error names from ``httplib.responses``
-        raise ClientError(status=406)
+        raise ClientError(status=httplib.NOT_ACCEPTABLE)
 
     or::
 
-        raise ServerError('Not implemented, go away', status=501)
+        raise ServerError('Not implemented, go away', status=httplib.NOT_IMPLEMENTED)
     """
 
     #: The default response is '400 Bad request'
-    default_status = 400
+    default_status = httplib.BAD_REQUEST
 
     def __init__(self, error_message=None, status=None):
         super(Exception, self).__init__(error)
@@ -368,7 +368,7 @@ class Serializer(object):
     Handles content type negotiation using the HTTP Accept header if the format
     isn't overridden.
     """
-    def serialize(self, data, output_format=None, request=None, status=200):
+    def serialize(self, data, output_format=None, request=None, status=httplib.OK):
         """
         Returns a ``HttpResponse`` containing the serialized response in the format
         specified explicitly in ``output_format`` (either as a MIME type or as a simple
@@ -387,21 +387,21 @@ class Serializer(object):
             return Serializer().serialize(
                 {'response': 'Hello world'},
                 output_format='xml',
-                status=200)
+                status=httplib.OK)
 
         or::
 
             return Serializer().serialize(
                 {'response': 'Hello world'},
                 output_format='application/json',
-                status=200)
+                status=httplib.OK)
 
         or::
 
             return Serializer().serialize(
                 {'response': 'Hello world'},
                 request=request,
-                status=200)
+                status=httplib.OK)
         """
         if output_format is None and request is None:
             raise TypeError('Provide at least one of output_format and request.')
@@ -428,7 +428,7 @@ class Serializer(object):
             # Cannot raise ClientError here because the APIException handler
             # calls into this method too.
             response = HttpResponse('Not acceptable')
-            status = 406
+            status = httplib.NOT_ACCEPTABLE
 
         patch_vary_headers(response, ('Accept',))
         response.status_code = status
@@ -561,7 +561,7 @@ class Resource(generic.View):
             return self.serialize_response(handler(
                 self.request, *self.args, **self.kwargs))
         except Http404 as e:
-            return self.serialize_response({'error': e[0]}, status=404)
+            return self.serialize_response({'error': e[0]}, status=httplib.NOT_FOUND)
         except APIException as e:
             return self.serialize_response({
                 'error': e.error_message,
@@ -578,7 +578,7 @@ class Resource(generic.View):
         # TODO Actually implement this :-)
         pass
 
-    def serialize_response(self, response, status=200):
+    def serialize_response(self, response, status=httplib.OK):
         """
         Serializes the response into an appropriate format for the wire such as
         JSON. ``HttpResponse`` instances are returned directly.
