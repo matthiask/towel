@@ -717,49 +717,54 @@ class Resource(generic.View):
         objects = self.objects()
 
         if objects.single:
-            # TODO make inline_depth configurable, or remove the support for
-            # ``?full=1`` completely and let the developer decide.
-            kw = {}
-            if request.GET.get('full'):
-                kw['inline_depth'] = 1
-            return self.api.serialize_instance(objects.single, **kw)
-
+            return self.get_single(request, objects, *args, **kwargs)
         elif objects.set:
-            return {
-                'objects': [self.api.serialize_instance(instance) for instance in objects.set],
-                }
-
+            return self.get_set(request, objects, *args, **kwargs)
         else:
-            page = objects.page
-            list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
-            meta = {
-                'offset': page.offset,
-                'limit': page.limit,
-                'total': page.total,
-                'previous': None,
-                'next': None,
-                }
+            return self.get_page(request, objects, *args, **kwargs)
 
-            if page.offset > 0:
-                meta['previous'] = u'%s?%s' % (list_url, querystring(
-                    self.request.GET,
-                    exclude=('offset', 'limit'),
-                    offset=max(0, page.offset - page.limit),
-                    limit=page.limit,
-                    ))
+    def get_single(self, request, objects, *args, **kwargs):
+        kw = {}
+        if request.GET.get('full'):
+            kw['inline_depth'] = 1
+        return self.api.serialize_instance(objects.single, **kw)
 
-            if page.offset + page.limit < page.total:
-                meta['next'] = u'%s?%s' % (list_url, querystring(
-                    self.request.GET,
-                    exclude=('offset', 'limit'),
-                    offset=page.offset + page.limit,
-                    limit=page.limit,
-                    ))
+    def get_set(self, request, objects, *args, **kwargs):
+        return {
+            'objects': [self.api.serialize_instance(instance) for instance in objects.set],
+            }
 
-            return {
-                'objects': [self.api.serialize_instance(instance) for instance in page.queryset],
-                'meta': meta,
-                }
+    def get_page(self, request, objects, *args, **kwargs):
+        page = objects.page
+        list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
+        meta = {
+            'offset': page.offset,
+            'limit': page.limit,
+            'total': page.total,
+            'previous': None,
+            'next': None,
+            }
+
+        if page.offset > 0:
+            meta['previous'] = u'%s?%s' % (list_url, querystring(
+                self.request.GET,
+                exclude=('offset', 'limit'),
+                offset=max(0, page.offset - page.limit),
+                limit=page.limit,
+                ))
+
+        if page.offset + page.limit < page.total:
+            meta['next'] = u'%s?%s' % (list_url, querystring(
+                self.request.GET,
+                exclude=('offset', 'limit'),
+                offset=page.offset + page.limit,
+                limit=page.limit,
+                ))
+
+        return {
+            'objects': [self.api.serialize_instance(instance) for instance in page.queryset],
+            'meta': meta,
+            }
 
     def options(self, request, *args, **kwargs):
         # XXX This will be removed as soon as we switch to Django 1.5 only
