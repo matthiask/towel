@@ -1,4 +1,4 @@
-function towel_add_subform(slug) {
+;function towel_add_subform(slug) {
     var total_forms = $('#id_' + slug + '-TOTAL_FORMS');
     var new_id = parseInt(total_forms.val());
 
@@ -22,4 +22,4 @@ function towel_add_subform(slug) {
     // only one (if no objects exist until now)
     form.insertAfter(empty.parent().children('[id|=' + slug + ']:last')).hide().fadeIn();
     return false;
-}
+};

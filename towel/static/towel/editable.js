@@ -1,4 +1,4 @@
-var TowelEditable = {
+;var TowelEditable = {
     get_editor: function($editor) {
         var init_editor = function(data) {
             if (data.indexOf('{') === 0) {
