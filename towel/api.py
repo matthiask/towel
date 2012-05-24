@@ -31,13 +31,23 @@ class APIException(Exception):
 
     or::
 
-        raise ServerError('Not implemented, go away', status=httplib.NOT_IMPLEMENTED)
+        raise ServerError('Not implemented, go away',
+            status=httplib.NOT_IMPLEMENTED)
+
+    Additional information can be passed through by setting the ``data``
+    argument to a dict instance. The :ref:`~towel.api.APIException` handler
+    will merge the dict into the default error data and return everything
+    to the client::
+
+        raise APIException('Validation failed', data={
+            'form': form.errors,
+            })
     """
 
     #: The default response is '400 Bad request'
     default_status = httplib.BAD_REQUEST
 
-    def __init__(self, error_message=None, status=None):
+    def __init__(self, error_message=None, status=None, data={}):
         super(Exception, self).__init__(error_message)
 
         self.status = self.default_status if status is None else status
@@ -45,6 +55,8 @@ class APIException(Exception):
             self.error_message = httplib.responses.get(self.status, '')
         else:
             self.error_message = error_message
+
+        self.data = data
 
 
 #: The return value of ``Resource.objects``
@@ -600,9 +612,11 @@ class Resource(generic.View):
         except Http404 as e:
             return self.serialize_response({'error': e[0]}, status=httplib.NOT_FOUND)
         except APIException as e:
-            return self.serialize_response({
+            data = {
                 'error': e.error_message,
-                }, status=e.status)
+                }
+            data.update(e.data)
+            return self.serialize_response(data, status=e.status)
 
     def unserialize_request(self):
         """
