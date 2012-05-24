@@ -388,6 +388,7 @@ class Serializer(object):
                 {'response': 'Hello world'},
                 output_format='xml',
                 status=200)
+
         or::
 
             return Serializer().serialize(
