@@ -1,4 +1,4 @@
-.. _api-deletion:
+.. _autogen-deletion:
 
 Deletion
 ========

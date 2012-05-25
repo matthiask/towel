@@ -1,4 +1,4 @@
-.. _api-api:
+.. _autogen-api:
 
 API programming
 ===============

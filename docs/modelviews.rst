@@ -594,7 +594,7 @@ The models edited through inline formsets have to be changed a bit::
 
 ``deletion.Model`` only consists of a customized ``Model.delete`` method
 which does not delete the model under certain circumstances. See the
-:ref:`api-deletion` API documentation if you need to know more.
+:ref:`autogen-deletion` API documentation if you need to know more.
 
 Next, you have to override ``save_formsets``::
 
