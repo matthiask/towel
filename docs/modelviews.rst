@@ -4,7 +4,7 @@
 ModelView
 =========
 
-.. module:: towel.modelview
+.. currentmodule:: towel.modelview
 
 
 We'll start with simple object list and object detail pages, explaining many
@@ -20,6 +20,8 @@ one instance is responsible for many URLs and handles many requests. You have
 to take care not to modify ModelView itself during request processing, because
 this will not be thread-safe.
 
+
+.. _modelview-models:
 
 Preparing your models, views and URLconfs for ModelView
 =======================================================
@@ -61,22 +63,176 @@ ModelView works with an URL structure similar to the following:
 The regular expression used to match the detail page (here <pk>) can be
 customized. If you'd rather match on the slug, on a combination of
 several fields (separated by dashes or slashes, whatever you want) or on
-something else, you can do this by modifying ``urlconf_detail_re``. You
-only have to make sure that ``get_object`` will know what to do with the
-extracted parameters.
+something else, you can do this by modifying
+:py:attr:`~ModelView.urlconf_detail_re`. You only have to make sure that
+:py:func:`~ModelView.get_object` will know what to do with the extracted
+parameters.
 
 If you want to use the primary key-based URL configuration, you do not
-need to add a ``get_absolute_url`` method to your model, because ModelView
-will add one itself. It isn't considered good practice to put primary keys
-on the web for everyone to see but it might be okay for your use case.
+need to add a :py:func:`~django.db.models.Model.get_absolute_url` method to
+your model, because :py:class:`ModelView` will add one itself. It isn't
+considered good practice to put primary keys on the web for everyone to see
+but it might be okay for your use case.
 
+
+.. _modelview-modelview:
+
+The main ``ModelView`` class
+============================
+
+.. class:: ModelView(model, [...])
+
+    The first and only required argument when instantiating a model view is
+    the Django model. Additional keyword arguments may be used to override
+    attribute values of the model view class. It is not allowed to pass
+    keyword arguments which do not exist as attributes on the class already.
+
+    .. attribute:: urlconf_detail_re
+
+        The regular expression used for detail pages. Defaults to a regular
+        expression which only accepts a numeric primary key.
+
+    .. attribute:: paginate_by
+
+        Objects per page for list views. Defaults to ``None`` which means
+        that all objects are shown on one page (usually a bad idea).
+
+    .. attribute:: pagination_all_allowed
+
+        Pagination can be deactivated by passing ``?all=1`` in the URL.
+        If you expect having lots of objects in the table showing all on
+        one page can lead to a very slow and big page being shown. Set
+        this attribute to ``False`` to disallow this behavior.
+
+    .. attribute:: paginator_class
+
+        Paginator class which should have the same interface as
+        :py:class:`django.core.paginator.Paginator`. Defaults to
+        :py:class:`towel.paginator.Paginator` which is almost the same as
+        Django's, but offers additional methods for outputting Digg-style
+        pagination links.
+
+    .. attribute:: template_object_name
+
+        The name used for the instance in detail and edit views. Defaults
+        to ``object``.
+
+    .. attribute:: template_object_list_name
+
+        The name used for instances in list views. Defaults to
+        ``object_list``.
+
+    .. attribute:: base_template
+
+        The template which all standard modelview templates extend. Defaults
+        to ``base.html``.
+
+    .. attribute:: form_class
+
+        The form class used to create and update models. The method
+        :py:func:`~ModelView.get_form` returns this value instead of invoking
+        :py:func:`~django.forms.models.modelform_factory` if it is set.
+        Defaults to ``None``.
+
+    .. attribute:: search_form
+
+        The search form class to use in list views. Should be a subclass of
+        :py:class:`towel.forms.SearchForm`. Defaults to ``None``, which
+        deactivates search form handling.
+
+    .. attribute:: search_form_everywhere
+
+        Whether a search form instance should be added to all views, not only
+        to list views. Useful if the search form is shown on detail pages
+        as well.
+
+    .. attribute:: batch_form
+
+        The batch form class used for batch editing in list views. Should be
+        a subclass of :py:class:`towel.forms.BatchForm`. Defaults to ``None``.
+
+    .. attribute:: default_messages
+
+        A set of default messages for various success and error conditions.
+        You should not modify this dictionary, but instead override messages
+        by adding them to :py:attr:`~ModelView.custom_messages` below. The
+        current set of messages is:
+
+        - ``object_created``
+        - ``adding_denied``
+        - ``object_updated``
+        - ``editing_denied``
+        - ``object_deleted``
+        - ``deletion_denied``
+        - ``deletion_denied_related``
+
+        Note that by modifying this dictionary you are modifying it for all
+        model view instances!
+
+    .. attribute:: custom_messages
+
+        A set of custom messages for custom actions or for overriding messages
+        from  :py:attr:`~ModelView.custom_messages`.
+
+        Note that by modifying this dictionary you are modifying it for all
+        model view instances! If you want to override a few messages only for
+        a particular model view instance, you have to set this attribute to
+        a new dictionary instance, not update the existing dictionary.
+
+    .. method:: view_decorator(self, func)
+    .. method:: crud_view_decorator(self, func)
+
+        The default implementation of :py:func:`~ModelView.get_urls` uses
+        those two methods to decorate all views, the former for list and detail
+        views, the latter for add, edit and delete views.
+
+
+.. currentmodule:: towel.modelview.ModelView
+.. _modelview-models-querysets:
+
+Models and querysets
+--------------------
+
+.. method:: get_query_set(self, request, \*args, \*\*kwargs)
+
+    This method should return a queryset with all objects this modelview
+    is allowed to see. If a certain user should only ever see a subset of
+    all objects, add the permission checking here. Example::
+
+        class UserModelView(ModelView):
+            def get_query_set(self, request, *args, **kwargs):
+                return self.model.objects.filter(created_by=request.user)
+
+.. unconfuse vim's syntax highlighting * **
+
+    The default implementation returns all objects which can be seen by
+    the first manager defined on the Django model.
+
+.. method:: get_object(self, request, \*args, \*\*kwargs)
+
+    Returns a single object for the query parameters passed as ``args`` and
+    ``kwargs`` or raises a :py:exc:`~django.core.exceptions.ObjectDoesNotExist`
+    exception. The default implementation passes all args and kwargs to
+    a :py:func:`~django.db.models.QuerySet.get` call, which means that all
+    parameters extracted by the :py:attr:`urlconf_detail_re` regular
+    expression should uniquely identify the object in the queryset returned
+    by :py:func:`get_query_set` above.
+
+.. method:: get_object_or_404(self, request, \*args, \*\*kwargs)
+
+    Wraps :py:func:`get_object`, but raises a :py:class:`~django.http.Http404`
+    instead of a :py:exc:`~django.core.exceptions.ObjectDoesNotExist`.
+
+
+.. _modelview-object-list:
 
 Object lists
-============
+------------
 
-Towel`s object lists are handled by ``list_view``. By default, all objects are
-shown on one page but this can be modified through ``paginate_by``. The following
-code puts a paginated list of books at ``/books/``::
+Towel`s object lists are handled by :py:func:`list_view`. By default,
+all objects are shown on one page but this can be modified through
+:py:attr:`paginate_by`. The following code puts a paginated list of
+books at ``/books/``::
 
     from myapp.models import Book
     from towel.modelview import ModelView
@@ -103,39 +259,26 @@ methods::
 
 
 The model instances are passed as ``object_list`` into the template by default.
-This can be customized by setting ``template_object_list_name`` to a different
-value.
+This can be customized by setting :py:attr:`template_object_list_name`
+to a different value.
 
-
-
-Object list call-graph
-----------------------
-
-.. module:: towel.modelview.ModelView
-
-The ``list_view`` method does not contain much code, and simply defers to
+The :py:func:`list_view` method does not contain much code, and simply defers to
 other methods who do most of the grunt-work. Those methods are shortly explained
 here.
 
-.. function:: list_view(self, request)
+.. method:: list_view(self, request)
 
    Main entry point for object lists, calls all other methods.
 
 
-.. function:: get_query_set(self, request, *args, **kwargs)
+.. method:: handle_search_form(self, request, ctx, queryset=None)
+.. method:: handle_batch_form(self, request, ctx, queryset)
 
-   Receives the request as only argument, must return a queryset of all objects
-   a user is allowed to see. The default implementation is ``._default_manager.all()``.
-
-
-.. function:: handle_search_form(self, request, ctx, queryset=None)
-.. function:: handle_batch_form(self, request, ctx, queryset)
-
-   These methods are discussed later, under :ref:`object-list-searchable` and
-   :ref:`batch-processing`.
+   These methods are discussed later, under :ref:`modelview-object-list-searchable` and
+   :ref:`modelview-batch-processing`.
 
 
-.. function:: paginate_object_list(self, request, queryset, paginate_by=10)
+.. method:: paginate_object_list(self, request, queryset, paginate_by=10)
 
    If ``paginate_by``is given paginates the object list using the ``page`` GET
    parameter. Pagination can be switched off by passing ``all=1`` in the GET
@@ -143,7 +286,7 @@ here.
    parameter, set ``pagination_all_allowed`` to ``False``.
 
 
-.. function:: render_list(self, request, context)
+.. method:: render_list(self, request, context)
 
    The rendering of object lists is done inside ``render_list``. This method
    calls ``get_template`` to assemble a list of templates to try, and
@@ -154,11 +297,11 @@ here.
    * ``modelview/object_list.html``
 
    The additional variables passed into the context are documented in
-   :ref:`standard-context`.
+   :ref:`modelview-standard-context`.
 
 
 
-.. _object-list-searchable:
+.. _modelview-object-list-searchable:
 
 Making lists searchable
 -----------------------
@@ -166,16 +309,17 @@ Making lists searchable
 Pagination is not enough for many use cases, we need more! Luckily, Towel
 has a pre-made solution for searching object lists too.
 
-:class:`towel.forms.SearchForm` can be used together with
-:class:`towel.managers.SearchManager` to build a low-cost implementation of
+:py:class:`towel.forms.SearchForm` can be used together with
+:py:class:`towel.managers.SearchManager` to build a low-cost implementation of
 full text search and filtering by model attributes.
 
 The method used to implement full text search is a bit stupid and cannot
 replace mature full text search solutions such as Apache Solr. It might just
 solve 80% of the problems with 20% of the effort though.
 
-Code talks. First, we extend our models definition with a  ``Manager``
-subclass with a simple search implementation::
+Code talks. First, we extend our models definition with a
+:py:class:`~django.db.models.Manager` subclass with a simple search
+implementation::
 
     from django.db import models
     from towel.managers import SearchManager
@@ -189,7 +333,7 @@ subclass with a simple search implementation::
 
         objects = BookManager()
 
-:class:`~towel.managers.SearchManager` supports queries with multiple clauses;
+:py:class:`~towel.managers.SearchManager` supports queries with multiple clauses;
 terms may be grouped using apostrophes, plus and minus signs may be optionally
 prepended to the terms to determine whether the given term should be included
 or not. Example::
@@ -197,20 +341,15 @@ or not. Example::
     +Django "Shop software" -Satchmo
 
 Please note that you can search fields from other models too. You should
-be careful when traversing many-to-many relations however, because you will
-get duplicated results if you do not call ``.distinct()`` on the resulting
-queryset.
+be careful when traversing many-to-many or reverse foreign key relations
+however, because you will get duplicated results if you do not call
+:py:meth:`~django.db.models.query.QuerySet.distinct` on the resulting queryset.
 
-The method ``def _search(self, query)`` does the heavy lifting when
-constructing a queryset. You should not need to override this method. If you
-want to customize the results further, f.e. apply a site-wide limit for the
-objects a certain logged in user may see, you should override
-``def search(self, query)``. The default :class:`~towel.modelview.ModelView`
-implementation assumes this method signature, but you may of course modify it
-freely if you want to use this manager with other or modified code. The default
-implementation of ``def search(self, query)`` simply calls
-``def _search(self, query)``.
-
+The method :py:meth:`~towel.managers.SearchManager._search` does the heavy
+lifting when constructing a queryset. You should not need to override this
+method. If you want to customize the results further, f.e. apply a site-wide
+limit for the objects a certain logged in user may see, you should override
+:py:meth:`~towel.managers.SearchManager.search`.
 
 Next, we have to create a :class:`~towel.forms.SearchForm` subclass::
 
@@ -224,7 +363,7 @@ Next, we have to create a :class:`~towel.forms.SearchForm` subclass::
         published_on__lte = forms.DateField(required=False)
         published_on__gte = forms.DateField(required=False)
 
-        formfield_callback = towel_forms.stripped_formfield_callback
+        formfield_callback = towel_forms.towel_formfield_callback
 
 
 You have to add ``required=False`` to every field if you do not want validation
@@ -261,15 +400,18 @@ especially if users want to do complex searches.
 
 
 
+.. _modelview-object-detail:
+
 Object detail pages
 ===================
 
-Object detail pages are handled by ``detail_view``. All parameters captured in
-the ``urlconf_detail_re`` regex are passed on to ``get_object_or_404``, which
-passes them to ``get_object``. ``get_object`` first calls ``get_query_set``,
-and tries finding a model thereafter.
+Object detail pages are handled by :py:func:`detail_view`. All parameters
+captured in the :py:attr:`urlconf_detail_re` regex are passed on to
+:py:func:`get_object_or_404`, which passes them to :py:func:`get_object`.
+:py:func:`get_object` first calls :py:func:`get_query_set`, and tries finding
+a model thereafter.
 
-The rendering is handled by ``render_detail``; the templates tried are
+The rendering is handled by :py:func:`render_detail`; the templates tried are
 
 * ``<app_label>/<model_name>_detail.html`` (in our case, ``myapp/book_detail.html``)
 * ``modelview/object_detail.html``
@@ -278,7 +420,7 @@ The model instance is passed as ``object`` into the template by default. This
 can be customized by setting ``template_object_name`` to a different value.
 
 
-.. _adding-updating:
+.. _modelview-adding-updating:
 
 Adding and updating objects
 ===========================
@@ -290,23 +432,30 @@ objects are shared for a big part.
 ``add_view`` and ``edit_view`` are called first. They defer most of their work
 to helper methods.
 
-.. function:: add_view(self, request)
+.. method:: add_view(self, request)
 
    ``add_view`` does not accept any arguments.
 
 
-.. function:: edit_view(self, request, *args, **kwargs)
+.. method:: edit_view(self, request, \*args, \*\*kwargs)
 
-   ``*args`` and ``**kwargs`` are passed as they are directly into ``get_object``.
+   ``args`` and ``kwargs`` are passed as they are directly into
+   :py:func:`get_object`.
 
 
-.. function:: get_form(self, request, instance=None, change=None, **kwargs)
+.. method:: process_form(self, request, intance=None, change=None)
+
+   These are the common bits of :py:meth:`add_view` and :py:meth:`edit_view`.
+
+
+.. method:: get_form(self, request, instance=None, change=None, \*\*kwargs)
 
    Return a Django form class. The default implementation returns the result
-   of ``modelform_factory(self.model, **kwargs)``.
+   of calling :py:func:`~django.forms.models.modelform_factory`. Keyword
+   arguments are forwarded to the factory invocation.
 
 
-.. function:: get_form_instance(self, request, form_class, instance=None, change=None, **kwargs)
+.. method:: get_form_instance(self, request, form_class, instance=None, change=None, \*\*kwargs)
 
    Instantiate the form, for the given instance in the editing case.
 
@@ -314,13 +463,13 @@ to helper methods.
    ``extend_args_if_post`` and ``**kwargs``.
 
 
-.. function:: extend_args_if_post(self, request, args)
+.. method:: extend_args_if_post(self, request, args)
 
    Inserts ``request.POST`` and ``request.FILES`` at the beginning of ``args``
    if ``request.method`` is ``POST``.
 
 
-.. function:: get_formset_instances(self, request, instance=None, change=None, **kwargs)
+.. method:: get_formset_instances(self, request, instance=None, change=None, \*\*kwargs)
 
    Returns an empty ``dict`` by default. Construct your formsets if you want
    any in this method::
@@ -336,37 +485,36 @@ to helper methods.
                    'books': BookFormSet(prefix='books', *args, **kwargs),
                    }
 
-
-.. function:: save_form(self, request, form, change)
+.. method:: save_form(self, request, form, change)
 
    Return an unsaved instance when editing an object. ``change`` is ``True``
    if editing an object.
 
 
-.. function:: save_model(self, request, instance, form, change)
+.. method:: save_model(self, request, instance, form, change)
 
    Save the instance to the database. ``change`` is ``True`` if editing
    an object.
 
 
-.. function:: save_formsets(self, request, form, formsets, change)
+.. method:: save_formsets(self, request, form, formsets, change)
 
    Iterates through the ``formsets`` ``dict``, calling ``save_formset`` on
    each.
 
 
-.. function:: save_formset(self, request, form, formset, change)
+.. method:: save_formset(self, request, form, formset, change)
 
    Actually saves the formset instances.
 
 
-.. function:: post_save(self, request, form, formset, change)
+.. method:: post_save(self, request, form, formset, change)
 
    Hook for adding custom processing after forms, formsets and m2m relations
    have been saved. Does nothing by default.
 
 
-.. function:: render_form(self, request, context, change)
+.. method:: render_form(self, request, context, change)
 
    Offloads work to ``get_template``, ``get_context`` and ``render_to_response``.
    The templates tried when rendering are:
@@ -375,8 +523,8 @@ to helper methods.
    * ``modelview/object_form.html``
 
 
-.. function:: response_add
-.. function:: response_edit
+.. method:: response_add
+.. method:: response_edit
 
    They add a message using the ``django.contrib.messages`` framework and redirect
    the user to the appropriate place, being the detail page of the edited object
@@ -384,7 +532,7 @@ to helper methods.
 
 
 
-.. _deletion:
+.. _modelview-deletion:
 
 Object deletion
 ===============
@@ -474,7 +622,7 @@ Next, you have to override ``save_formsets``::
    infinite recursion.
 
 
-.. _standard-context:
+.. _modelview-standard-context:
 
 Standard context variables
 ==========================
@@ -486,17 +634,18 @@ The following variables are always added to the context:
 * ``list_url``
 * ``add_url``
 * ``base_template``
+* ``search_form`` if :py:attr:`search_form_everywhere` is ``True``
 
-``RequestContext`` is used, therefore all configured context processors are
-executed too.
+:py:class:`~django.template.RequestContext` is used, therefore all configured
+context processors are executed too.
 
 
-.. _permissions:
+.. _modelview-permissions:
 
 Permissions
 ===========
 
-ModelView's ``get_urls`` method assumes that there are two groups of users with
+:py:func:`get_urls` assumes that there are two groups of users with
 potentially differing permissions: Those who are only allowed to view and those
 who may add, change or update objects.
 
@@ -513,24 +662,24 @@ do the following::
         crud_view_decorator=staff_member_required,
         )
 
-If ``crud_view_decorator`` is not provided, it defaults to ``view_decorator``.
-``view_decorator`` defaults to ``lambda f: f``, which means that no checking
-is performed.
+If :py:func:`crud_view_decorator` is not provided, it defaults to
+:py:func:`view_decorator`, which defaults to returning the function as-is.
+This means that by default, you do not get any view decorators.
 
 Additionally, ModelView offers the following hooks for customizing permissions:
 
-.. function:: adding_allowed(self, request)
-.. function:: editing_allowed(self, request, instance)
+.. method:: adding_allowed(self, request)
+.. method:: editing_allowed(self, request, instance)
 
     Return ``True`` by default.
 
-.. function:: deletion_allowed(self, request, instance)
+.. method:: deletion_allowed(self, request, instance)
 
-   Was already discussed under :ref:`deletion`.
+   Was already discussed under :ref:`modelview-deletion`. Returns ``False``
+   by default.
 
 
-
-.. _batch-processing:
+.. _modelview-batch-processing:
 
 Batch processing
 ================
@@ -547,7 +696,7 @@ do this by editing each of them by hand, or by thinking earlier and doing this::
     class BookBatchForm(towel_forms.BatchForm):
         publisher = forms.ModelChoiceField(Publisher.objects.all(), required=False)
 
-        formfield_callback = towel_forms.stripped_formfield_callback
+        formfield_callback = towel_forms.towel_formfield_callback
 
         def _context(self, batch_queryset):
             data = self.cleaned_data
