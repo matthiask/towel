@@ -288,7 +288,7 @@ A typical request-response cycle
 
 
 The serializer
-=============
+==============
 
 .. class:: Serializer()
 

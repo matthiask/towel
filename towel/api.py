@@ -35,7 +35,7 @@ class APIException(Exception):
             status=httplib.NOT_IMPLEMENTED)
 
     Additional information can be passed through by setting the ``data``
-    argument to a dict instance. The :ref:`~towel.api.APIException` handler
+    argument to a dict instance. The :py:exc:`~towel.api.APIException` handler
     will merge the dict into the default error data and return everything
     to the client::
 
