@@ -571,10 +571,10 @@ class Resource(generic.View):
     #: Higher values than this will not be accepted for ``limit``
     max_limit_per_page = 1000
 
-    #: Almost the same as ``django.views.generic.View.http_method_names`` but not quite,
-    #: we allow ``patch``, but do not allow ``options`` and ``trace``.
-    # TODO OPTIONS support
-    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch', 'options']
+    #: Almost the same as ``django.views.generic.View.http_method_names`` but
+    #: not quite, we allow ``patch`` as well.
+    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch',
+        'options', 'trace']
 
     def dispatch(self, request, *args, **kwargs):
         """
