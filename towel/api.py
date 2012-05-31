@@ -186,6 +186,8 @@ class API(object):
             'resources': [],
             }
 
+        # TODO add bare views
+
         for resource in self.resources:
             r = {
                 '__unicode__': resource['model'].__name__.lower(),
@@ -282,6 +284,9 @@ class API(object):
 
         The prefix is automatically determined if not given based on the
         function name.
+
+        The view receives an additional keyword argument ``api`` containing the
+        API instance.
         """
         self.views.append({
             'prefix': prefix or r'^%s/' % view.__name__,
