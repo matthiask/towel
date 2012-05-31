@@ -396,8 +396,7 @@ Utility functions
       and a prettified value. The prettified values are delivered inside the
       ``__pretty__`` dictionary for your convenience.
     - The primary key of the model instance is always available as
-      ``__pk__``. The primary key field on the model itself is skipped during
-      the serialization.
+      ``__pk__``.
 
 
 .. function:: querystring(data, exclude=(), \**kwargs)
