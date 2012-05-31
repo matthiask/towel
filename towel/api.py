@@ -15,6 +15,7 @@ from django.db import models
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_vary_headers
+from django.utils.functional import curry
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
@@ -123,6 +124,7 @@ class API(object):
 
         self.resources = []
         self.serializers = {}
+        self.views = []
 
     @property
     def urls(self):
@@ -144,8 +146,15 @@ class API(object):
             view = dec(view)
 
         urlpatterns = [
-            url(r'^$', csrf_exempt(view), name='api_%s' % self.name),
+            url(r'^$', view, name='api_%s' % self.name),
             ]
+
+        for view in self.views:
+            fn = curry(view['view'], api=self)
+            for dec in reversed(self.decorators):
+                fn = dec(fn)
+
+            urlpatterns.append(url(view['prefix'], fn))
 
         for resource in self.resources:
             urlpatterns.append(url(
@@ -266,6 +275,18 @@ class API(object):
         """
         serializer = self.serializers.get(instance.__class__, serialize_model_instance)
         return serializer(instance, api=self, **kwargs)
+
+    def add_view(self, view, prefix=None):
+        """
+        Add custom views to this API
+
+        The prefix is automatically determined if not given based on the
+        function name.
+        """
+        self.views.append({
+            'prefix': prefix or r'^%s/' % view.__name__,
+            'view': view,
+            })
 
 
 def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
