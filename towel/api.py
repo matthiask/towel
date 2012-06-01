@@ -186,7 +186,11 @@ class API(object):
             'resources': [],
             }
 
-        # TODO add bare views
+        for view in self.views:
+            response.setdefault('views', []).append({
+                '__unicode__': view['prefix'].strip('^').strip('/'),
+                '__uri__': u''.join((response['__uri__'], view['prefix'].strip('^'))),
+                })
 
         for resource in self.resources:
             r = {
