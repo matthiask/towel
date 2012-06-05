@@ -55,7 +55,8 @@ class ModelView(object):
     #: do not want the primary key in the URL.
     urlconf_detail_re = r'(?P<pk>\d+)'
 
-    #: Paginate list views by this much. ``None`` means no pagination (the default).
+    #: Paginate list views by this much. ``None`` means no pagination (the
+    #: default).
     paginate_by = None
 
     #: By default, showing all objects on one page is allowed
@@ -78,24 +79,34 @@ class ModelView(object):
 
     #: Messages dictionary to centrally control all possible messages
     default_messages = {
-        'object_created': (messages.SUCCESS, _('The new object has been successfully created.')),
-        'adding_denied': (messages.ERROR, ('You are not allowed to add objects.')),
-        'object_updated': (messages.SUCCESS, _('The object has been successfully updated.')),
-        'editing_denied': (messages.ERROR, _('You are not allowed to edit this object.')),
-        'object_deleted': (messages.SUCCESS, _('The object has been successfully deleted.')),
-        'deletion_denied': (messages.ERROR, _('You are not allowed to delete this object.')),
-        'deletion_denied_related': (messages.ERROR, _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
+        'object_created': (messages.SUCCESS,
+            _('The new object has been successfully created.')),
+        'adding_denied': (messages.ERROR,
+            _('You are not allowed to add objects.')),
+        'object_updated': (messages.SUCCESS,
+            _('The object has been successfully updated.')),
+        'editing_denied': (messages.ERROR,
+            _('You are not allowed to edit this object.')),
+        'object_deleted': (messages.SUCCESS,
+            _('The object has been successfully deleted.')),
+        'deletion_denied': (messages.ERROR,
+            _('You are not allowed to delete this object.')),
+        'deletion_denied_related': (messages.ERROR,
+            _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
     }
 
     #: User defined messages
     custom_messages = {}
 
-    def add_message(self, request, message, variables=None, level=None, **kwargs):
+    def add_message(self, request, message, variables=None, level=None,
+            **kwargs):
         """
-        This helper function is used to easily add messages for the current user.
+        This helper function is used to easily add messages for the current
+        user.
 
         ``message`` may either be a key for the ``custom_messages`` and
-        ``default_messages`` dictionary or a string containing the message itself.
+        ``default_messages`` dictionary or a string containing the message
+        itself.
 
         ``variables`` may be a dictionary used for string interpolation if the
         message contains placeholders.
@@ -106,8 +117,8 @@ class ModelView(object):
         the ``level`` argument.
 
         Additional keyword arguments are passed on directly to
-        ``messages.add_message``. This can be used f.e. to easily add extra tags
-        to the message.
+        ``messages.add_message``. This can be used f.e. to easily add extra
+        tags to the message.
 
         Usage::
 
@@ -115,7 +126,8 @@ class ModelView(object):
             self.add_message(request, 'object_created')
 
             # Add a custom message with a custom level
-            self.add_message(request, _('Whatever you mean'), level=messages.WARNING)
+            self.add_message(request, _('Whatever you mean'),
+                level=messages.WARNING)
 
             # Add extra tags to a default message
             self.add_message(request, 'deletion_denied', extra_tags='funky')
@@ -153,7 +165,8 @@ class ModelView(object):
             setattr(self, key, value)
 
         if not hasattr(self.model, 'get_absolute_url'):
-            # Add a simple primary key based URL to the model if it does not have one yet
+            # Add a simple primary key based URL to the model if it does not
+            # have one yet
             info = self.model._meta.app_label, self.model._meta.module_name
             self.model.get_absolute_url = models.permalink(lambda self: (
                 '%s_%s_detail' % info, (self.pk,), {}))
@@ -241,17 +254,22 @@ class ModelView(object):
         """
         Define additional URLs for the modelview.
 
-        You are responsible yourself for wrapping the views with permission decorators etc.
+        You are responsible yourself for wrapping the views with permission
+        decorators etc.
 
-        The following example will add three views; %(detail)s is replaced with the
-        regular expression ``urlconf_detail_re``. The URL pattern name is determined by
-        ``<app_label>_<module_name>_<ident>``, where ``ident`` is either the third argument
-        in the URL specification or the function name of the passed view::
+        The following example will add three views; %(detail)s is replaced with
+        the regular expression ``urlconf_detail_re``. The URL pattern name is
+        determined by ``<app_label>_<module_name>_<ident>``, where ``ident`` is
+        either the third argument in the URL specification or the function name
+        of the passed view::
 
             return [
-                (r'^autocomplete/$', self.view_decorator(self.autocomplete)),
-                (r'^%(detail)s/statistics/$', self.view_decorator(self.statistics), 'anything'),
-                (r'^%(detail)s/something/$', self.crud_view_decorator(self.something), 'something'),
+                (r'^autocomplete/$',
+                    self.view_decorator(self.autocomplete)),
+                (r'^%(detail)s/statistics/$',
+                    self.view_decorator(self.statistics), 'anything'),
+                (r'^%(detail)s/something/$',
+                    self.crud_view_decorator(self.something), 'something'),
                 ]
         """
 
@@ -285,8 +303,8 @@ class ModelView(object):
         try:
             return queryset.get(*args, **kwargs)
         except (ValueError, ValidationError):
-            raise self.model.DoesNotExist(
-                u'No %s matches the given query.' % self.model._meta.object_name)
+            raise self.model.DoesNotExist(u'No %s matches the given query.' % (
+                self.model._meta.object_name))
 
     def get_object_or_404(self, request, *args, **kwargs):
         """
@@ -295,7 +313,8 @@ class ModelView(object):
         try:
             return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
-            raise Http404(u'No %s matches the given query.' % self.model._meta.object_name)
+            raise Http404(u'No %s matches the given query.' % (
+                self.model._meta.object_name))
 
     def get_form(self, request, instance=None, change=None, **kwargs):
         """
@@ -321,7 +340,8 @@ class ModelView(object):
 
         return args
 
-    def get_form_instance(self, request, form_class, instance=None, change=None, **kwargs):
+    def get_form_instance(self, request, form_class, instance=None,
+            change=None, **kwargs):
         """
         Returns the form instance
 
@@ -332,7 +352,8 @@ class ModelView(object):
 
         return form_class(*args, **kwargs)
 
-    def get_formset_instances(self, request, instance=None, change=None, **kwargs):
+    def get_formset_instances(self, request, instance=None, change=None,
+            **kwargs):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
@@ -559,7 +580,8 @@ class ModelView(object):
         ctx['full_%s' % self.template_object_list_name] = queryset
 
         if self.paginate_by:
-            page, paginator = self.paginate_object_list(request, queryset, self.paginate_by)
+            page, paginator = self.paginate_object_list(request, queryset,
+                self.paginate_by)
 
             ctx.update({
                 self.template_object_list_name: page.object_list,
@@ -573,7 +595,8 @@ class ModelView(object):
 
     def handle_search_form(self, request, ctx, queryset=None):
         """
-        Must return a tuple consisting of a queryset and either a HttpResponse or None
+        Must return a tuple consisting of a queryset and either a HttpResponse
+        or ``None``
         """
 
         if queryset is None:
@@ -589,7 +612,8 @@ class ModelView(object):
 
     def handle_batch_form(self, request, ctx, queryset):
         """
-        May optionally return a HttpResponse which is directly returned to the browser
+        May optionally return a HttpResponse which is directly returned to the
+        browser
         """
 
         if self.batch_form:
@@ -619,7 +643,7 @@ class ModelView(object):
 
     def process_form(self, request, instance=None, change=None):
         """
-        form processor used by add_view and edit_view
+        Processes forms, used by ``add_view`` and ``edit_view``
         """
 
         new_instance = None
@@ -627,27 +651,33 @@ class ModelView(object):
         ModelForm = self.get_form(request, instance, change=change)
 
         if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm, instance=instance, change=change)
+            form = self.get_form_instance(request, ModelForm,
+                instance=instance, change=change)
 
             if form.is_valid():
                 new_instance = self.save_form(request, form, change=change)
                 form_validated = True
             else:
-                new_instance = instance if (instance is not None) else self.model()
+                new_instance = self.model() if instance is None else instance
                 form_validated = False
 
-            formsets = self.get_formset_instances(request, instance=new_instance, change=change)
+            formsets = self.get_formset_instances(request,
+                instance=new_instance, change=change)
+
             if all_valid(formsets.itervalues()) and form_validated:
                 with transaction.commit_on_success():
                     self.save_model(request, new_instance, form, change=change)
                     form.save_m2m()
                     self.save_formsets(request, form, formsets, change=change)
-                    self.post_save(request, new_instance, form, formsets, change=change)
+                    self.post_save(request, new_instance, form, formsets,
+                        change=change)
 
                 valid = True
         else:
-            form = self.get_form_instance(request, ModelForm, instance=instance, change=change,)
-            formsets = self.get_formset_instances(request, instance=instance, change=change)
+            form = self.get_form_instance(request, ModelForm,
+                instance=instance, change=change,)
+            formsets = self.get_formset_instances(request, instance=instance,
+                change=change)
 
         return form, formsets, new_instance, valid
 
@@ -658,7 +688,8 @@ class ModelView(object):
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
-        form, formsets, new_instance, valid = self.process_form(request, change=False)
+        form, formsets, new_instance, valid = self.process_form(request,
+            change=False)
 
         if valid:
             return self.response_add(request, new_instance, form, formsets)
@@ -689,7 +720,8 @@ class ModelView(object):
         if not self.editing_allowed(request, instance):
             return self.response_editing_denied(request, instance)
 
-        form, formsets, new_instance, valid = self.process_form(request, instance=instance, change=True)
+        form, formsets, new_instance, valid = self.process_form(request,
+            instance=instance, change=True)
 
         if valid:
             return self.response_edit(request, new_instance, form, formsets)
@@ -734,7 +766,9 @@ class ModelView(object):
             related.discard(class_)
 
         if len(related):
-            pretty_classes = [unicode(class_._meta.verbose_name_plural) for class_ in related]
+            pretty_classes = [unicode(class_._meta.verbose_name_plural)
+                for class_ in related]
+
             if len(pretty_classes) > 1:
                 pretty_classes = u''.join((
                     u', '.join(pretty_classes[:-1]),
@@ -748,7 +782,8 @@ class ModelView(object):
 
         return not len(related)
 
-    def save_formset_deletion_allowed_if_only(self, request, form, formset, change, classes):
+    def save_formset_deletion_allowed_if_only(self, request, form, formset,
+            change, classes):
         """
         Helper which has is most useful when used inside ``save_formsets``
 
@@ -766,7 +801,8 @@ class ModelView(object):
                     request, form, formsets['states'], change, [SomeModel])
 
                 # No special handling for other formsets
-                self.save_formset(request, form, formsets['otherformset'], change)
+                self.save_formset(request, form, formsets['otherformset'],
+                    change=change)
 
         """
         with deletion.protect():
@@ -780,7 +816,9 @@ class ModelView(object):
                 related.discard(class_)
 
             if len(related):
-                pretty_classes = [unicode(class_._meta.verbose_name_plural) for class_ in related]
+                pretty_classes = [unicode(class_._meta.verbose_name_plural)
+                    for class_ in related]
+
                 if len(pretty_classes) > 1:
                     pretty_classes = u''.join((
                         u', '.join(pretty_classes[:-1]),
@@ -789,10 +827,8 @@ class ModelView(object):
                 else:
                     pretty_classes = pretty_classes[-1]
 
-                messages.error(request, _('Deletion of %(instance)s not allowed: <small>There are %(classes)s related to this object.</small>') % {
-                    'instance': instance,
-                    'classes': pretty_classes,
-                    })
+                self.add_message(request, 'deletion_denied_related', {
+                    'pretty_classes': pretty_classes})
             else:
                 instance.delete()
 
@@ -812,10 +848,12 @@ class ModelView(object):
             if not hasattr(obj, '_collected_objects'):
                 related_classes(obj)
 
-            collected_objects = [(key._meta, len(value)) for key, value in obj._collected_objects.items()]
+            collected_objects = [(key._meta, len(value)) for key, value
+                in obj._collected_objects.items()]
 
             return self.render_delete_confirmation(request, {
-                'title': _('Delete %s') % force_unicode(self.model._meta.verbose_name),
+                'title': _('Delete %s') % force_unicode(
+                    self.model._meta.verbose_name),
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
                 })

@@ -9,15 +9,18 @@ from towel import queryset_transform
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
                     normspace=re.compile(r'\s{2,}').sub):
-    ''' Splits the query string in invidual keywords, getting rid of unecessary spaces
-        and grouping quoted words together.
-        Example:
+    """
+    Splits the query string in invidual keywords, getting rid of unecessary
+    spaces and grouping quoted words together.
+
+    Example::
 
         >>> normalize_query('  some random  words "with   quotes  " and   spaces')
         ['some', 'random', 'words', 'with quotes', 'and', 'spaces']
 
-    '''
-    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
+    """
+    return [normspace(' ', (t[0] or t[1]).strip())
+            for t in findterms(query_string)]
 
 
 class SearchManager(queryset_transform.TransformManager):
@@ -26,8 +29,8 @@ class SearchManager(queryset_transform.TransformManager):
 
     Does not use fulltext searching abilities of databases. Constructs a query
     searching specified fields for a freely definable search string. The
-    individual terms may be grouped by using apostrophes, and can be prefixed with
-    + or - signs to specify different searching modes::
+    individual terms may be grouped by using apostrophes, and can be prefixed
+    with + or - signs to specify different searching modes::
 
         +django "shop software" -satchmo
 
@@ -48,7 +51,8 @@ class SearchManager(queryset_transform.TransformManager):
 
     def search(self, query):
         """
-        This implementation stupidly forwards to _search, which does the gruntwork.
+        This implementation stupidly forwards to _search, which does the
+        gruntwork.
 
         Put your customizations in here.
         """
@@ -75,11 +79,11 @@ class SearchManager(queryset_transform.TransformManager):
 
             if negate:
                 q = reduce(lambda p, q: p & q,
-                    (~Q(**{'%s__icontains' % field: keyword}) for field in fields),
+                    (~Q(**{'%s__icontains' % f: keyword}) for f in fields),
                     Q())
             else:
                 q = reduce(lambda p, q: p | q,
-                    (Q(**{'%s__icontains' % field: keyword}) for field in fields),
+                    (Q(**{'%s__icontains' % f: keyword}) for f in fields),
                     Q())
 
             queryset = queryset.filter(q)

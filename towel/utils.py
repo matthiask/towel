@@ -77,7 +77,8 @@ def parse_args_and_kwargs(parser, bits):
 
         @register.tag
         def custom(parser, token):
-            return CustomNode(*parse_args_and_kwargs(parser, token.split_contents()[1:]))
+            return CustomNode(*parse_args_and_kwargs(parser,
+                token.split_contents()[1:]))
 
         class CustomNode(template.Node):
             def __init__(self, args, kwargs):
@@ -85,7 +86,8 @@ def parse_args_and_kwargs(parser, bits):
                 self.kwargs = kwargs
 
             def render(self, context):
-                args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
+                args, kwargs = resolve_args_and_kwargs(context, self.args,
+                    self.kwargs)
                 return self._render(context, *args, **kwargs):
 
             def _render(self, context, ...):
@@ -108,8 +110,8 @@ def parse_args_and_kwargs(parser, bits):
 
 def resolve_args_and_kwargs(context, args, kwargs):
     """
-    Resolves arguments and keyword arguments parsed by ``parse_args_and_kwargs`` using
-    the passed context instance
+    Resolves arguments and keyword arguments parsed by
+    ``parse_args_and_kwargs`` using the passed context instance
 
     See ``parse_args_and_kwargs`` for usage instructions.
     """

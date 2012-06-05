@@ -25,10 +25,12 @@ def flatatt(attrs):
     """
     Convert a dictionary of attributes to a single string.
     The returned string will contain a leading space followed by key="value",
-    XML-style pairs.  It is assumed that the keys do not need to be XML-escaped.
-    If the passed dictionary is empty, then return an empty string.
+    XML-style pairs.  It is assumed that the keys do not need to be
+    XML-escaped.  If the passed dictionary is empty, then return an empty
+    string.
     """
-    return u''.join([u' %s="%s"' % (k, conditional_escape(v)) for k, v in attrs.items()])
+    return u''.join([u' %s="%s"' % (k, conditional_escape(v)) for k, v
+        in attrs.items()])
 
 
 @register.tag
@@ -76,7 +78,8 @@ class EditableNode(template.Node):
         try:
             counter = context['towel_editable_counter']
         except KeyError:
-            counter = context.dicts[0]['towel_editable_counter'] = generate_counter()
+            counter = context.dicts[0]['towel_editable_counter'] = (
+                generate_counter())
 
         ident = 'towel_editable_%s' % counter.next()
 
@@ -90,7 +93,8 @@ class EditableNode(template.Node):
                 dependencies.setdefault(field, []).append(ident)
 
         except KeyError:
-            # Ignore this silently -- towel_editable will not be available most of the time
+            # Ignore this silently -- towel_editable will not be available most
+            # of the time
             pass
 
         attrs = {

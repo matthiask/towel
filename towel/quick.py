@@ -128,8 +128,8 @@ def model_choices_mapper(data, attribute):
             visibility = models.CharField(choices=VISIBILITY_CHOICES)
 
         QUICK_RULES = [
-            (re.compile(r'~(?P<value>[^\s]+)'),
-                quick.model_choices_mapper(Ticket.VISIBILITY_CHOICES, 'visibility')),
+            (re.compile(r'~(?P<value>[^\s]+)'), quick.model_choices_mapper(
+                Ticket.VISIBILITY_CHOICES, 'visibility')),
             ]
     """
     reverse = dict((unicode(v), k) for k, v in data)

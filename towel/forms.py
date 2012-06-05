@@ -3,6 +3,7 @@ import pickle
 
 from django import forms
 from django.db import models
+from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
@@ -47,10 +48,9 @@ class BatchForm(forms.Form):
                 if sent:
                     messages.success(self.request, 'Sent %s emails.' % sent)
                 return {
-                    'batch_items': batch_queryset, # Return the batch items so that
-                                                   # the list view template has a chance
-                                                   # to display all affected instances
-                                                   # somehow.
+                    # Return the batch items so that the list view template
+                    # has a chance to display all affected instances somehow.
+                    'batch_items': batch_queryset,
                     }
 
         def addresses(request):
@@ -93,7 +93,8 @@ class BatchForm(forms.Form):
 
         if request.method == 'POST' and 'batchform' in request.POST:
             self.process = True
-            super(BatchForm, self).__init__(request.POST, request.FILES, *args, **kwargs)
+            super(BatchForm, self).__init__(request.POST, request.FILES,
+                *args, **kwargs)
         else:
             super(BatchForm, self).__init__(*args, **kwargs)
 
@@ -109,7 +110,8 @@ class BatchForm(forms.Form):
         return ctx
 
     def _context(self, batch_queryset):
-        raise NotImplementedError('BatchForm._context has no default implementation.')
+        raise NotImplementedError(
+            'BatchForm._context has no default implementation.')
 
     def selected_items(self, post_data, queryset):
         self.ids = queryset.values_list('id', flat=True)
@@ -322,11 +324,12 @@ class SearchForm(forms.Form):
                 if field in exclude:
                     continue
 
-                if field.endswith('_') and (field[:-1] in quick_only or field[:-1] in self.fields):
-                    # Either ``quick.model_mapper`` wanted to trick us and added
-                    # the model instance, too, or the quick mechanism filled
-                    # an existing form field which means that the attribute has
-                    # already been handled above.
+                if field.endswith('_') and (
+                        field[:-1] in quick_only or field[:-1] in self.fields):
+                    # Either ``quick.model_mapper`` wanted to trick us and
+                    # added the model instance, too, or the quick mechanism
+                    # filled an existing form field which means that the
+                    # attribute has already been handled above.
                     continue
 
                 value = data.get(field)
@@ -377,7 +380,8 @@ class SearchForm(forms.Form):
             data = self.safe_cleaned_data
 
             if self.quick_rules:
-                data, query = quick.parse_quickadd(data.get('query'), self.quick_rules)
+                data, query = quick.parse_quickadd(data.get('query'),
+                    self.quick_rules)
                 query = u' '.join(query)
 
                 # Data in form fields overrides any quick specifications
@@ -411,12 +415,12 @@ class WarningsForm(forms.BaseForm):
     The warnings support consists of the following methods and properties:
 
     * ``WarningsForm.add_warning(<warning>)``: Adds a new warning message
-    * ``WarningsForm.warnings``: A list of warnings or an empty list if there are
-      none.
-    * ``WarningsForm.is_valid()``: Overridden ``Form.is_valid()`` implementation
-      which returns ``False`` for otherwise valid forms with warnings, if those
-      warnings have not been explicitly ignored (by checking a checkbox or by
-      passing ``ignore_warnings=True`` to ``is_valid()``.
+    * ``WarningsForm.warnings``: A list of warnings or an empty list if there
+      are none.
+    * ``WarningsForm.is_valid()``: Overridden ``Form.is_valid()``
+      implementation which returns ``False`` for otherwise valid forms with
+      warnings, if those warnings have not been explicitly ignored (by checking
+      a checkbox or by passing ``ignore_warnings=True`` to ``is_valid()``.
     * An additional form field named ``ignore_warnings`` is available - this
       field should only be displayed if ``WarningsForm.warnings`` is non-emtpy.
     """
@@ -502,8 +506,8 @@ def towel_formfield_callback(field, **kwargs):
 def stripped_formfield_callback(field, **kwargs):
     import warnings
     warnings.warn(
-        'stripped_formfield_callback has been renamed to towel_formfield_callback,'
-        ' please start using the new name.',
+        'stripped_formfield_callback has been renamed to'
+        ' towel_formfield_callback, please start using the new name.',
         DeprecationWarning, stacklevel=2)
     return towel_formfield_callback(field, **kwargs)
 
@@ -528,7 +532,8 @@ class ModelAutocompleteWidget(forms.TextInput):
     """
 
     def __init__(self, attrs=None, url=None, queryset=None):
-        assert (url is None) != (queryset is None), 'Provide either url or queryset'
+        assert (url is None) != (queryset is None), ('Provide either url'
+            ' or queryset')
 
         self.url = url
         self.queryset = queryset
@@ -549,9 +554,9 @@ class ModelAutocompleteWidget(forms.TextInput):
         del final_attrs['name']
 
         try:
-            model = self.choices.queryset.get(pk=value)
-            final_attrs['value'] = force_unicode(model)
-        except (self.choices.queryset.model.DoesNotExist, ValueError, TypeError):
+            instance = self.choices.queryset.get(pk=value)
+            final_attrs['value'] = force_unicode(instance)
+        except (ObjectDoesNotExist, ValueError, TypeError):
             final_attrs['value'] = u''
 
         if self.is_required:
@@ -681,9 +686,11 @@ $(function() {
     });
 });
 </script>
-''' % {'id': final_attrs.get('id', name), 'name': name, 'source': self._source()}
+''' % {'id': final_attrs.get('id', name), 'name': name,
+       'source': self._source()}
 
-        return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs), value) + js)
+        return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs),
+            value) + js)
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
@@ -696,6 +703,7 @@ $(function() {
 
     def _source(self):
         return u'''function(request, response) {
-            response($.ui.autocomplete.filter(%(data)s, extractLast(request.term))); }''' % {
-                'data': json.dumps([unicode(o) for o in self.queryset._clone()]),
-                }
+    response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
+    }''' % {
+            'data': json.dumps([unicode(o) for o in self.queryset._clone()]),
+            }

@@ -16,7 +16,7 @@ def model_row(instance, fields):
 
         {% for object in object_list %}
             <tr>
-            {% for verbose_name, field in object|model_row:"name,get_absolute_url" %}
+            {% for verbose_name, field in object|model_row:"name,url" %}
                 <td>{{ field }}</td>
             {% endfor %}
             </tr>
@@ -61,8 +61,8 @@ def pagination(context, page, paginator, where=None):
     The argument ``where`` can be used inside the pagination template to
     discern between pagination at the top and at the bottom of an object
     list (if you wish). The default object list template passes
-    ``"top"`` or ``"bottom"`` to the pagination template. The default pagination
-    template does nothing with this value though.
+    ``"top"`` or ``"bottom"`` to the pagination template. The default
+    pagination template does nothing with this value though.
     """
 
     return {
@@ -84,7 +84,8 @@ def querystring(data, exclude='page,all'):
     exclude = exclude.split(',')
 
     items = reduce(operator.add,
-        (list((k, v.encode('utf-8')) for v in values) for k, values in data.iterlists() if k not in exclude),
+        (list((k, v.encode('utf-8')) for v in values) for k, values
+            in data.iterlists() if k not in exclude),
         [])
 
     return urllib.urlencode(items)
@@ -96,12 +97,12 @@ def ordering_link(field, request, title=None, base_url=u''):
     Shows a table column header suitable for use as a link to change the
     ordering of objects in a list::
 
-        {% ordering_link "" request title=_("Edition") %} {# default ordering #}
+        {% ordering_link "" request title=_("Edition") %} {# default order #}
         {% ordering_link "customer" request title=_("Customer") %}
         {% ordering_link "state" request title=_("State") %}
 
-    Required arguments are the field and the request. It is very much recommended
-    to add a title too of course.
+    Required arguments are the field and the request. It is very much
+    recommended to add a title too of course.
     """
 
     qs = querystring(request.GET, 'page,all,o')

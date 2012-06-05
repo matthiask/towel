@@ -20,7 +20,8 @@ def editfields(modelview, request, instance, form_class=None):
     """
     # Get base modelform
     if not form_class:
-        form_class = modelview.get_form(request, instance=instance, change=True)
+        form_class = modelview.get_form(request, instance=instance,
+            change=True)
 
     # Compile list of fields to be edited. If the base modelform already
     # specifies Meta.fields, make sure that _edit only contains fields
@@ -45,13 +46,15 @@ def editfields(modelview, request, instance, form_class=None):
         return HttpResponse('')
 
     # Construct new form_class with only a restricted set of fields
-    form_class = modelform_factory(modelview.model, form=form_class, fields=modelfields)
+    form_class = modelform_factory(modelview.model, form=form_class,
+        fields=modelfields)
     formsets = {}
 
     if request.method == 'POST':
         form = form_class(request.POST, request.FILES, instance=instance)
         if otherfields:
-            formsets = modelview.get_formset_instances(request, instance=instance, change=True,
+            formsets = modelview.get_formset_instances(request,
+                instance=instance, change=True,
                 formsets=otherfields)
 
         if form.is_valid() and all(f.is_valid() for f in formsets.values()):
@@ -70,14 +73,16 @@ def editfields(modelview, request, instance, form_class=None):
             for field in editfields:
                 widgets_to_update.extend(dependencies.get(field, []))
 
-            towel_editable = dict((key, value) for key, value in towel_editable.items()
+            towel_editable = dict((key, value) for key, value
+                in towel_editable.items()
                 if key in widgets_to_update)
 
             return HttpResponse(json.dumps(towel_editable))
     else:
         form = form_class(instance=instance)
         if otherfields:
-            formsets = modelview.get_formset_instances(request, instance=instance, change=True,
+            formsets = modelview.get_formset_instances(request,
+                instance=instance, change=True,
                 formsets=otherfields)
 
     return modelview.render(request,

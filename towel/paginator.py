@@ -75,10 +75,10 @@ class Page(paginator.Page):
         """
         Generates a list for displaying Digg-style pagination
 
-        The page numbers which are left out are indicated with a ``None`` value.
-        Please note that Django's paginator own ``page_range`` method isn't
-        overwritten -- Django's ``page_range`` is a method of the ``Paginator``
-        class, not the ``Page`` class.
+        The page numbers which are left out are indicated with a ``None``
+        value.  Please note that Django's paginator own ``page_range`` method
+        isn't overwritten -- Django's ``page_range`` is a method of the
+        ``Paginator`` class, not the ``Page`` class.
 
         Usage::
 

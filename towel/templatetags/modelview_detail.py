@@ -26,7 +26,8 @@ def model_details(instance, fields=None):
     if not fields:
         _fields = instance._meta.fields
     else:
-        _fields = [instance._meta.get_field_by_name(f)[0] for f in fields.split(',')]
+        _fields = [instance._meta.get_field_by_name(f)[0] for f
+            in fields.split(',')]
 
     for f in _fields:
         if f.auto_created:
