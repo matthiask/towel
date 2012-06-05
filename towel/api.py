@@ -70,9 +70,9 @@ Page = namedtuple('Page', 'queryset offset limit total')
 
 class API(object):
     """
-    This is the main API object. It does not do much except give an overview over
-    all resources. It will hold the necessary bits to have more than one API
-    with the same models or resources at the same time (f.e. versions).
+    This is the main API object. It does not do much except give an overview
+    over all resources. It will hold the necessary bits to have more than one
+    API with the same models or resources at the same time (f.e. versions).
 
     Usage::
 
@@ -189,13 +189,17 @@ class API(object):
         for view in self.views:
             response.setdefault('views', []).append({
                 '__unicode__': view['prefix'].strip('^').strip('/'),
-                '__uri__': u''.join((response['__uri__'], view['prefix'].strip('^'))),
+                '__uri__': u''.join((
+                    response['__uri__'],
+                    view['prefix'].strip('^'))),
                 })
 
         for resource in self.resources:
             r = {
                 '__unicode__': resource['model'].__name__.lower(),
-                '__uri__': u''.join((response['__uri__'], resource['prefix'].strip('^'))),
+                '__uri__': u''.join((
+                    response['__uri__'],
+                    resource['prefix'].strip('^'))),
                 }
 
             response['resources'].append(r)
@@ -209,28 +213,31 @@ class API(object):
             decorators=None, prefix=None, view_init=None,
             serializer=None):
         """
-        Registers another resource on this API. The sole required argument is the
-        Django model which should be exposed. The other arguments are:
+        Registers another resource on this API. The sole required argument is
+        the Django model which should be exposed. The other arguments are:
 
         - ``view_class``: The resource view class used, defaults to
           :class:`towel.api.Resource`.
-        - ``canonical``: Whether this resource is the canonical location of the
-          model in this API. Allows registering the same model several times in
-          the API (only one location should be the canonical location!)
+        - ``canonical``: Whether this resource is the canonical location of
+          the model in this API. Allows registering the same model several
+          times in the API (only one location should be the canonical
+          location!)
         - ``decorators``: A list of decorators which should be applied to the
-          view. Function decorators only, method decorators aren't supported. The
-          list is applied in reverse, the order is therefore the same as with the
-          ``@`` notation. If unset, the set of decorators is determined from the API
-          initialization. Pass an empty list if you want no decorators at all.
-          otherwise API POSTing will have to include a valid CSRF middleware token.
+          view. Function decorators only, method decorators aren't supported.
+          The list is applied in reverse, the order is therefore the same as
+          with the ``@`` notation. If unset, the set of decorators is
+          determined from the API initialization. Pass an empty list if you
+          want no decorators at all. Otherwise API POSTing will have to
+          include a valid CSRF middleware token.
         - ``prefix``: The prefix for this model, defaults to the model name in
-          lowercase. You should include a caret and a trailing slash if you specify
-          this yourself (``prefix=r'^library/'``).
-        - ``view_init``: Python dictionary which contains keyword arguments used
-          during the instantiation of the ``view_class``.
-        - ``serializer``: Function which takes a model instance, the API instance
-          and additional keyword arguments (accept ``**kwargs`` for forward
-          compatibility) and returns the serialized representation as a Python dict.
+          lowercase. You should include a caret and a trailing slash if you
+          specify this yourself (``prefix=r'^library/'``).
+        - ``view_init``: Python dictionary which contains keyword arguments
+          used during the instantiation of the ``view_class``.
+        - ``serializer``: Function which takes a model instance, the API
+          instance and additional keyword arguments (accept ``**kwargs`` for
+          forward compatibility) and returns the serialized representation as
+          a Python dict.
         """
 
         view_class = view_class or Resource
@@ -276,10 +283,11 @@ class API(object):
         Returns a serialized version of the passed model instance
 
         This method should always be used for serialization, because it knows
-        about custom serializers specified when registering resources with this
-        API.
+        about custom serializers specified when registering resources with
+        this API.
         """
-        serializer = self.serializers.get(instance.__class__, serialize_model_instance)
+        serializer = self.serializers.get(instance.__class__,
+            serialize_model_instance)
         return serializer(instance, api=self, **kwargs)
 
     def add_view(self, view, prefix=None):
@@ -289,8 +297,8 @@ class API(object):
         The prefix is automatically determined if not given based on the
         function name.
 
-        The view receives an additional keyword argument ``api`` containing the
-        API instance.
+        The view receives an additional keyword argument ``api`` containing
+        the API instance.
         """
         self.views.append({
             'prefix': prefix or r'^%s/' % view.__name__,
@@ -303,9 +311,9 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
     """
     Serializes a single model instance.
 
-    If ``inline_depth`` is a positive number, ``inline_depth`` levels of related
-    objects are inlined. The performance implications of this feature might be
-    severe! Note: Additional arguments specified when calling
+    If ``inline_depth`` is a positive number, ``inline_depth`` levels of
+    related objects are inlined. The performance implications of this feature
+    might be severe! Note: Additional arguments specified when calling
     ``serialize_model_instance`` such as ``exclude``, ``only_registered`` and
     further keyword arguments are currently **not** forwarded to inlined
     objects. Those parameters should be set upon resource registration time as
@@ -357,7 +365,8 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
         if f.rel:
             try:
-                data[f.name] = api_reverse(f.rel.to, 'detail', api_name=api.name,
+                data[f.name] = api_reverse(f.rel.to, 'detail',
+                    api_name=api.name,
                     pk=f.value_from_object(instance))
             except NoReverseMatch:
                 if only_registered:
@@ -367,9 +376,10 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                 related = getattr(instance, f.name)
 
                 if related:
-                    # XXX What about only_registered, kwargs? Should they be passed
-                    # to other calls as well, or should we assume that customization
-                    # can only happen using functools.partial upon registration time?
+                    # XXX What about only_registered, kwargs? Should they be
+                    # passed to other calls as well, or should we assume that
+                    # customization can only happen using functools.partial
+                    # upon registration time?
                     data[f.name] = api.serialize_instance(
                         related,
                         inline_depth=inline_depth - 1,
@@ -377,7 +387,8 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
             else:
                 try:
-                    data[f.name] = api_reverse(f.rel.to, 'detail', api_name=api.name,
+                    data[f.name] = api_reverse(f.rel.to, 'detail',
+                        api_name=api.name,
                         pk=f.value_from_object(instance))
                 except NoReverseMatch:
                     continue
@@ -427,7 +438,8 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
     """
     opts = model._meta
     try:
-        return reverse('_'.join((api_name, opts.app_label, opts.module_name, ident)),
+        return reverse(
+            '_'.join((api_name, opts.app_label, opts.module_name, ident)),
             kwargs=kwargs)
     except NoReverseMatch:
         if fail_silently:
@@ -442,17 +454,18 @@ class Serializer(object):
     Handles content type negotiation using the HTTP Accept header if the format
     isn't overridden.
     """
-    def serialize(self, data, output_format=None, request=None, status=httplib.OK,
-            headers={}):
+    def serialize(self, data, output_format=None, request=None,
+            status=httplib.OK, headers={}):
         """
-        Returns a ``HttpResponse`` containing the serialized response in the format
-        specified explicitly in ``output_format`` (either as a MIME type or as a simple
-        identifier) or according to the HTTP Accept header specified in the passed
-        request instance. The default status code is ``200 OK``, if that does not fit
-        you'll have to specify a different code yourself.
+        Returns a ``HttpResponse`` containing the serialized response in the
+        format specified explicitly in ``output_format`` (either as a MIME type
+        or as a simple identifier) or according to the HTTP Accept header
+        specified in the passed request instance. The default status code is
+        ``200 OK``, if that does not fit you'll have to specify a different
+        code yourself.
 
-        Returns a ``406 Not acceptable`` response if the requested format is unknown
-        or unsupported. Currently, the following formats are supported:
+        Returns a ``406 Not acceptable`` response if the requested format is
+        unknown or unsupported. Currently, the following formats are supported:
 
         - ``json`` or ``application/json``
         - ``xml`` or ``application/xml``
@@ -479,11 +492,11 @@ class Serializer(object):
                 status=httplib.OK)
         """
         if output_format is None and request is None:
-            raise TypeError('Provide at least one of output_format and request.')
+            raise TypeError(
+                'Provide at least one of output_format and request.')
 
         if output_format is None:
-            # Thanks!
-            # https://github.com/toastdriven/django-tastypie/blob/master/tastypie/utils/mime.py
+            # Thanks django-tastypie!
             try:
                 output_format = mimeparse.best_match(reversed([
                     'application/xml',
@@ -559,7 +572,8 @@ class Serializer(object):
                     'type': valuetypes.get(type(data), 'unknown'),
                     })
 
-                value.text = data if isinstance(data, basestring) else unicode(data)
+                value.text = (data if isinstance(data, basestring)
+                    else unicode(data))
 
             elif data is None:
                 SubElement(parent, 'value', attrib={
@@ -591,8 +605,8 @@ class Resource(generic.View):
     #: The model exposed by this resource.
     model = None
 
-    #: Prefiltered queryset for this resource. Defaults to ``model._default_manager.all()``
-    #: if unset.
+    #: Prefiltered queryset for this resource. Defaults to
+    #:``model._default_manager.all()`` if unset.
     queryset = None
 
     #: Default instance count for list views
@@ -607,20 +621,21 @@ class Resource(generic.View):
 
     def dispatch(self, request, *args, **kwargs):
         """
-        This method is almost the same as Django's own ``generic.View.dispatch()``,
-        but there are a few subtle differences:
+        This method is almost the same as Django's own
+        ``generic.View.dispatch()``, but there are a few subtle differences:
 
-        - It uses ``self.request``, ``self.args`` and ``self.kwargs`` in all places
-        - It calls ``self.unserialize_request()`` after assigning the aforementioned
-          variables on ``self`` which may modify all aspects and all variables (f.e.
-          deserialize a JSON request and serialize it again to look like a standard
-          POST request) and only then determines whether the request should be handled
-          by this view at all.
-        - The return value of the ``get()``, ``post()`` etc. methods is passed to
-          ``self.serialize_response()`` and only then returned to the client. The
-          processing methods should return data (a ``dict`` instance most of the time)
-          which is then serialized into the requested format or some different supported
-          format.
+        - It uses ``self.request``, ``self.args`` and ``self.kwargs`` in all
+          places
+        - It calls ``self.unserialize_request()`` after assigning the
+          aforementioned variables on ``self`` which may modify all aspects and
+          all variables (f.e.  deserialize a JSON request and serialize it
+          again to look like a standard POST request) and only then determines
+          whether the request should be handled by this view at all.
+        - The return value of the ``get()``, ``post()`` etc. methods is passed
+          to ``self.serialize_response()`` and only then returned to the
+          client. The processing methods should return data (a ``dict``
+          instance most of the time) which is then serialized into the
+          requested format or some different supported format.
         """
         self.request = request
         self.args = args
@@ -630,16 +645,18 @@ class Resource(generic.View):
         # Try to dispatch to the right method; if a method doesn't exist,
         # defer to the error handler. Also defer to the error handler if the
         # request method isn't on the approved list.
-        if self.request.method.lower() in self.http_method_names:
-            handler = getattr(self, self.request.method.lower(), self.http_method_not_allowed)
-        else:
+        method = self.request.method.lower()
+        if not (method in self.http_method_names and hasattr(self, method)):
             handler = self.http_method_not_allowed
+        else:
+            handler = getattr(self, method)
 
         try:
             return self.serialize_response(handler(
                 self.request, *self.args, **self.kwargs))
         except Http404 as e:
-            return self.serialize_response({'error': e[0]}, status=httplib.NOT_FOUND)
+            return self.serialize_response({'error': e[0]},
+                status=httplib.NOT_FOUND)
         except APIException as e:
             data = {
                 'error': e.error_message,
@@ -660,19 +677,20 @@ class Resource(generic.View):
 
     def serialize_response(self, response, status=httplib.OK, headers={}):
         """
-        Serializes the response into an appropriate format for the wire such as
-        JSON. ``HttpResponse`` instances are returned directly.
+        Serializes the response into an appropriate format for the wire such
+        as JSON. ``HttpResponse`` instances are returned directly.
         """
         if isinstance(response, HttpResponse):
             return response
 
-        return Serializer().serialize(response, request=self.request, status=status,
-            output_format=self.request.GET.get('format'), headers=headers)
+        return Serializer().serialize(response, request=self.request,
+            status=status, output_format=self.request.GET.get('format'),
+            headers=headers)
 
     def get_query_set(self):
         """
-        Returns the queryset used by this resource. If you need access or visibility control,
-        add it here.
+        Returns the queryset used by this resource. If you need access or
+        visibility control, add it here.
         """
         if self.queryset:
             return self.queryset._clone()
@@ -693,8 +711,8 @@ class Resource(generic.View):
 
         - ``queryset``: Available items, filtered and all (if applicable).
         - ``page``: Current page
-        - ``set``: List of objects or ``None`` if not applicable. Will be used for
-          requests such as ``/api/product/1;3/``.
+        - ``set``: List of objects or ``None`` if not applicable. Will be used
+          for requests such as ``/api/product/1;3/``.
         - ``single``: Single instances if applicable, used for URIs such as
           ``/api/product/1/``.
 
@@ -726,7 +744,8 @@ class Resource(generic.View):
             except (TypeError, ValueError):
                 limit = self.limit_per_page
 
-            # Do not allow more than max_limit_per_page entries in one request, ever
+            # Do not allow more than max_limit_per_page entries in one request,
+            # ever
             limit = min(limit, self.max_limit_per_page)
 
             # Sanitize range
@@ -744,16 +763,16 @@ class Resource(generic.View):
 
     def get(self, request, *args, **kwargs):
         """
-        Processes GET requests by returning lists, sets or detail data. All of these
-        URLs are supported by this implementation:
+        Processes GET requests by returning lists, sets or detail data. All of
+        these URLs are supported by this implementation:
 
         - ``resource/``: Paginated list of objects, first page
         - ``resource/?page=3``: Paginated list of objects, third page
         - ``resource/42/``: Object with primary key of 42
         - ``resource/1;3;5/``: Set of the three objects with a primary key of
           1, 3 and 5. The last item may have a semicolon too for simplicity, it
-          will be ignored. The following URI would be equivalent: ``resource/1;;3;5;``
-          (but it is bad style).
+          will be ignored. The following URI would be equivalent:
+          ``resource/1;;3;5;`` (but it is bad style).
 
         Filtering or searching is not supported at the moment.
         """
@@ -774,12 +793,14 @@ class Resource(generic.View):
 
     def get_set(self, request, objects, *args, **kwargs):
         return {
-            'objects': [self.api.serialize_instance(instance) for instance in objects.set],
+            'objects': [self.api.serialize_instance(instance) for instance
+                in objects.set],
             }
 
     def get_page(self, request, objects, *args, **kwargs):
         page = objects.page
-        list_url = api_reverse(objects.queryset.model, 'list', api_name=self.api.name)
+        list_url = api_reverse(objects.queryset.model, 'list',
+            api_name=self.api.name)
         meta = {
             'offset': page.offset,
             'limit': page.limit,
@@ -805,7 +826,8 @@ class Resource(generic.View):
                 ))
 
         return {
-            'objects': [self.api.serialize_instance(instance) for instance in page.queryset],
+            'objects': [self.api.serialize_instance(instance) for instance
+                in page.queryset],
             'meta': meta,
             }
 
