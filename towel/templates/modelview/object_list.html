@@ -56,7 +56,7 @@
 {% if paginator %}{% pagination page paginator "bottom" %}{% endif %}
 
 {% if batch_form %}
-{% if profile.access_level >= EMPLOYEE %}
+    {% form_errors batch_form %}
     <div class="box detail">
         <h2>{% trans "Batch form" %}</h2>
 
@@ -76,7 +76,6 @@
         </div>
         {% endblock %}
     </div>
-{% endif %}
 </form>
 {% endif %}
 
