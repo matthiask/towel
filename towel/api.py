@@ -395,8 +395,11 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
         elif isinstance(f, models.FileField):
             # XXX add additional informations to the seralization?
-            value = f.value_from_object(instance)
-            data[f.name] = value.url
+            try:
+                value = f.value_from_object(instance)
+                data[f.name] = value.url
+            except ValueError:
+                data[f.name] = ''
 
         else:
             data[f.name] = f.value_from_object(instance)
