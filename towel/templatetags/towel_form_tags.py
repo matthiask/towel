@@ -124,19 +124,62 @@ class FormErrorsNode(template.Node):
             })
 
 
-@register.simple_tag
-def form_warnings(form):
+@register.tag
+def form_warnings(parser, token):
     """
-    Shows the validation warnings in a nicely formatted way, including the
-    checkbox to ignore the warnings
+    Show all form and formset warnings::
+
+        {% form_warnings form formset1 formset2 %}
+
+    Silently ignores non-existant variables.
     """
 
-    if getattr(form, 'warnings', None):
+    tokens = token.split_contents()
+
+    return FormWarningsNode(*tokens[1:])
+
+
+class FormWarningsNode(template.Node):
+    def __init__(self, *items):
+        self.items = [template.Variable(item) for item in items]
+
+    def render(self, context):
+        items = []
+        for item in self.items:
+            try:
+                var = item.resolve(context)
+                if isinstance(var, dict):
+                    items.extend(var.values())
+                elif isinstance(var, (list, tuple)):
+                    items.extend(var)
+                else:
+                    items.append(var)
+            except template.VariableDoesNotExist:
+                # We do not care too much
+                pass
+
+        warnings = False
+
+        form_list = []
+        formset_list = []
+
+        for i in items:
+            if isinstance(i, forms.BaseForm):
+                form_list.append(i)
+            else:
+                formset_list.append(i)
+
+            if getattr(i, 'warnings', None):
+                warnings = True
+
+        if not warnings:
+            return u''
+
         return render_to_string('_form_warnings.html', {
-            'form': form,
+            'forms': form_list,
+            'formsets': formset_list,
+            'warnings': True,
             })
-
-    return u''
 
 
 @register.tag
