@@ -166,11 +166,12 @@ class FormWarningsNode(template.Node):
         for i in items:
             if isinstance(i, forms.BaseForm):
                 form_list.append(i)
+                if getattr(i, 'warnings', None):
+                    warnings = True
             else:
                 formset_list.append(i)
-
-            if getattr(i, 'warnings', None):
-                warnings = True
+                if any(getattr(f, 'warnings', None) for f in i):
+                    warnings = True
 
         if not warnings:
             return u''
