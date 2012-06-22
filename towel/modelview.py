@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models, transaction
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
@@ -616,12 +616,33 @@ class ModelView(object):
         browser
         """
 
-        if self.batch_form:
-            form = self.batch_form(request)
-            ctx.update(form.context(queryset))
+        if not self.batch_form:
+            return
 
-            if 'response' in ctx:
-                return ctx['response']
+        form = self.batch_form(request, queryset)
+        ctx['batch_form'] = form
+
+        if form.should_process():
+            result = form.process()
+
+            if isinstance(result, HttpResponse):
+                return result
+
+            elif isinstance(result, dict):
+                ctx.update(result)
+
+            elif hasattr(result, '__iter__'):
+                messages.success(request,
+                    _('Processed the following items: <br>\n %s') % (
+                        u'<br>\n '.join(
+                            unicode(item) for item in result)))
+
+            info = (
+                self.model._meta.app_label,
+                self.model._meta.module_name,
+                )
+            url = _tryreverse('%s_%s_list' % info)
+            return HttpResponseRedirect(url if url else '.')
 
     def detail_view(self, request, *args, **kwargs):
         """

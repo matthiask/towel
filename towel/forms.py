@@ -5,6 +5,7 @@ from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
+from django.http import HttpResponse
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -23,8 +24,13 @@ class BatchForm(forms.Form):
     Additionally, the current request is available as an attribute of the
     form instance, ``self.request``.
 
-    The method ``_context(self, batch_queryset)`` must return a
-    ``dict`` instance which is added to the context afterwards.
+    The method ``process(self)`` may have the following return values:
+
+    - A ``dict`` instance: Will be merged into the template context.
+    - A ``HttpResponse`` instance: Will be returned directly to the client.
+    - An iterable: The handler assumes successful processing of all objects
+      contained in the iterable.
+    - Nothing: Nothing happens.
 
     Usage example::
 
@@ -32,7 +38,7 @@ class BatchForm(forms.Form):
             subject = forms.CharField()
             body = forms.TextField()
 
-            def _context(self, batch_queryset):
+            def process(self):
                 # Form validation has already been taken care of
                 subject = self.cleaned_data.get('subject')
                 body = self.cleaned_data.get('body')
@@ -41,23 +47,33 @@ class BatchForm(forms.Form):
                     return {}
 
                 sent = 0
-                for item in batch_queryset:
+                for item in self.batch_queryset:
                     send_mail(subject, body, settings.DEFAULT_SENDER,
                         [item.email])
                     sent += 1
                 if sent:
                     messages.success(self.request, 'Sent %s emails.' % sent)
-                return {
-                    # Return the batch items so that the list view template
-                    # has a chance to display all affected instances somehow.
-                    'batch_items': batch_queryset,
-                    }
+
+                return self.batch_queryset
 
         def addresses(request):
             queryset = Address.objects.all()
-            batch_form = AddressBatchForm(request)
+            batch_form = AddressBatchForm(request, queryset)
             ctx = {'addresses': queryset}
-            ctx.update(batch_form.context(queryset))
+
+            if batch_form.should_process():
+                result = form.process()
+                if isinstance(result, HttpResponse):
+                    return result
+                elif isinstance(result, dict):
+                    ctx.update(result)
+                elif hasattr(result, '__iter__'):
+                    messages.success(request,
+                        _('Processed the following items: %s') % (
+                            u', '.join(unicode(item) for item in result)))
+
+                return HttpResponseRedirect('.')
+
             return render(request, 'addresses.html', ctx)
 
     Template code::
@@ -83,15 +99,17 @@ class BatchForm(forms.Form):
         </form>
     """
 
-    process = False
+    _process = False
+    ids = []
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request, queryset, *args, **kwargs):
         kwargs.setdefault('prefix', 'batch')
 
         self.request = request
+        self.queryset = queryset
 
         if request.method == 'POST' and 'batchform' in request.POST:
-            self.process = True
+            self._process = True
             super(BatchForm, self).__init__(request.POST, request.FILES,
                 *args, **kwargs)
         else:
@@ -99,24 +117,41 @@ class BatchForm(forms.Form):
 
     def clean(self):
         data = super(BatchForm, self).clean()
-        if not any(k.startswith('batch_') for k in self.request.POST.keys()):
+
+        post_data = self.request.POST
+        self.ids = [pk for pk in self.queryset.values_list('id', flat=True)
+               if post_data.get('batch_%s' % pk)]
+
+        if not self.ids:
             raise forms.ValidationError(_('No items selected'))
+
         return data
 
-    def context(self, queryset):
-        ctx = {
-            'batch_form': self,
-            }
+    def should_process(self):
+        return self._process and self.is_valid()
 
-        if self.process and self.is_valid():
-            ctx.update(self._context(
-                self.selected_items(self.request.POST, queryset)))
+    @property
+    def batch_queryset(self):
+        return self.queryset.filter(id__in=self.ids)
 
-        return ctx
+    def process(self):
+        if hasattr(self, '_context'):
+            import warnings
+            warnings.warn(
+                'The batch form \'%s.%s\' is still using \'_context\'.'
+                ' Switch to using the new \'process\' method now!' % (
+                    self.__class__.__module__,
+                    self.__class__.__name__,
+                    ),
+                DeprecationWarning)
 
-    def _context(self, batch_queryset):
+            ctx = self._context(self.batch_queryset)
+            if 'response' in ctx:
+                return ctx['response']
+            return ctx
+
         raise NotImplementedError(
-            'BatchForm._context has no default implementation.')
+            'BatchForm.process has no default implementation.')
 
     def selected_items(self, post_data, queryset):
         ids = [pk for pk in queryset.values_list('id', flat=True)
