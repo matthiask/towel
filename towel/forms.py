@@ -132,7 +132,9 @@ class BatchForm(forms.Form):
 
     @property
     def batch_queryset(self):
-        return self.queryset.filter(id__in=self.ids)
+        if not hasattr(self, '_batch_queryset_cache'):
+            self._batch_queryset_cache = self.queryset.filter(id__in=self.ids)
+        return self._batch_queryset_cache
 
     def process(self):
         if hasattr(self, '_context'):
