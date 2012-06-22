@@ -98,9 +98,10 @@ class BatchForm(forms.Form):
             super(BatchForm, self).__init__(*args, **kwargs)
 
     def clean(self):
+        data = super(BatchForm, self).clean()
         if not any(k.startswith('batch_') for k in self.request.POST.keys()):
             raise forms.ValidationError(_('No items selected'))
-        return super(BatchForm, self).clean()
+        return data
 
     def context(self, queryset):
         ctx = {
