@@ -83,7 +83,6 @@ class BatchForm(forms.Form):
         </form>
     """
 
-    ids = []
     process = False
 
     def __init__(self, request, *args, **kwargs):
@@ -119,9 +118,9 @@ class BatchForm(forms.Form):
             'BatchForm._context has no default implementation.')
 
     def selected_items(self, post_data, queryset):
-        self.ids = queryset.values_list('id', flat=True)
-        self.ids = [pk for pk in self.ids if post_data.get('batch_%s' % pk)]
-        return queryset.filter(id__in=self.ids)
+        ids = [pk for pk in queryset.values_list('id', flat=True)
+               if post_data.get('batch_%s' % pk)]
+        return queryset.filter(id__in=ids)
 
 
 class SearchForm(forms.Form):
