@@ -391,14 +391,6 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                         build_absolute_uri=build_absolute_uri,
                         )
 
-            else:
-                try:
-                    data[f.name] = api_reverse(f.rel.to, 'detail',
-                        api_name=api.name,
-                        pk=f.value_from_object(instance))
-                except NoReverseMatch:
-                    continue
-
         elif isinstance(f, models.FileField):
             # XXX add additional informations to the seralization?
             try:
