@@ -182,24 +182,24 @@ class API(object):
 
         response = {
             '__unicode__': self.name,
-            '__uri__': reverse('api_%s' % self.name),
+            '__uri__': request.build_absolute_uri(reverse('api_%s' % self.name)),
             'resources': [],
             }
 
         for view in self.views:
             response.setdefault('views', []).append({
                 '__unicode__': view['prefix'].strip('^').strip('/'),
-                '__uri__': u''.join((
+                '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
-                    view['prefix'].strip('^'))),
+                    view['prefix'].strip('^')))),
                 })
 
         for resource in self.resources:
             r = {
                 '__unicode__': resource['model'].__name__.lower(),
-                '__uri__': u''.join((
+                '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
-                    resource['prefix'].strip('^'))),
+                    resource['prefix'].strip('^')))),
                 }
 
             response['resources'].append(r)
@@ -307,7 +307,8 @@ class API(object):
 
 
 def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
-        only_registered=True, **kwargs):
+        only_registered=True, build_absolute_uri=lambda uri: uri,
+        **kwargs):
     """
     Serializes a single model instance.
 
@@ -324,6 +325,10 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
     Set ``only_registered=False`` if you want to serialize models which do not
     have a canonical URI inside this API.
+
+    ``build_absolute_uri`` should be a callable which transforms any passed
+    URI fragment into an absolute URI including the protocol and the hostname,
+    for example ``request.build_absolute_uri``.
 
     This implementation has a few characteristics you should be aware of:
 
@@ -352,7 +357,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
         return None
 
     data = {
-        '__uri__': uri,
+        '__uri__': build_absolute_uri(uri),
         '__unicode__': unicode(instance),
         '__pretty__': {},
         '__pk__': instance.pk,
@@ -383,6 +388,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                     data[f.name] = api.serialize_instance(
                         related,
                         inline_depth=inline_depth - 1,
+                        build_absolute_uri=build_absolute_uri,
                         )
 
             else:
@@ -414,8 +420,11 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
                 continue
 
             related = [
-                api.serialize_instance(obj, inline_depth=inline_depth - 1)
-                for obj in getattr(instance, f.name).all()]
+                api.serialize_instance(
+                    obj,
+                    inline_depth=inline_depth - 1,
+                    build_absolute_uri=build_absolute_uri,
+                ) for obj in getattr(instance, f.name).all()]
 
             if any(related):
                 data[f.name] = related
@@ -792,12 +801,18 @@ class Resource(generic.View):
         kw = {}
         if request.GET.get('full'):
             kw['inline_depth'] = 1
-        return self.api.serialize_instance(objects.single, **kw)
+        return self.api.serialize_instance(
+            objects.single,
+            build_absolute_uri=request.build_absolute_uri,
+            **kw)
 
     def get_set(self, request, objects, *args, **kwargs):
         return {
-            'objects': [self.api.serialize_instance(instance) for instance
-                in objects.set],
+            'objects': [
+                self.api.serialize_instance(
+                    instance,
+                    build_absolute_uri=request.build_absolute_uri,
+                    ) for instance in objects.set],
             }
 
     def get_page(self, request, objects, *args, **kwargs):
@@ -829,8 +844,11 @@ class Resource(generic.View):
                 ))
 
         return {
-            'objects': [self.api.serialize_instance(instance) for instance
-                in page.queryset],
+            'objects': [
+                self.api.serialize_instance(
+                    instance,
+                    build_absolute_uri=request.build_absolute_uri,
+                    ) for instance in page.queryset],
             'meta': meta,
             }
 

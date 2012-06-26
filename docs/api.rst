@@ -365,7 +365,7 @@ Utility functions
         api_reverse(instance, 'detail', pk=instance.pk)
 
 
-.. function:: serialize_model_instance(instance, api, inline_depth=0, exclude=(), only_registered=True, \**kwargs)
+.. function:: serialize_model_instance(instance, api, inline_depth=0, exclude=(), only_registered=True, build_absolute_uri=lambda uri: uri, \**kwargs)
 
     Serializes a single model instance.
 
@@ -382,6 +382,10 @@ Utility functions
 
     Set ``only_registered=False`` if you want to serialize models which do not
     have a canonical URI inside this API.
+
+    ``build_absolute_uri`` should be a callable which transforms any passed
+    URI fragment into an absolute URI including the protocol and the hostname,
+    for example ``request.build_absolute_uri``.
 
     This implementation has a few characteristics you should be aware of:
 
