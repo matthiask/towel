@@ -370,9 +370,11 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
         if f.rel:
             try:
-                data[f.name] = api_reverse(f.rel.to, 'detail',
+                data[f.name] = build_absolute_uri(api_reverse(
+                    f.rel.to,
+                    'detail',
                     api_name=api.name,
-                    pk=f.value_from_object(instance))
+                    pk=f.value_from_object(instance)))
             except NoReverseMatch:
                 if only_registered:
                     continue
@@ -395,7 +397,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
             # XXX add additional informations to the seralization?
             try:
                 value = f.value_from_object(instance)
-                data[f.name] = value.url
+                data[f.name] = build_absolute_uri(value.url)
             except ValueError:
                 data[f.name] = ''
 
