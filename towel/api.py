@@ -150,11 +150,7 @@ class API(object):
             ]
 
         for view in self.views:
-            fn = curry(view['view'], api=self)
-            for dec in reversed(self.decorators):
-                fn = dec(fn)
-
-            urlpatterns.append(url(view['prefix'], fn))
+            urlpatterns.append(url(view['prefix'], view['view']))
 
         for resource in self.resources:
             urlpatterns.append(url(
@@ -290,7 +286,7 @@ class API(object):
             serialize_model_instance)
         return serializer(instance, api=self, **kwargs)
 
-    def add_view(self, view, prefix=None):
+    def add_view(self, view, prefix=None, decorators=None):
         """
         Add custom views to this API
 
@@ -300,8 +296,18 @@ class API(object):
         The view receives an additional keyword argument ``api`` containing
         the API instance.
         """
+
+        prefix = prefix or r'^%s/' % view.__name__
+
+        if decorators is None:
+            decorators = self.decorators
+
+        view = curry(view, api=self)
+        for dec in reversed(decorators):
+            view = dec(view)
+
         self.views.append({
-            'prefix': prefix or r'^%s/' % view.__name__,
+            'prefix': prefix,
             'view': view,
             })
 
