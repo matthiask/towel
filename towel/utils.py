@@ -101,7 +101,7 @@ def parse_args_and_kwargs(parser, bits):
         key, value = match.groups()
         value = parser.compile_filter(value)
         if key:
-            kwargs[key] = value
+            kwargs[str(key)] = value
         else:
             args.append(value)
 
