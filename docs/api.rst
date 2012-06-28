@@ -438,12 +438,12 @@ The individual resources are described by a hash containing two values (as
 do most objects returned by the API):
 
 - ``__uri__``: The URI of the particular object
-- ``__unicode__``: A string containing the 'name' of the object, whatever
-  that would be (it's the return value of the ``__unicode__`` method for
+- ``__str__``: A string containing the 'name' of the object, whatever
+  that would be (it's the return value of the ``__str__`` method for
   Django models, and the lowercased class name of the model registered
   with the resource).
 
-In the list of resources, a particular ``__unicode__`` value will exist
+In the list of resources, a particular ``__str__`` value will exist
 several times if a model is exposed through more than one resource;
 ``__uri__`` values will always be unique.
 
@@ -489,7 +489,8 @@ The following fields should always be available on objects returned:
 
 - ``__uri__``: The URI.
 - ``__pk__``: The primary key of this object.
-- ``__unicode__``: The return value of the ``__unicode__`` method.
+- ``__str__``: The return value of the ``__str__`` or ``__unicode__``
+  method.
 
 A few fields' values have to be treated specially, because their values
 do not have an obvious representation in an XML or JSON document. The

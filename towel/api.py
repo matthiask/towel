@@ -177,14 +177,14 @@ class API(object):
                 output_format=request.GET.get('format'))
 
         response = {
-            '__unicode__': self.name,
+            '__str__': self.name,
             '__uri__': request.build_absolute_uri(reverse('api_%s' % self.name)),
             'resources': [],
             }
 
         for view in self.views:
             response.setdefault('views', []).append({
-                '__unicode__': view['prefix'].strip('^').strip('/'),
+                '__str__': view['prefix'].strip('^').strip('/'),
                 '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
                     view['prefix'].strip('^')))),
@@ -192,7 +192,7 @@ class API(object):
 
         for resource in self.resources:
             r = {
-                '__unicode__': resource['model'].__name__.lower(),
+                '__str__': resource['model'].__name__.lower(),
                 '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
                     resource['prefix'].strip('^')))),
@@ -364,7 +364,7 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
 
     data = {
         '__uri__': build_absolute_uri(uri),
-        '__unicode__': unicode(instance),
+        '__str__': unicode(instance),
         '__pretty__': {},
         '__pk__': instance.pk,
         }
