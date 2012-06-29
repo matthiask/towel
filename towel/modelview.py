@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models, transaction
 from django.forms.formsets import all_valid
-from django.forms.models import modelform_factory
+from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -67,6 +67,18 @@ class ModelView(object):
 
     #: The editing form class
     form_class = None
+
+    #: Inline formsets. The key is the formset prefix and the formsets dict
+    #: key at the same time, the value should be a dict instance which is
+    #: used for the inlineformset_factory invocation.
+    #:
+    #: Example::
+    #:
+    #:     inlineformset_config = {
+    #:         'steps': {'model': Step, 'form': CustomizedStepForm},
+    #:         }
+    #:
+    inlineformset_config = {}
 
     #: Search form class
     search_form = None
@@ -375,8 +387,21 @@ class ModelView(object):
         Please note that the instance passed here has not necessarily
         been saved to the database yet.
         """
+        args = self.extend_args_if_post(request, [])
+        kwargs['instance'] = instance
 
-        return {}
+        formsets = {}
+
+        formfield_callback = self.get_formfield_callback(request)
+
+        for prefix, config in self.inlineformset_config.items():
+            config.setdefault('form', forms.ModelForm)
+            config.setdefault('formfield_callback', formfield_callback)
+
+            cls = inlineformset_factory(self.model, extra=0, **config)
+            formsets[prefix] = cls(prefix=prefix, *args, **kwargs)
+
+        return formsets
 
     def save_form(self, request, form, change):
         """
