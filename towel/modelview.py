@@ -4,6 +4,7 @@ import datetime
 import decimal
 import urllib
 
+from django import forms
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
