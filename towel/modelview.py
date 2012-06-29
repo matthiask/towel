@@ -316,6 +316,14 @@ class ModelView(object):
             raise Http404(u'No %s matches the given query.' % (
                 self.model._meta.object_name))
 
+    def get_formfield_callback(self, request):
+        """
+        Returns a formfield callback used to initialize the model form and
+        inline formsets. May also be ``None``, which means that the default
+        behavior isn't changed.
+        """
+        return None
+
     def get_form(self, request, instance=None, change=None, **kwargs):
         """
         Return a form class for further use by add and edit views.
@@ -324,7 +332,12 @@ class ModelView(object):
         for creating and editing objects.
         """
 
-        return self.form_class or modelform_factory(self.model, **kwargs)
+        kwargs.setdefault('formfield_callback',
+            self.get_formfield_callback(request))
+
+        return modelform_factory(self.model,
+            form=self.form_class or forms.ModelForm,
+            **kwargs)
 
     def extend_args_if_post(self, request, args):
         """
