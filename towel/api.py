@@ -540,7 +540,7 @@ class Serializer(object):
     def to_json(self, data):
         return HttpResponse(
             json.dumps(data, cls=DjangoJSONEncoder),
-            mimetype='application/json',
+            content_type='application/json',
             )
 
     def to_xml(self, data):
@@ -602,7 +602,7 @@ class Serializer(object):
 
         return HttpResponse(
             tostring(root, xml_declaration=True, encoding='utf-8'),
-            mimetype='application/xml',
+            content_type='application/xml',
             )
 
 

@@ -728,5 +728,6 @@ generate sales reports for a selection of books), you can return a response in
         # [...]
 
         return {
-            'response': HttpResponse(your_report, mimetype='application/pdf'),
+            'response': HttpResponse(your_report,
+                content_type='application/pdf'),
             }
