@@ -347,10 +347,9 @@ class ModelView(object):
 
         kwargs.setdefault('formfield_callback',
             self.get_formfield_callback(request))
+        kwargs.setdefault('form', self.form_class or forms.ModelForm)
 
-        return modelform_factory(self.model,
-            form=self.form_class or forms.ModelForm,
-            **kwargs)
+        return modelform_factory(self.model, **kwargs)
 
     def extend_args_if_post(self, request, args):
         """
