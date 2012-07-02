@@ -30,7 +30,7 @@ def form_items(form):
         }) for field in form)
 
 
-@register.inclusion_tag('_form_item.html')
+@register.inclusion_tag('towel/_form_item.html')
 def form_item(item, additional_classes=None):
     """
     Helper for easy displaying of form items::
