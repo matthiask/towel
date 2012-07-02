@@ -51,7 +51,7 @@ def model_row(instance, fields):
         yield (f.verbose_name, value)
 
 
-@register.inclusion_tag('_pagination.html', takes_context=True)
+@register.inclusion_tag('towel/_pagination.html', takes_context=True)
 def pagination(context, page, paginator, where=None):
     """
     Shows pagination links::
