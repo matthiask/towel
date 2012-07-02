@@ -23,7 +23,7 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return u''.join(render_to_string('_form_item.html', {
+    return u''.join(render_to_string('towel/_form_item.html', {
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
@@ -48,7 +48,7 @@ def form_item(item, additional_classes=None):
         }
 
 
-@register.inclusion_tag('_form_item_plain.html')
+@register.inclusion_tag('towel/_form_item_plain.html')
 def form_item_plain(item, additional_classes=None):
     """
     Helper for easy displaying of form items without any additional
@@ -117,7 +117,7 @@ class FormErrorsNode(template.Node):
         if not errors:
             return u''
 
-        return render_to_string('_form_errors.html', {
+        return render_to_string('towel/_form_errors.html', {
             'forms': form_list,
             'formsets': formset_list,
             'errors': True,
@@ -176,7 +176,7 @@ class FormWarningsNode(template.Node):
         if not warnings:
             return u''
 
-        return render_to_string('_form_warnings.html', {
+        return render_to_string('towel/_form_warnings.html', {
             'forms': form_list,
             'formsets': formset_list,
             'warnings': True,
