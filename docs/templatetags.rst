@@ -181,7 +181,7 @@ Form tags
 
        {% load towel_form_tags %}
 
-       {% form_errors publisher_form books_formset %}
+       {% form_warnings publisher_form books_formset %}
 
 
 .. function:: dynamic_formset
