@@ -53,10 +53,10 @@ ModelView list tags
 
 .. function:: pagination
 
-   Uses ``_pagination.html`` to display a nicely formatted pagination section.
-   An additional parameter may be provided if the pagination should behave
-   differently depending on where it is shown; it is passed to ``_pagination.html``
-   as ``where``::
+   Uses ``towel/_pagination.html`` to display a nicely formatted pagination
+   section.  An additional parameter may be provided if the pagination should
+   behave differently depending on where it is shown; it is passed to
+   ``towel/_pagination.html`` as ``where``::
 
        {% load modelview_list %}
 
@@ -140,7 +140,7 @@ Form tags
 
 .. function:: form_item
 
-   Uses ``_form_item.html`` to render a form field. The default template
+   Uses ``towel/_form_item.html`` to render a form field. The default template
    renders a table row, and includes:
 
    * ``help_text`` after the form field in a ``p.help``
@@ -149,17 +149,33 @@ Form tags
 
 .. function:: form_item_plain
 
-   Uses ``_form_item_plain.html`` to render a form field, f.e. inside a table
-   cell. The default template puts the form field inside a ``<span>`` tag
+   Uses ``towel/_form_item_plain.html`` to render a form field, f.e. inside a
+   table cell. The default template puts the form field inside a ``<span>`` tag
    with various classes depending on the state of the form field such as
    ``invalid`` and ``required``.
 
 
 .. function:: form_errors
 
-   Shows form and formset errors using ``_form_errors.html``. You can pass
-   a list of forms, formsets, lists containing forms and formsets and dicts
-   containing forms and formsets as values.
+   Shows form and formset errors using ``towel/_form_errors.html``. You can
+   pass a list of forms, formsets, lists containing forms and formsets and
+   dicts containing forms and formsets as values.
+
+   Variables which do not exist are silently ignored::
+
+       {% load towel_form_tags %}
+
+       {% form_errors publisher_form books_formset %}
+
+
+.. function:: form_warnings
+
+   Shows form and formset warnings using ``towel/_form_warnings.html``. You can
+   pass a list of forms, formsets, lists containing forms and formsets and
+   dicts containing forms and formsets as values. Also shows a checkbox which
+   can be used to ignore warnings. This template tag does not work with
+   Django's standard forms because they have do not have support for warnings.
+   Use :py:class:`~towel.forms.WarningsForm` instead.
 
    Variables which do not exist are silently ignored::
 
