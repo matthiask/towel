@@ -18,7 +18,7 @@
 </ul>
 {% endif %}
 
-<form method="post" action=".">{% csrf_token %}
+<form method="post" action="{{ request.get_full_path|default:"." }}">{% csrf_token %}
     <div class="buttons cf">
         <button type="submit">{% trans "delete"|capfirst %}</button>
         <a href="{{ object.get_absolute_url }}" class="button">

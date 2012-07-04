@@ -11,7 +11,7 @@
     {% endif %}
 </h2>
 
-<form method="post" action="." enctype="multipart/form-data">{% csrf_token %}
+<form method="post" action="{{ request.get_full_path|default:"." }}" enctype="multipart/form-data">{% csrf_token %}
 
 {% form_errors form formsets %}
 
