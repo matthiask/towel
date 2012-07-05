@@ -112,7 +112,7 @@ class ModelView(object):
     custom_messages = {}
 
     def add_message(self, request, message, variables=None, level=None,
-            **kwargs):
+            ignore=None, **kwargs):
         """
         This helper function is used to easily add messages for the current
         user.
@@ -128,6 +128,10 @@ class ModelView(object):
         (currently either ``SUCCESS`` or ``ERROR``). The default for all other
         messages is ``messages.INFO``, but this can be overridden by setting
         the ``level`` argument.
+
+        If ``ignore`` is set to a list of message keys, all matching
+        ``add_message`` calls during the current request-response cycle will
+        be silently ignored.
 
         Additional keyword arguments are passed on directly to
         ``messages.add_message``. This can be used f.e. to easily add extra
@@ -148,6 +152,12 @@ class ModelView(object):
             # Fail loudly, please, if messages aren't enabled
             self.add_message(request, 'editing_denied', fail_silently=False)
         """
+
+        ignorable = getattr(request, '_towel_add_message_ignore', [])
+        if message in ignorable:
+            return
+        if ignore is not None:
+            request._towel_add_message_ignore = ignore
 
         if message in self.custom_messages:
             message = self.custom_messages[message]
@@ -837,7 +847,9 @@ class ModelView(object):
                 pretty_classes = pretty_classes[-1]
 
             self.add_message(request, 'deletion_denied_related',
-                {'pretty_classes': pretty_classes})
+                {'pretty_classes': pretty_classes},
+                ignore=('deletion_denied',),
+                )
 
         return not len(related)
 
