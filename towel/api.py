@@ -312,7 +312,8 @@ class API(object):
             })
 
 
-def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
+def serialize_model_instance(instance, api, inline_depth=0,
+        fields=(), exclude=(),
         only_registered=True, build_absolute_uri=lambda uri: uri,
         **kwargs):
     """
@@ -326,8 +327,8 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
     objects. Those parameters should be set upon resource registration time as
     documented in the ``API`` docstring above.
 
-    The ``exclude`` parameter is especially helpful when used together with
-    ``functools.partial``.
+    The ``fields`` and ``exclude`` parameters are especially helpful when used
+    together with ``functools.partial``.
 
     Set ``only_registered=False`` if you want to serialize models which do not
     have a canonical URI inside this API.
@@ -371,6 +372,9 @@ def serialize_model_instance(instance, api, inline_depth=0, exclude=(),
     opts = instance._meta
 
     for f in opts.fields:
+        if fields and f.name not in fields:
+            continue
+
         if f.name in exclude:
             continue
 
