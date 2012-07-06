@@ -515,7 +515,7 @@ class Serializer(object):
                     'application/json',
                     ]),
                     request.META.get('HTTP_ACCEPT'))
-            except IndexError:
+            except (IndexError, ValueError):
                 pass
 
         if output_format in ('application/json', 'json'):
