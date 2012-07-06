@@ -440,7 +440,7 @@ class ModelView(object):
         """
         formset.save()
 
-    def post_save(self, request, instance, form, formset, change):
+    def post_save(self, request, instance, form, formsets, change):
         """
         Hook for adding custom processing after forms, m2m relations
         and formsets have been saved.
