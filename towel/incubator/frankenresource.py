@@ -3,9 +3,46 @@ import json
 from urllib import urlencode
 
 from django.contrib.messages.api import get_messages
-from django.forms.models import model_to_dict
 
-from towel.api import Resource, APIException
+from towel.api import Resource, APIException, Serializer
+
+
+class RequestParser(object):
+    def parse(self, request):
+        """
+        Takes a request and returns a ``(data, files)`` tuple suitable for
+        further processing e.g. by forms.
+        """
+        if request.method in ('GET', 'HEAD', 'OPTIONS', 'TRACE', 'DELETE'):
+            # Fall back to standard handling which only does stuff when
+            # method == 'POST' anyway, that is, not now.
+            return
+
+        content_type = request.META.get('CONTENT_TYPE',
+            'application/x-www-form-urlencoded')
+
+        handlers = {
+            'application/x-www-form-urlencoded': self.parse_form,
+            'multipart/form-data': self.parse_form,
+            'application/json': self.parse_json,
+            }
+
+        if content_type not in handlers:
+            return Serializer().serialize_response({
+                'error': '%r is not supported' % content_type,
+                }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
+                output_format=request.GET.get('format'))
+
+        return handlers[content_type](request)
+
+    def parse_form(self, request):
+        method = request.method
+        request.method = 'POST'
+        request._load_post_and_files()
+        request.method = method
+
+    def parse_json(self, request):
+        request.POST = json.loads(request.body)
 
 
 class FrankenResource(Resource):
@@ -22,30 +59,7 @@ class FrankenResource(Resource):
         return self.modelview.get_query_set(self.request)
 
     def unserialize_request(self):
-        if self.request.META.get('CONTENT_TYPE') == 'application/json':
-            # XXX HACK ALARM
-            #self.request.POST = QueryDict(urlencode(json.loads(
-            #    self.request.body)))
-            setattr(
-                self.request,
-                self.request.method,
-                json.loads(self.request.body),
-                )
-
-        # Thanks piston and tastypie
-        if self.request.method not in ('PUT', 'PATCH'):
-            return
-
-        request, method = self.request, self.request.method
-
-        if hasattr(request, '_post'):
-            del request._post
-            del request._files
-
-        request.method = 'POST'
-        request._load_post_and_files()
-        request.method = method
-        setattr(request, method, request.POST)
+        return RequestParser().parse(self.request)
 
     def post(self, request, *args, **kwargs):
         objects = self.objects()
@@ -88,34 +102,23 @@ class FrankenResource(Resource):
             'Location': data['__uri__'],
             })
 
-    def patch(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         objects = self.objects()
         if not objects.single:
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
-        data = request.PATCH.copy()
-        for key, value in model_to_dict(objects.single).items():
-            if key not in data:
-                data[key] = value
+        # The ModelView code only does the right thing when method is POST
+        request.method = 'POST'
 
         form_class = self.modelview.get_form(request,
             instance=objects.single,
             change=True,
             )
-        # XXX extend_args_if_post does of course NOT work... because
-        # method == 'PATCH'
         form = self.modelview.get_form_instance(request,
             form_class=form_class,
             instance=objects.single,
             change=True,
             )
-
-        print 'asasd'
-        print form.is_valid()
-        print form.errors
-        print form.non_field_errors()
-
-        print unicode(form).encode('utf-8')
 
         if not form.is_valid():
             raise APIException(data={
@@ -130,6 +133,24 @@ class FrankenResource(Resource):
             build_absolute_uri=request.build_absolute_uri,
             )
         return self.serialize_response(data, status=httplib.OK)
+
+    def patch(self, request, *args, **kwargs):
+        objects = self.objects()
+        if not objects.single:
+            raise APIException(status=httplib.NOT_IMPLEMENTED)
+
+        # Load serialized representation of object, fill in new values,
+        # and call PUT
+        data = self.api.serialize_instance(objects.single,
+            build_absolute_uri=request.build_absolute_uri)
+        for key in request.POST:
+            if isinstance(data[key], (list, tuple)):
+                data[key] = request.POST.getlist(key)
+            else:
+                data[key] = request.POST[key]
+        request.POST = data
+
+        return self.put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         objects = self.objects()
