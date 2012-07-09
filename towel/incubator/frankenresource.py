@@ -26,10 +26,12 @@ class FrankenResource(Resource):
         return self.modelview.get_query_set(self.request)
 
     def post(self, request, *args, **kwargs):
+        """
+        POST handler. Only supports full creation of objects by posting to
+        the listing endpoint currently.
+        """
         objects = self.objects()
         if objects.single or objects.set:
-            # Only creation using POST to the list endpoint is currently
-            # supported
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
         if not self.modelview.adding_allowed(request):
@@ -72,6 +74,14 @@ class FrankenResource(Resource):
             })
 
     def put(self, request, *args, **kwargs):
+        """
+        PUT handler. Only supports update of existing resources. Sets are not
+        supported.
+
+        You are required to provide the full set of fields, otherwise
+        validation fails. If you are looking for partial updates, have a look
+        at PATCH.
+        """
         objects = self.objects()
         if not objects.single:
             # Only update of existing resources supported; sets are not
@@ -109,6 +119,13 @@ class FrankenResource(Resource):
         return self.serialize_response(data, status=httplib.OK)
 
     def patch(self, request, *args, **kwargs):
+        """
+        PATCH handler. Only supports update of existing resources.
+
+        This handler offloads the work to the PUT handler. It starts with the
+        serialized representation from the database, overwrites values using
+        the data from the PATCH request and calls PUT afterwards.
+        """
         objects = self.objects()
         if not objects.single:
             raise APIException(status=httplib.NOT_IMPLEMENTED)
@@ -116,8 +133,6 @@ class FrankenResource(Resource):
         if not self.modelview.editing_allowed(request, objects.single):
             raise APIException(status=httplib.FORBIDDEN)
 
-        # Load serialized representation of object, fill in new values,
-        # and off-load work to the PUT handler
         data = self.api.serialize_instance(objects.single,
             build_absolute_uri=request.build_absolute_uri)
         for key in request.POST:
@@ -130,6 +145,9 @@ class FrankenResource(Resource):
         return self.put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        """
+        DELETE handler. Only supports deletion of single items at the moment.
+        """
         objects = self.objects()
         if not objects.single:
             # It would be quite easy to support deletion of sets...
