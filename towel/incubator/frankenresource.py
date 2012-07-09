@@ -1,48 +1,8 @@
 import httplib
-import json
-from urllib import urlencode
 
 from django.contrib.messages.api import get_messages
 
 from towel.api import Resource, APIException, Serializer
-
-
-class RequestParser(object):
-    def parse(self, request):
-        """
-        Takes a request and returns a ``(data, files)`` tuple suitable for
-        further processing e.g. by forms.
-        """
-        if request.method in ('GET', 'HEAD', 'OPTIONS', 'TRACE', 'DELETE'):
-            # Fall back to standard handling which only does stuff when
-            # method == 'POST' anyway, that is, not now.
-            return
-
-        content_type = request.META.get('CONTENT_TYPE',
-            'application/x-www-form-urlencoded')
-
-        handlers = {
-            'application/x-www-form-urlencoded': self.parse_form,
-            'multipart/form-data': self.parse_form,
-            'application/json': self.parse_json,
-            }
-
-        if content_type not in handlers:
-            return Serializer().serialize_response({
-                'error': '%r is not supported' % content_type,
-                }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
-                output_format=request.GET.get('format'))
-
-        return handlers[content_type](request)
-
-    def parse_form(self, request):
-        method = request.method
-        request.method = 'POST'
-        request._load_post_and_files()
-        request.method = method
-
-    def parse_json(self, request):
-        request.POST = json.loads(request.body)
 
 
 class FrankenResource(Resource):
@@ -57,9 +17,6 @@ class FrankenResource(Resource):
 
     def get_query_set(self):
         return self.modelview.get_query_set(self.request)
-
-    def unserialize_request(self):
-        return RequestParser().parse(self.request)
 
     def post(self, request, *args, **kwargs):
         objects = self.objects()

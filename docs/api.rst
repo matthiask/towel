@@ -22,6 +22,9 @@ in more depth further down this page:
 - :py:class:`Serializer`:
   The API response serializer, responsible for content type negotiation
   and creation of :py:class:`~django.http.HttpResponse` instances.
+- :py:class:`RequestParser`:
+  Understands requests in various formats (JSON, urlencoded, etc.) and
+  handles the differences.
 - :py:class:`APIException`:
   An exception which can be raised deep down in the API / resource machinery
   and will be converted into a nicely formatted response in the requested
@@ -302,6 +305,50 @@ follows:
 
 - ``?format=json`` or ``?format=application/json`` for JSON output
 - ``?format=xml`` or ``?format=application/xml`` for XML output
+
+
+The request parser
+==================
+
+.. class:: RequestParser()
+
+    Parses the request body into a format independent of its content type.
+
+    Does nothing for the following HTTP methods because they are not supposed
+    to have a request body:
+
+    - ``GET``
+    - ``HEAD``
+    - ``OPTIONS``
+    - ``TRACE``
+    - ``DELETE``
+
+    Otherwise, the code tries determining a parser for the request. The
+    following content types are supported:
+
+    - ``application/x-www-form-urlencoded`` (the default)
+    - ``multipart/form-data``
+    - ``application/json``
+
+    The two former content types are supported directly by Django, all
+    capabilities and restrictions are inherited directly. When using JSON,
+    file uploads are not supported.
+
+    The parsed data is available as ``request.POST`` and ``request.FILES``.
+    ``request.POST`` is used instead of something else even for ``PUT`` and
+    ``PATCH`` requests (among others), because most code written for Django
+    expects data to be provided under that name.
+
+    .. method:: RequestParser.parse(self, request)
+
+        Decides whether the request body should be parsed, and if yes, decides
+        which parser to use. Returns a HTTP 415 Unsupported media type if the
+        request isn't understood.
+
+    .. method:: RequestParser.parse_form(self, request)
+    .. method:: RequestParser.parse_json(self, request)
+
+        The actual work horses.
 
 
 Additional classes and exceptions
