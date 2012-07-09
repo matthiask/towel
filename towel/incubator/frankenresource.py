@@ -8,7 +8,14 @@ from towel.api import Resource, APIException, Serializer
 class FrankenResource(Resource):
     """
     Really ugly and hacky way of reusing customizations made in a ``ModelView``
-    subclass for API resources.
+    subclass for API resources. Reuses the following aspects of the
+    ``ModelView`` instance:
+
+    - Basic queryset filtering, i.e. ``get_query_set``
+    - Form handling and saving, i.e. ``get_form``, ``get_form_instance``,
+      ``save_form``, ``save_model`` and ``post_save``
+    - Permissions management, i.e. ``adding_allowed``, ``editing_allowed``,
+      ``deletion_allowed``
     """
 
     #: ``ModelView`` instance used for providing permissions and write
@@ -21,6 +28,8 @@ class FrankenResource(Resource):
     def post(self, request, *args, **kwargs):
         objects = self.objects()
         if objects.single or objects.set:
+            # Only creation using POST to the list endpoint is currently
+            # supported
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
         if not self.modelview.adding_allowed(request):
@@ -65,6 +74,8 @@ class FrankenResource(Resource):
     def put(self, request, *args, **kwargs):
         objects = self.objects()
         if not objects.single:
+            # Only update of existing resources supported; sets are not
+            # supported though
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
         if not self.modelview.editing_allowed(request, objects.single):
@@ -106,7 +117,7 @@ class FrankenResource(Resource):
             raise APIException(status=httplib.FORBIDDEN)
 
         # Load serialized representation of object, fill in new values,
-        # and call PUT
+        # and off-load work to the PUT handler
         data = self.api.serialize_instance(objects.single,
             build_absolute_uri=request.build_absolute_uri)
         for key in request.POST:
@@ -121,6 +132,7 @@ class FrankenResource(Resource):
     def delete(self, request, *args, **kwargs):
         objects = self.objects()
         if not objects.single:
+            # It would be quite easy to support deletion of sets...
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
         if not self.modelview.deletion_allowed(request, objects.single):
