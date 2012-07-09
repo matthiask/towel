@@ -656,7 +656,10 @@ class Resource(generic.View):
         self.request = request
         self.args = args
         self.kwargs = kwargs
-        self.unserialize_request()
+
+        response = self.unserialize_request()
+        if response:
+            return response
 
         # Try to dispatch to the right method; if a method doesn't exist,
         # defer to the error handler. Also defer to the error handler if the
@@ -687,6 +690,9 @@ class Resource(generic.View):
 
         The "real" processing methods should not have to distinguish between
         varying request types anymore.
+
+        If this method returns anything, it is treated as a response and
+        short-circuits the resource processing.
         """
         # TODO Actually implement this :-)
         pass
