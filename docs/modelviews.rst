@@ -508,7 +508,7 @@ to helper methods.
    Actually saves the formset instances.
 
 
-.. method:: post_save(self, request, form, formset, change)
+.. method:: post_save(self, request, form, formsets, change)
 
    Hook for adding custom processing after forms, formsets and m2m relations
    have been saved. Does nothing by default.
