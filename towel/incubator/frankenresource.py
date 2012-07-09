@@ -23,6 +23,9 @@ class FrankenResource(Resource):
         if objects.single or objects.set:
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
+        if not self.modelview.adding_allowed(request):
+            raise APIException(status=httplib.FORBIDDEN)
+
         form_class = self.modelview.get_form(request,
             instance=objects.single,
             change=False,
@@ -64,6 +67,9 @@ class FrankenResource(Resource):
         if not objects.single:
             raise APIException(status=httplib.NOT_IMPLEMENTED)
 
+        if not self.modelview.editing_allowed(request, objects.single):
+            raise APIException(status=httplib.FORBIDDEN)
+
         # The ModelView code only does the right thing when method is POST
         request.method = 'POST'
 
@@ -95,6 +101,9 @@ class FrankenResource(Resource):
         objects = self.objects()
         if not objects.single:
             raise APIException(status=httplib.NOT_IMPLEMENTED)
+
+        if not self.modelview.editing_allowed(request, objects.single):
+            raise APIException(status=httplib.FORBIDDEN)
 
         # Load serialized representation of object, fill in new values,
         # and call PUT
