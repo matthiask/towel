@@ -90,23 +90,29 @@ ModelView list tags
 
 .. function:: ordering_link
 
-   Shows a link suitable for changing the ordering of objects in the
-   list view::
+   Shows a table column header suitable for use as a link to change the
+   ordering of objects in a list::
 
-       {% ordering_link "state" request title=_('State') %}
-       {% ordering_link "date" request title=_('Due date') %}
+       {% ordering_link "" request title=_("Edition") %} {# default order #}
+       {% ordering_link "customer" request title=_("Customer") %}
+       {% ordering_link "state" request title=_("State") %}
+
+   Required arguments are the field and the request. It is very much
+   recommended to add a title too of course.
 
    ``ordering_link`` has an optional argument, ``base_url`` which is
    useful if you need to customize the link part before the question
-   mark.
+   mark. The default behavior is to only add the query string, and nothing
+   else to the ``href`` attribute.
 
-   The resulting link has the following form::
+   It is possible to specify a set of CSS classes too. The CSS classes
+   ``'asc'`` and ``'desc'`` are added automatically by the code depending
+   upon the ordering which would be selected if the ordering link were
+   clicked (NOT the current ordering)::
 
-       <a class="ordering [asc|desc|]" href="base_url?o=-state">title</a>
+       {% ordering_link "state" request title=_("State") classes="btn" %}
 
-   or::
-
-       <a class="ordering [asc|desc|]" href="base_url?o=state">title</a>
+   The ``classes`` argument defaults to ``'ordering'``.
 
 
 Batch tags

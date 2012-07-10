@@ -92,7 +92,8 @@ def querystring(data, exclude='page,all'):
 
 
 @register.simple_tag
-def ordering_link(field, request, title=None, base_url=u''):
+def ordering_link(field, request, title=None, base_url=u'',
+        classes='ordering', class_asc='asc', class_desc='desc'):
     """
     Shows a table column header suitable for use as a link to change the
     ordering of objects in a list::
@@ -103,18 +104,33 @@ def ordering_link(field, request, title=None, base_url=u''):
 
     Required arguments are the field and the request. It is very much
     recommended to add a title too of course.
+
+    ``ordering_link`` has an optional argument, ``base_url`` which is
+    useful if you need to customize the link part before the question
+    mark. The default behavior is to only add the query string, and nothing
+    else to the ``href`` attribute.
+
+    It is possible to specify a set of CSS classes too. The CSS classes
+    ``'asc'`` and ``'desc'`` are added automatically by the code depending
+    upon the ordering which would be selected if the ordering link were
+    clicked (NOT the current ordering)::
+
+        {% ordering_link "state" request title=_("State") classes="btn" %}
+
+    The ``classes`` argument defaults to ``'ordering'``.
     """
+
+    css_classes = [classes]
 
     qs = querystring(request.GET, 'page,all,o')
     if request.GET.get('o') == field:
         qs = u'%s&o=-%s' % (qs, field)
-        css_class = 'desc'
+        css_classes.append(class_desc)
     elif request.GET.get('o') == ('-%s' % field):
         qs = u'%s&o=%s' % (qs, field)
-        css_class = 'asc'
+        css_classes.append(class_asc)
     else:
         qs = u'%s&o=%s' % (qs, field)
-        css_class = ''
 
-    return u'<a class="ordering %s" href="%s?%s">%s</a>' % (
-        css_class, base_url, qs, title)
+    return u'<a class="%s" href="%s?%s">%s</a>' % (
+        u' '.join(css_classes), base_url, qs, title)
