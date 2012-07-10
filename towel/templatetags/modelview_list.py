@@ -91,9 +91,8 @@ def querystring(data, exclude='page,all'):
     return urllib.urlencode(items)
 
 
-@register.simple_tag
-def ordering_link(field, request, title=None, base_url=u'',
-        classes='ordering', class_asc='asc', class_desc='desc'):
+@register.inclusion_tag('towel/_ordering_link.html')
+def ordering_link(field, request, title='', base_url='', **kwargs):
     """
     Shows a table column header suitable for use as a link to change the
     ordering of objects in a list::
@@ -120,17 +119,12 @@ def ordering_link(field, request, title=None, base_url=u'',
     The ``classes`` argument defaults to ``'ordering'``.
     """
 
-    css_classes = [classes]
-
-    qs = querystring(request.GET, 'page,all,o')
-    if request.GET.get('o') == field:
-        qs = u'%s&o=-%s' % (qs, field)
-        css_classes.append(class_desc)
-    elif request.GET.get('o') == ('-%s' % field):
-        qs = u'%s&o=%s' % (qs, field)
-        css_classes.append(class_asc)
-    else:
-        qs = u'%s&o=%s' % (qs, field)
-
-    return u'<a class="%s" href="%s?%s">%s</a>' % (
-        u' '.join(css_classes), base_url, qs, title)
+    ctx = {
+        'querystring': querystring(request.GET, exclude='page,all,o'),
+        'field': field,
+        'descending': request.GET.get('o', '') == field,
+        'title': title,
+        'base_url': base_url,
+        }
+    ctx.update(kwargs)
+    return ctx

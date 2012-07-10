@@ -1,0 +1,3 @@
+<a class="ordering {{ descending|yesno:"desc,asc" }}"
+  href="{{ base_url }}?{{ querystring }}&o={{ descending|yesno:"-," }}{{ field }}">
+  {{ title|default:field }}</a>
