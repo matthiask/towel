@@ -5,6 +5,8 @@
     </label>
     {{ item }}
 </div>
+{% elif "hidden" in type_class %}
+    {{ item }}
 {% else %}
 <p class="{{ additional_classes|default_if_none:"" }} {% if item.field.required %}required {% endif %}{% if item.errors %}invalid {% endif %} {{ type_class }}">
 {% if is_checkbox %}{{ item }}{% endif %}
