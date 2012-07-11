@@ -1,0 +1,36 @@
+{% load i18n verbose_name_tags %}
+<div class="form-errors alert alert-block alert-error fade in">
+  <a class="close" data-dismiss="alert" href="#">&times;</a>
+
+  <h4 class="alert-heading">{% trans "Please correct the following errors:" %}</h4>
+
+  <ul>
+  {% for form in forms %}
+  {% if form.non_field_errors %}
+    <li><span>{% trans "Form errors" %}:</span> {{ form.non_field_errors }}</li>
+  {% endif %}
+  {% for field in form %}
+    {% if field.errors %}
+      <li id="error_{{ field.name }}"><span>{{ field.label }}:</span> {{ field.errors }}</li>
+    {% endif %}
+  {% endfor %}
+  {% endfor %}
+
+  {% for formset in formsets %}
+  {% if formset.non_form_errors %}
+    <li><span>{{ fieldset|verbose_name_plural|default:_("Fieldset errors") }}:</span>
+      {{ formset.non_form_errors }}</li>
+  {% endif %}
+  {% for form in formset.forms %}
+    {% if form.non_field_errors %}
+      <li><span>{% trans "Form errors" %}:</span> {{ form.non_field_errors }}</li>
+    {% endif %}
+    {% for field in form %}
+      {% if field.errors %}
+        <li id="error_{{ field.name }}"><span>{{ field.label }}:</span> {{ field.errors }}</li>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  </ul>
+</div>

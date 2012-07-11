@@ -1,0 +1,21 @@
+<div class="control-group {{ additional_classes|default:"" }} {{ item.field.required|yesno:"required," }} {{ item.errors|yesno:"error," }} type-{{ type_class }} field-{{ item.name }}">
+  {% if is_checkbox %}
+    <div class="controls">
+      <label for="{{ item.auto_id }}" class="checkbox">
+        {{ item }}
+        {{ item.label }}
+      </label>
+      {% if item.field.help_text %}
+        <p class="help-block">{{ item.field.help_text }}</p>
+      {% endif %}
+    </div>
+  {% else %}
+    <label for="{{ item.auto_id }}" class="control-label">{{ item.label }}</label>
+    <div class="controls">
+      {{ item }}
+      {% if item.field.help_text %}
+        <p class="help-block">{{ item.field.help_text }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>

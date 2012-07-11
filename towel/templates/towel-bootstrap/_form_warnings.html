@@ -1,0 +1,31 @@
+{% load i18n verbose_name_tags %}
+<div class="form-errors alert alert-block">
+  <a class="close" data-dismiss="alert" href="#">&times;</a>
+  <h4 class="alert-heading">{% trans "Please review the following warnings:" %}</h4>
+
+  <ul>
+  {% for form in forms %}
+    {% for warning in form.warnings %}
+      <li>{{ warning }}</li>
+    {% endfor %}
+    {% if form.warnings %}
+      <label for="{{ form.ignore_warnings.auto_id }}">
+        {{ form.ignore_warnings }} {{ form.ignore_warnings.label }}
+      </label>
+    {% endif %}
+  {% endfor %}
+
+  {% for formset in formsets %}
+    {% for form in formset.forms %}
+      {% for warning in form.warnings %}
+        <li>{{ warning }}</li>
+      {% endfor %}
+      {% if form.warnings %}
+        <label for="{{ form.ignore_warnings.auto_id }}">
+          {{ form.ignore_warnings }} {{ form.ignore_warnings.label }}
+        </label>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+  </ul>
+</div>
