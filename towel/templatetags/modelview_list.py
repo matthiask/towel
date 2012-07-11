@@ -2,11 +2,15 @@ import operator
 import urllib
 
 from django import template
+from django.conf import settings
 from django.db import models
 from django.utils.safestring import mark_safe
 
 
 register = template.Library()
+
+
+TEMPLATE_ROOT = getattr(settings, 'TOWEL_TEMPLATE_ROOT', 'towel/')
 
 
 @register.filter
@@ -51,7 +55,8 @@ def model_row(instance, fields):
         yield (f.verbose_name, value)
 
 
-@register.inclusion_tag('towel/_pagination.html', takes_context=True)
+@register.inclusion_tag('%s_pagination.html' % TEMPLATE_ROOT,
+    takes_context=True)
 def pagination(context, page, paginator, where=None):
     """
     Shows pagination links::
@@ -91,7 +96,7 @@ def querystring(data, exclude='page,all'):
     return urllib.urlencode(items)
 
 
-@register.inclusion_tag('towel/_ordering_link.html')
+@register.inclusion_tag('%s_ordering_link.html' % TEMPLATE_ROOT)
 def ordering_link(field, request, title='', base_url='', **kwargs):
     """
     Shows a table column header suitable for use as a link to change the

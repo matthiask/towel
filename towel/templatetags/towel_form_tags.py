@@ -1,8 +1,12 @@
 from django import forms, template
+from django.conf import settings
 from django.template.loader import render_to_string
 
 
 register = template.Library()
+
+
+TEMPLATE_ROOT = getattr(settings, 'TOWEL_TEMPLATE_ROOT', 'towel/')
 
 
 def _type_class(item):
@@ -23,14 +27,14 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return u''.join(render_to_string('towel/_form_item.html', {
+    return u''.join(render_to_string('%s_form_item.html' % TEMPLATE_ROOT, {
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
         }) for field in form)
 
 
-@register.inclusion_tag('towel/_form_item.html')
+@register.inclusion_tag('%s_form_item.html' % TEMPLATE_ROOT)
 def form_item(item, additional_classes=None):
     """
     Helper for easy displaying of form items::
@@ -48,7 +52,7 @@ def form_item(item, additional_classes=None):
         }
 
 
-@register.inclusion_tag('towel/_form_item_plain.html')
+@register.inclusion_tag('%s_form_item_plain.html' % TEMPLATE_ROOT)
 def form_item_plain(item, additional_classes=None):
     """
     Helper for easy displaying of form items without any additional
@@ -117,7 +121,7 @@ class FormErrorsNode(template.Node):
         if not errors:
             return u''
 
-        return render_to_string('towel/_form_errors.html', {
+        return render_to_string('%s_form_errors.html' % TEMPLATE_ROOT, {
             'forms': form_list,
             'formsets': formset_list,
             'errors': True,
@@ -176,7 +180,7 @@ class FormWarningsNode(template.Node):
         if not warnings:
             return u''
 
-        return render_to_string('towel/_form_warnings.html', {
+        return render_to_string('%s_form_warnings.html' % TEMPLATE_ROOT, {
             'forms': form_list,
             'formsets': formset_list,
             'warnings': True,
