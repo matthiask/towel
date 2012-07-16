@@ -1,3 +1,4 @@
+import itertools
 import re
 
 from django import template
@@ -117,3 +118,28 @@ def resolve_args_and_kwargs(context, args, kwargs):
     """
     return [v.resolve(context) for v in args], dict((k, v.resolve(context))
         for k, v in kwargs.items())
+
+
+def changed_regions(regions, fields):
+    """
+    Returns a subset of regions which have to be updated when fields have
+    been edited. To be used together with the ``{% regions %}`` template
+    tag.
+
+    Usage::
+
+        regions = {}
+        render(request, 'detail.html', {
+            'object': instance,
+            'regions': regions,
+            })
+        return HttpResponse(
+            json.dumps(changed_regions(regions, ['emails', 'phones'])),
+            content_type='application/json')
+    """
+    dependencies = regions.get('_dependencies', {})
+    to_update = set(itertools.chain(*[
+        dependencies.get(field, []) for field in fields]))
+
+    return dict((key, value) for key, value in regions.iteritems()
+        if key in to_update)
