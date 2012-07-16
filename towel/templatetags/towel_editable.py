@@ -153,7 +153,7 @@ class EditableNode(template.Node):
             dependencies = towel_editable.setdefault('dependencies', {})
 
             for field in used.split(','):
-                dependencies.setdefault(field, []).append(ident)
+                dependencies.setdefault(field.strip(), []).append(ident)
 
         except KeyError:
             # Ignore this silently -- towel_editable will not be available most
