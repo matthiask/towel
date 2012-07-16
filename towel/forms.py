@@ -195,6 +195,12 @@ class SearchForm(forms.Form):
                 }
             return render(request, 'addresses.html', ctx)
 
+    .. warning::
+
+        All fields in the form need to have ``required=False`` set. Otherwise,
+        form validation would already fail on the first visit on the list
+        page (which would kind of defeat the purpose of a search form).
+
     Template code::
 
         <form method="get" action=".">
