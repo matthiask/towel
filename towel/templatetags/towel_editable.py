@@ -84,7 +84,7 @@ class RegionNode(template.Node):
             regions[region_id] = output
             dependencies = regions.setdefault('_dependencies', {})
 
-            for field in fields.split(','):
+            for field in re.split('[,\s]+', fields):
                 dependencies.setdefault(field, []).append(region_id)
 
         return mark_safe('<span %s>%s</span>' % (
@@ -152,8 +152,8 @@ class EditableNode(template.Node):
 
             dependencies = towel_editable.setdefault('dependencies', {})
 
-            for field in used.split(','):
-                dependencies.setdefault(field, []).append(ident)
+            for field in re.split('[,\s]+', used):
+                dependencies.setdefault(field.strip(), []).append(ident)
 
         except KeyError:
             # Ignore this silently -- towel_editable will not be available most
