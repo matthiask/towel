@@ -5,12 +5,20 @@
                 $.each($.parseJSON(data), function(key, value) {
                     $('#' + key).html(value);
                 });
+                $editor.trigger({
+                    type: 'updateSuccessful',
+                    data: data
+                });
                 return false;
             } else {
                 $editor.html(data);
                 $editor.find('form').on('submit', function() {
                     $.post(this.action, $(this).serialize(), init_editor);
                     return false;
+                });
+                $editor.trigger({
+                    type: 'formLoaded',
+                    target: this
                 });
             }
         };
