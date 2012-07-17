@@ -4,21 +4,8 @@
   {% for field in editfields %}<input type="hidden" name="_edit" value="{{ field }}">
   {% endfor %}
 
-  {% form_errors form formsets %}
+  {% form_errors form %}
   {% form_warnings form %}
   {% form_items form %}
-  {% for key, formset in formsets.items %}
-    {{ formset.management_form }}
-    <div>
-      {% dynamic_formset formset key %}
-        <div id="{{ form_id }}" class="{% if empty %}empty{% endif %}">
-          {% form_items form %}
-        </div>
-      {% enddynamic_formset %}
-      <button type="button" class="add" onclick="towel_add_subform('{{ key }}');">
-        {{ formset|verbose_name }}
-      </button>
-    </div>
-  {% endfor %}
   <input type="submit" name="_save" value="{% trans "Save" %}">
 </form>

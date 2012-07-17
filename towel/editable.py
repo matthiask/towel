@@ -13,10 +13,8 @@ def editfields(modelview, request, instance, form_class=None):
     This method assumes that editing permissions have been checked already.
 
     If the list of fields (passed as ``_edit`` values in either GET or POST)
-    contains fields not available on the model itself, this method calls
-    ``get_formset_instances()`` with all other fields in the ``formsets``
-    keyword argument and assumes that ``get_formset_instances`` will return
-    the appropriate formsets.
+    contains fields not available on the model itself, those values will
+    be ignored.
     """
     # Get base modelform
     if not form_class:
@@ -29,38 +27,30 @@ def editfields(modelview, request, instance, form_class=None):
     # Meta.exclude luckily because Meta.exclude always trumps Meta.fields.
     editfields = request.REQUEST.getlist('_edit')
 
-    modelfields, otherfields = [], []
+    modelfields = []
     for f in editfields:
         try:
             modelview.model._meta.get_field(f)
             modelfields.append(f)
         except models.FieldDoesNotExist:
-            otherfields.append(f)
+            pass
 
     fields = getattr(form_class.Meta, 'fields', None)
     if fields:
         # Do not use sets to preserve ordering
         modelfields = [f for f in modelfields if f in fields]
 
-    if not (modelfields or otherfields):
+    if not modelfields:
         return HttpResponse('')
 
     # Construct new form_class with only a restricted set of fields
     form_class = modelform_factory(modelview.model, form=form_class,
         fields=modelfields)
-    formsets = {}
 
     if request.method == 'POST':
         form = form_class(request.POST, request.FILES, instance=instance)
-        if otherfields:
-            formsets = modelview.get_formset_instances(request,
-                instance=instance, change=True,
-                formsets=otherfields)
-
-        if form.is_valid() and all(f.is_valid() for f in formsets.values()):
+        if form.is_valid():
             instance = form.save()
-            for formset in formsets.values():
-                formset.save()
 
             towel_editable = {}
             modelview.render_detail(request, {
@@ -80,16 +70,11 @@ def editfields(modelview, request, instance, form_class=None):
             return HttpResponse(json.dumps(towel_editable))
     else:
         form = form_class(instance=instance)
-        if otherfields:
-            formsets = modelview.get_formset_instances(request,
-                instance=instance, change=True,
-                formsets=otherfields)
 
     return modelview.render(request,
         modelview.get_template(request, 'editfields'),
         modelview.get_context(request, {
             modelview.template_object_name: instance,
             'form': form,
-            'formsets': formsets,
             'editfields': editfields,
             }))
