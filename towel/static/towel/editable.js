@@ -5,6 +5,10 @@
                 $.each($.parseJSON(data), function(key, value) {
                     $('#' + key).html(value);
                 });
+                $editor.trigger({
+                    type: 'updateSuccessful',
+                    data: data
+                });
                 return false;
             } else {
                 $editor.html(data);
