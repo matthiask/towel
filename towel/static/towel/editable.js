@@ -12,6 +12,10 @@
                     $.post(this.action, $(this).serialize(), init_editor);
                     return false;
                 });
+                $editor.trigger({
+                    type: 'formLoaded',
+                    target: this
+                });
             }
         };
         return init_editor;
