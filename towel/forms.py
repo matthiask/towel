@@ -166,7 +166,6 @@ class SearchForm(forms.Form):
     Supports persistence of searches (stores search in the session). Requires
     not only the GET parameters but the request object itself to work
     correctly.
-    All fields need to have required=False.
 
     Usage example::
 
