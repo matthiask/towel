@@ -1,7 +1,9 @@
 import json
 
 from django.http import HttpResponse
+from django.shortcuts import render
 
+from towel.modelview import ModelView
 from towel.utils import changed_regions
 
 
