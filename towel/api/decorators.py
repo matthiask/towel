@@ -2,7 +2,7 @@ from functools import wraps
 import httplib
 
 from django.contrib.auth import authenticate
-from django.utils.cache import patch_vary_headers
+from django.views.decorators.vary import vary_on_headers
 
 
 def http_basic_auth(func):
