@@ -12,13 +12,15 @@ provided tools along the way. Next, this guide covers the CRUD part of Towel,
 talk about batch processing a bit and end up with explaining a few components
 in more detail.
 
-Please note that Towel's ModelView could be considered similar to Django's own
-generic views. However, they do not have the same purpose and software design:
-Django's generic views use one class per view, and every instance only processes
-one request. Towel's ModelView is more similar to Django's admin site in that
-one instance is responsible for many URLs and handles many requests. You have
-to take care not to modify ModelView itself during request processing, because
-this will not be thread-safe.
+.. warning::
+
+    Please note that Towel's ModelView could be considered similar to Django's
+    own generic views. However, they do not have the same purpose and software
+    design: Django's generic views use one class per view, and every instance
+    only processes one request. Towel's ModelView is more similar to Django's
+    admin site in that one instance is responsible for many URLs and handles
+    many requests.  You have to take care not to modify ModelView itself during
+    request processing, because this will not be thread-safe.
 
 
 .. _modelview-models:
