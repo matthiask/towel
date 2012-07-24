@@ -108,7 +108,7 @@ class API(object):
         """
         if request.method == 'OPTIONS':
             response = HttpResponse()
-            response['Allow'] = 'GET, HEAD'
+            response['Allow'] = 'GET, HEAD, OPTIONS'
             response['Content-Length'] = 0
             return response
 
