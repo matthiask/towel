@@ -1,7 +1,6 @@
 import itertools
 import re
 
-from django import template
 from django.db.models.deletion import Collector
 
 
@@ -65,7 +64,7 @@ def safe_queryset_and(qs1, qs2):
     return res
 
 
-kwarg_re = re.compile("(?:(\w+)=)?(.+)")
+_KWARG_RE = re.compile("(?:(\w+)=)?(.+)")
 
 
 def parse_args_and_kwargs(parser, bits):
@@ -98,7 +97,7 @@ def parse_args_and_kwargs(parser, bits):
     kwargs = {}
 
     for bit in bits:
-        match = kwarg_re.match(bit)
+        match = _KWARG_RE.match(bit)
         key, value = match.groups()
         value = parser.compile_filter(value)
         if key:

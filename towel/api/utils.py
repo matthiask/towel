@@ -25,7 +25,7 @@ def querystring(data, exclude=(), **kwargs):
         for k, values in data.iterlists() if k not in exclude
         ), [])
 
-    for k, v in kwargs.iteritems():
-        items.append((k, unicode(v).encode('utf-8')))
+    for key, value in kwargs.iteritems():
+        items.append((key, unicode(value).encode('utf-8')))
 
     return urlencode(items)

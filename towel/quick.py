@@ -54,11 +54,11 @@ def parse_quickadd(quick, regexes):
     rest = []
 
     while quick:
-        for r, p in regexes:
-            match = r.match(quick)
+        for regexp, extract in regexes:
+            match = regexp.match(quick)
             if match:
-                for k, v in p(match.groupdict()).items():
-                    data.setdefault(k, []).append(v)
+                for key, value in extract(match.groupdict()).items():
+                    data.setdefault(key, []).append(value)
 
                 quick = quick[len(match.group(0)):].strip()
                 break
@@ -80,9 +80,7 @@ def identity():
     Identity mapper. Returns the values from the regular expression
     directly.
     """
-    def _fn(v):
-        return v
-    return _fn
+    return (lambda value: value)
 
 
 def model_mapper(queryset, attribute):
@@ -92,9 +90,9 @@ def model_mapper(queryset, attribute):
     primary key of the instance under the ``attribute`` name, and the instance
     itself as ``attribute_``.
     """
-    def _fn(v):
+    def _fn(values):
         try:
-            instance = queryset.get(**v)
+            instance = queryset.get(**values)
             return {
                 attribute: instance.pk,
                 attribute + '_': instance,
@@ -108,9 +106,7 @@ def static(**kwargs):
     """
     Return a predefined ``dict`` when the given regex matches.
     """
-    def _fn(v):
-        return kwargs
-    return _fn
+    return (lambda values: kwargs)
 
 
 def model_choices_mapper(data, attribute):
@@ -132,11 +128,11 @@ def model_choices_mapper(data, attribute):
                 Ticket.VISIBILITY_CHOICES, 'visibility')),
             ]
     """
-    reverse = dict((unicode(v), k) for k, v in data)
+    reverse = dict((unicode(value), key) for key, value in data)
 
-    def _fn(v):
+    def _fn(values):
         try:
-            return {attribute: reverse[v['value']]}
+            return {attribute: reverse[values['value']]}
         except KeyError:
             return {}
     return _fn
@@ -147,15 +143,15 @@ def due_mapper(attribute):
     Understands ``Today``, ``Tomorrow``, the following five localized
     week day names or (partial) dates such as ``20.12.`` and ``01.03.2012``.
     """
-    def _fn(v):
+    def _fn(values):
         today = date.today()
-        due = v['due']
+        due = values['due']
 
         days = [(dateformat.format(d, 'l'), d) for d in [
             (today + timedelta(days=d)) for d in range(2, 7)]]
         days.append((_('Today'), today))
         days.append((_('Tomorrow'), today + timedelta(days=1)))
-        days = dict((k.lower(), v) for k, v in days)
+        days = dict((k.lower(), value) for k, value in days)
 
         if due.lower() in days:
             return {attribute: days[due.lower()]}
@@ -181,10 +177,10 @@ def bool_mapper(attribute):
     Maps ``yes``, ``1`` and ``on`` to ``True`` and ``no``, ``0``
     and ``off`` to ``False``.
     """
-    def _fn(v):
-        if v['bool'].lower() in ('yes', '1', 'on', 'true'):
+    def _fn(values):
+        if values['bool'].lower() in ('yes', '1', 'on', 'true'):
             return {attribute: True}
-        elif v['bool'].lower() in ('no', '0', 'off', 'false'):
+        elif values['bool'].lower() in ('no', '0', 'off', 'false'):
             return {attribute: False}
         return {}
     return _fn

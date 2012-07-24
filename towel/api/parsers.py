@@ -54,7 +54,7 @@ class RequestParser(object):
             }
 
         if content_type not in handlers:
-            return Serializer().serialize_response({
+            return Serializer().serialize({
                 'error': '%r is not supported' % content_type,
                 }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
                 output_format=request.GET.get('format'))

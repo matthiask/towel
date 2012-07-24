@@ -18,7 +18,7 @@ class Serializer(object):
     isn't overridden.
     """
     def serialize(self, data, output_format=None, request=None,
-            status=httplib.OK, headers={}):
+            status=httplib.OK, headers=None):
         """
         Returns a ``HttpResponse`` containing the serialized response in the
         format specified explicitly in ``output_format`` (either as a MIME type
@@ -81,8 +81,9 @@ class Serializer(object):
             response = HttpResponse('Not acceptable')
             status = httplib.NOT_ACCEPTABLE
 
-        for key, value in headers.iteritems():
-            response[key] = value
+        if headers:
+            for key, value in headers.iteritems():
+                response[key] = value
 
         patch_vary_headers(response, ('Accept',))
         response.status_code = status

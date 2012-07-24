@@ -1,6 +1,5 @@
 import re
 
-from django.db import models
 from django.db.models import Q
 
 from towel import queryset_transform

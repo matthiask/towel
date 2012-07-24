@@ -1,0 +1,5 @@
+[MASTER]
+ignore=tests,migrations
+
+[TYPECHECK]
+generated-members=objects,DoesNotExist,id,pk,_meta,base_fields,context,fields,is_valid,cleaned_data

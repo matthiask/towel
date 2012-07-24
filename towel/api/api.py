@@ -3,6 +3,7 @@ import httplib
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf.urls import patterns, include, url
 from django.db import models
+from django.http import HttpResponse
 from django.utils.functional import curry
 from django.views.decorators.csrf import csrf_exempt
 

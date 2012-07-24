@@ -68,6 +68,7 @@ class Page(paginator.Page):
     Page object for Digg-style pagination
     """
     def __init__(self, page):
+        # We do not call super.__init__, because we're only a wrapper / proxy
         self.__dict__ = page.__dict__
 
     @property

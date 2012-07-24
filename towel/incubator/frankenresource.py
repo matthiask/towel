@@ -2,7 +2,7 @@ import httplib
 
 from django.contrib.messages.api import get_messages
 
-from towel.api import Resource, APIException, Serializer
+from towel.api import Resource, APIException
 
 
 class FrankenResource(Resource):
@@ -49,12 +49,12 @@ class FrankenResource(Resource):
 
         try:
             is_valid = form.is_valid()
-        except TypeError as e:
+        except TypeError as exc:
             # This can happen when POSTing something of type
             # application/json with a list instead of a single entry,
             # e.g. {"customer_id": ["1"]}
             raise APIException('Malformed data', data={
-                'exception': unicode(e),
+                'exception': unicode(exc),
                 })
 
         if not is_valid:

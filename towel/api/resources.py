@@ -82,15 +82,15 @@ class Resource(generic.View):
         try:
             return self.serialize_response(handler(
                 self.request, *self.args, **self.kwargs))
-        except Http404 as e:
-            return self.serialize_response({'error': e[0]},
+        except Http404 as exc:
+            return self.serialize_response({'error': exc[0]},
                 status=httplib.NOT_FOUND)
-        except APIException as e:
+        except APIException as exc:
             data = {
-                'error': e.error_message,
+                'error': exc.error_message,
                 }
-            data.update(e.data)
-            return self.serialize_response(data, status=e.status)
+            data.update(exc.data)
+            return self.serialize_response(data, status=exc.status)
 
     def unserialize_request(self):
         """
@@ -105,7 +105,7 @@ class Resource(generic.View):
         """
         return RequestParser().parse(self.request)
 
-    def serialize_response(self, response, status=httplib.OK, headers={}):
+    def serialize_response(self, response, status=httplib.OK, headers=None):
         """
         Serializes the response into an appropriate format for the wire such
         as JSON. ``HttpResponse`` instances are returned directly.

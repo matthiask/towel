@@ -2,6 +2,7 @@ from functools import wraps
 import httplib
 
 from django.contrib.auth import authenticate
+from django.http import HttpResponse
 from django.views.decorators.vary import vary_on_headers
 
 
@@ -14,7 +15,7 @@ def http_basic_auth(func):
             if meth.lower() == 'basic':
                 try:
                     auth = auth.strip().decode('base64')
-                except Exception:
+                except Exception:  # binascii.Error, really.
                     return HttpResponse('Invalid authorization header',
                         status=httplib.BAD_REQUEST)
 

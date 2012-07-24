@@ -25,10 +25,10 @@ def editfields(modelview, request, instance, form_class=None):
     # specifies Meta.fields, make sure that _edit only contains fields
     # which are in Meta.fields as well. We don't have to do anything with
     # Meta.exclude luckily because Meta.exclude always trumps Meta.fields.
-    editfields = request.REQUEST.getlist('_edit')
+    edit_fields = request.REQUEST.getlist('_edit')
 
     modelfields = []
-    for f in editfields:
+    for f in edit_fields:
         try:
             modelview.model._meta.get_field(f)
             modelfields.append(f)
@@ -60,7 +60,7 @@ def editfields(modelview, request, instance, form_class=None):
 
             dependencies = towel_editable.get('dependencies', {})
             widgets_to_update = []
-            for field in editfields:
+            for field in edit_fields:
                 widgets_to_update.extend(dependencies.get(field, []))
 
             towel_editable = dict((key, value) for key, value
@@ -76,5 +76,5 @@ def editfields(modelview, request, instance, form_class=None):
         modelview.get_context(request, {
             modelview.template_object_name: instance,
             'form': form,
-            'editfields': editfields,
+            'editfields': edit_fields,
             }))

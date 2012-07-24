@@ -1,18 +1,14 @@
 from __future__ import with_statement
 
-import datetime
-import decimal
-import urllib
-
 from django import forms
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models, transaction
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render_to_response
+from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
@@ -22,6 +18,10 @@ from towel.utils import related_classes, safe_queryset_and
 
 
 def _tryreverse(*args, **kwargs):
+    """
+    Calls ``django.core.urlresolvers.reverse``, and returns ``None`` on
+    failure instead of raising an exception.
+    """
     try:
         return reverse(*args, **kwargs)
     except NoReverseMatch:
@@ -37,9 +37,17 @@ class ModelView(object):
     # f.e. a simple way of ensuring a user is logged in before accessing
     # any view here.
     def view_decorator(self, func):
+        """
+        Returns the function as-is, does not apply permission checking or
+        anything.
+        """
         return func
 
     def crud_view_decorator(self, func):
+        """
+        Does what ``view_decorator`` above does (which is returning the passed
+        view without applying any permission checking or anything).
+        """
         return self.view_decorator(func)
 
     #: Used for detail and edit views
@@ -677,6 +685,8 @@ class ModelView(object):
                 return result
 
             elif isinstance(result, dict):
+                # TODO this does not make any sense because of the redirect
+                # further below
                 ctx.update(result)
 
             elif hasattr(result, '__iter__'):

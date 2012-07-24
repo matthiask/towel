@@ -5,8 +5,8 @@ from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
-from django.http import HttpResponse
 from django.utils.encoding import force_unicode
+from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -116,6 +116,10 @@ class BatchForm(forms.Form):
             super(BatchForm, self).__init__(*args, **kwargs)
 
     def clean(self):
+        """
+        Cleans the batch form fields and checks whether at least one item
+        had been selected.
+        """
         data = super(BatchForm, self).clean()
 
         post_data = self.request.POST
@@ -128,15 +132,34 @@ class BatchForm(forms.Form):
         return data
 
     def should_process(self):
+        """
+        Returns true when the submitted form was the batch form, and the
+        batch form is valid.
+        """
         return self._process and self.is_valid()
 
-    @property
+    @cached_property
     def batch_queryset(self):
-        if not hasattr(self, '_batch_queryset_cache'):
-            self._batch_queryset_cache = self.queryset.filter(id__in=self.ids)
-        return self._batch_queryset_cache
+        """
+        Returns the queryset containing only items that have been selected
+        for batch processing.
+        """
+        return self.queryset.filter(id__in=self.ids)
 
     def process(self):
+        """
+        Actually processes the batch form submission. Override this with
+        your own behavior.
+
+        Batch forms may return the following types here (they are handled
+        by ``ModelView.handle_batch_form``:
+
+        - A ``HttpResponse``:
+          Will be returned directly to the user.
+        - An iterable:
+          A success message will be generated containing all items in the
+          iterable.
+        """
         if hasattr(self, '_context'):
             import warnings
             warnings.warn(
@@ -154,11 +177,6 @@ class BatchForm(forms.Form):
 
         raise NotImplementedError(
             'BatchForm.process has no default implementation.')
-
-    def selected_items(self, post_data, queryset):
-        ids = [pk for pk in queryset.values_list('id', flat=True)
-               if post_data.get('batch_%s' % pk)]
-        return queryset.filter(id__in=ids)
 
 
 class SearchForm(forms.Form):
@@ -262,15 +280,15 @@ class SearchForm(forms.Form):
             return data
 
         data = data.copy()
-        for k, v in self.default.items():
-            if k not in data:
-                if hasattr(v, '__call__'):
-                    v = v(request)
+        for key, value in self.default.items():
+            if key not in data:
+                if hasattr(value, '__call__'):
+                    value = value(request)
 
-                if hasattr(v, '__iter__'):
-                    data.setlist(k, v)
+                if hasattr(value, '__iter__'):
+                    data.setlist(key, value)
                 else:
-                    data[k] = v
+                    data[key] = value
         return data
 
     def post_init(self, request):
@@ -674,6 +692,9 @@ class InvalidEntry(object):
 
 
 class MultipleAutocompletionWidget(forms.TextInput):
+    """
+    You should probably use harvest chosen instead.
+    """
     def __init__(self, attrs=None, queryset=None):
         self.queryset = queryset
         super(MultipleAutocompletionWidget, self).__init__(attrs)
