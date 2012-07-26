@@ -119,10 +119,13 @@ def ordering_link(field, request, title='', base_url='', **kwargs):
     The ``classes`` argument defaults to ``'ordering'``.
     """
 
+    current = request.GET.get('o', '')
+
     ctx = {
         'querystring': querystring(request.GET, exclude='page,all,o'),
         'field': field,
-        'descending': request.GET.get('o', '') == field,
+        'used': current in (field, '-%s' % field),
+        'descending': current == field,
         'title': title,
         'base_url': base_url,
         }
