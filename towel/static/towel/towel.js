@@ -1,4 +1,4 @@
-;function towel_add_subform(slug) {
+;function towel_add_subform(slug, onComplete) {
     var total_forms = $('#id_' + slug + '-TOTAL_FORMS'),
         new_id = parseInt(total_forms.val());
 
@@ -24,5 +24,9 @@
     form.insertAfter(
         empty.parent().children('[id|=' + slug + ']:last')
         ).hide().fadeIn();
+
+    if (onComplete)
+        onComplete(form);
+
     return false;
 };
