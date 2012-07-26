@@ -622,9 +622,10 @@ class ModelView(object):
         to handle search and batch forms, too.
         """
         ctx = {}
+        queryset = self.get_query_set(request, *args, **kwargs)
+        ctx['root_%s' % self.template_object_list_name] = queryset
 
-        queryset, response = self.handle_search_form(request, ctx,
-            queryset=self.get_query_set(request, *args, **kwargs))
+        queryset, response = self.handle_search_form(request, ctx, queryset)
 
         if response:
             return response
