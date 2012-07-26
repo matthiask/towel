@@ -1,20 +1,20 @@
-;function towel_add_subform(slug, onComplete) {
-    var total_forms = $('#id_' + slug + '-TOTAL_FORMS'),
-        new_id = parseInt(total_forms.val());
+;function addInlineForm(slug, onComplete) {
+    var totalForms = $('#id_' + slug + '-TOTAL_FORMS'),
+        newId = parseInt(totalForms.val());
 
-    total_forms.val(new_id + 1);
+    totalForms.val(newId + 1);
     var empty = $('#' + slug + '-empty'),
         attributes = ['id', 'name', 'for'],
         form = $(empty.html());
 
-    form.removeClass('empty').attr('id', slug + '-' + new_id);
+    form.removeClass('empty').attr('id', slug + '-' + newId);
 
     for (var i=0; i<attributes.length; ++i) {
         var attr = attributes[i];
 
         form.find('*[' + attr + '*=__prefix__]').each(function() {
             var el = $(this);
-            el.attr(attr, el.attr(attr).replace(/__prefix__/, new_id));
+            el.attr(attr, el.attr(attr).replace(/__prefix__/, newId));
         });
     }
 
@@ -30,3 +30,6 @@
 
     return false;
 };
+
+// backwards compat
+window.towel_add_subform = addInlineForm;
