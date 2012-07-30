@@ -48,7 +48,8 @@ def editfields(modelview, request, instance, form_class=None):
         fields=modelfields)
 
     if request.method == 'POST':
-        form = form_class(request.POST, request.FILES, instance=instance)
+        form = form_class(request.POST, request.FILES, instance=instance,
+            request=request)
         if form.is_valid():
             instance = form.save()
 
@@ -69,7 +70,7 @@ def editfields(modelview, request, instance, form_class=None):
 
             return HttpResponse(json.dumps(towel_editable))
     else:
-        form = form_class(instance=instance)
+        form = form_class(instance=instance, request=request)
 
     return modelview.render(request,
         modelview.get_template(request, 'editfields'),
