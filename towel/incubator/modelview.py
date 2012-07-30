@@ -40,14 +40,7 @@ class InlineModelView(ModelView):
             request, *args, **kwargs)
 
     def add_view(self, request, parent):
-        parent = get_object_or_404(
-            # TODO make this generic
-            self.parent_class.objects.for_access(request.user.access),
-            id=parent,
-            )
-
-        request._parent = parent
-
+        request._parent = get_object_or_404(self.parent_class, id=parent)
         return super(InlineModelView, self).add_view(request)
 
     def save_model(self, request, instance, form, change):
