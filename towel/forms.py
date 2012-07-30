@@ -248,10 +248,11 @@ class SearchForm(forms.Form):
     quick_rules = []
 
     #: Search form active?
-    s = forms.CharField(required=False)
+    s = forms.CharField(required=False, widget=forms.HiddenInput(),
+                        initial='1')
 
     #: Current ordering
-    o = forms.CharField(required=False)
+    o = forms.CharField(required=False, widget=forms.HiddenInput())
 
     #: Full text search query
     query = forms.CharField(required=False, label=_('Query'),
