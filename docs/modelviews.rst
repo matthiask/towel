@@ -302,6 +302,15 @@ here.
    :ref:`modelview-standard-context`.
 
 
+.. _modelview-object-list-searchable:
+
+List Searchable
+===============
+
+Please refer to the :doc:`search_and_filter` page for information about
+filtering lists.
+
+
 .. _modelview-object-detail:
 
 Object detail pages

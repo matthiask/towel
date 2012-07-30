@@ -1,2 +1,2 @@
-django >= 1.4
+Django >= 1.4
 mimeparse

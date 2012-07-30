@@ -1,15 +1,13 @@
-.. _search:
+.. _search_and_filter:
 
 =================
 Search and Filter
 =================
 
-Towel does not distinguish between a search and a filter query.
+Towel does not distinguish between searching and filtering.
 There are different layers of filtering applied during a request and depending
 on your need you have to hook in your filter at the right place.
 
-
-.. _modelview-object-list-searchable:
 
 Making lists searchable using the search form
 =============================================
@@ -91,11 +89,11 @@ they can be easily augmented by javascript code.
     If you want to be able to filter by multiple items, i.e. publishers 1 and 2,
     you have to define the ``publisher`` field in the ``SearchForm`` as
     :class:`~django.forms.ModelMultipleChoiceField`. Even if the model itself only
-    has a simple ForeignKey Field. Otherwise only the last item in the URL is used
-    for filtering.
+    has a simple ForeignKey Field. Otherwise only the last element of a series
+    is used for filtering.
 
-To activate this search form, all you have to do is add an additional parameter
-when you instantiate the ModelView subclass::
+To activate a search form, all you have to do is add an additional parameter
+when you instantiate a ModelView subclass::
 
     from myapp.forms import BookSearchForm
     from myapp.models import Book
@@ -107,15 +105,6 @@ when you instantiate the ModelView subclass::
             paginate_by=20,
             ).urls)),
     )
-
-
-.. warning::
-
-    To distinguish between a search request and an ordinary form submission,
-    towel requires that the POST parameter ``s`` exist
-    if the form is sent via POST.
-    The field is included by default, but don't forget to add it to your template
-    if you are using a custom form render method.
 
 
 You can now filter the list by providing the search keys as GET parameters::
@@ -134,10 +123,7 @@ the queryset i.e. depending on the current user::
 
     def post_init(self, request):
         self.access = getattr(request.user, 'access', None)
-        self.fields['publisher'] = forms.ModelChoiceField(
-            Publisher.objects.for_access(self.access),
-            required=False
-        )
+        self.fields['publisher'].queryset = Publisher.objects.for_user(request.user)
 
 
 The ordering is also defined in the :class:`~towel.forms.SearchForm`.
@@ -147,8 +133,8 @@ field names or a callable. The ordering keys are what is used in the URL::
 
     class AddressSearchForm(SearchForm):
         orderings = {
-            '': ('last_name', 'first_name'), # Default
-            'dob': 'dob', # Sort by date of birth
+            '': ('last_name', 'first_name'),  # Default
+            'dob': 'dob',  # Sort by date of birth
             'random': lambda queryset: queryset.order_by('?'),
             }
 
@@ -158,8 +144,11 @@ Persistent queries
 
 When you pass the parameter ``s``, the search is stored in the session for
 that path. If the user returns to the object list, the filtering is applied again.
-To reset the filters, you have to pass ``?n`` or ``?query=`` (an empty query).
 
+The field is included in the SearchForm by default, but don't forget to
+add it to your template if you are using a custom form render method.
+
+To reset the filters, you have to pass ``?clear=1`` or ``?n``.
 
 Quick Rules
 ===========
@@ -167,7 +156,8 @@ Quick Rules
 Another option for filtering are :doc:`Quick rules <autogen/quick>`.
 This allows for field-independent filtering like ``is:cool``.
 Quick rules are mapped to filter attributes using regular expressions.
-They go into the search form and are parsed automatically::
+They go into the search form and are parsed automatically
+(as long as ``query_data`` is used inside the ``queryset`` method::
 
     class BookSearchForm(towel_forms.SearchForm):
         quick_rules = [
