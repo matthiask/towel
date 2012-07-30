@@ -21,6 +21,7 @@ Contents
    installation
    api
    modelviews
+   search_and_filter
    templatetags
 
 

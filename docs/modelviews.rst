@@ -302,104 +302,13 @@ here.
    :ref:`modelview-standard-context`.
 
 
-
 .. _modelview-object-list-searchable:
 
-Making lists searchable
------------------------
+List Searchable
+===============
 
-Pagination is not enough for many use cases, we need more! Luckily, Towel
-has a pre-made solution for searching object lists too.
-
-:py:class:`towel.forms.SearchForm` can be used together with
-:py:class:`towel.managers.SearchManager` to build a low-cost implementation of
-full text search and filtering by model attributes.
-
-The method used to implement full text search is a bit stupid and cannot
-replace mature full text search solutions such as Apache Solr. It might just
-solve 80% of the problems with 20% of the effort though.
-
-Code talks. First, we extend our models definition with a
-:py:class:`~django.db.models.Manager` subclass with a simple search
-implementation::
-
-    from django.db import models
-    from towel.managers import SearchManager
-
-    class BookManager(SearchManager):
-        search_fields = ('title', 'topic', 'authors__name',
-            'publisher__name', 'publisher__address')
-
-    class Book(models.Model):
-        # [...]
-
-        objects = BookManager()
-
-:py:class:`~towel.managers.SearchManager` supports queries with multiple clauses;
-terms may be grouped using apostrophes, plus and minus signs may be optionally
-prepended to the terms to determine whether the given term should be included
-or not. Example::
-
-    +Django "Shop software" -Satchmo
-
-Please note that you can search fields from other models too. You should
-be careful when traversing many-to-many or reverse foreign key relations
-however, because you will get duplicated results if you do not call
-:py:meth:`~django.db.models.query.QuerySet.distinct` on the resulting queryset.
-
-The method :py:meth:`~towel.managers.SearchManager._search` does the heavy
-lifting when constructing a queryset. You should not need to override this
-method. If you want to customize the results further, f.e. apply a site-wide
-limit for the objects a certain logged in user may see, you should override
-:py:meth:`~towel.managers.SearchManager.search`.
-
-Next, we have to create a :class:`~towel.forms.SearchForm` subclass::
-
-    from django import forms
-    from towel import forms as towel_forms
-    from myapp.models import Author, Book, Publisher
-
-    class BookSearchForm(towel_forms.SearchForm):
-        publisher = forms.ModelChoiceField(Publisher.objects.all(), required=False)
-        authors = forms.ModelMultipleChoiceField(Author.objects.all(), required=False)
-        published_on__lte = forms.DateField(required=False)
-        published_on__gte = forms.DateField(required=False)
-
-        formfield_callback = towel_forms.towel_formfield_callback
-
-
-You have to add ``required=False`` to every field if you do not want validation
-errors on the first visit to the form (which would not make a lot of sense, but
-isn't actively harmful).
-
-As long as you only use search form fields whose names correspond to the keywords
-used in Django's ``.filter()`` calls or ``Q()`` objects you do not have to do
-anything else.
-
-The ``formfield_callback`` simply substitutes a few fields with whitespace-stripping
-equivalents, and adds CSS classes to ``DateInput`` and ``DateTimeInput`` so that
-they can be easily augmented by javascript code.
-
-To activate this search form, all you have to do is add an additional parameter
-when you instantiate the ModelView subclass::
-
-    from myapp.forms import BookSearchForm
-    from myapp.models import Book
-    from towel.modelview import ModelView
-
-    urlpatterns = patterns('',
-        url(r'^books/', include(ModelView(Book,
-            search_form=BookSearchForm,
-            paginate_by=20,
-            ).urls)),
-    )
-
-
-Searches are automatically remembered using Django's session framework; when
-the user visits the object list page for the next time, he'll see the filtered
-list, not the standard list. This is very convenient for web applications,
-especially if users want to do complex searches.
-
+Please refer to the :doc:`search_and_filter` page for information about
+filtering lists.
 
 
 .. _modelview-object-detail:
