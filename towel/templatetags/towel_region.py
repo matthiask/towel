@@ -1,5 +1,4 @@
 import re
-import warnings
 
 from django import template
 from django.utils.html import conditional_escape
@@ -9,17 +8,6 @@ from towel.utils import parse_args_and_kwargs, resolve_args_and_kwargs
 
 
 register = template.Library()
-
-
-def generate_counter(start=0):
-    """
-    Returns a generator which returns a steady stream of numbers
-
-    Takes the start value as an argument (defaults to zero).
-    """
-    while True:
-        yield start
-        start += 1
 
 
 def flatatt(attrs):
@@ -90,82 +78,3 @@ class RegionNode(template.Node):
             flatatt({'id': region_id}),
             output,
             ))
-
-
-@register.tag
-def editable(parser, token):
-    """
-    Defines an editable or live-updateable template region
-
-    Editable regions::
-
-        {% editable edit="title,description" %}
-            <h2>{{ title }}</h2>
-            <p>{{ description|linebreaksbr }}</p>
-        {% endeditable %}
-
-    Only live-updated regions, no editing support::
-
-        {% editable used="title,description %}
-            {{ title }} ...
-        {% endeditable %}
-    """
-    warnings.warn('Please use {% region %} instead.', DeprecationWarning,
-        stacklevel=2)
-
-    nodelist = parser.parse(('endeditable',))
-    parser.delete_first_token()
-
-    return EditableNode(nodelist,
-        *parse_args_and_kwargs(parser, token.split_contents()[1:]))
-
-
-class EditableNode(template.Node):
-    def __init__(self, nodelist, args, kwargs):
-        self.nodelist = nodelist
-        self.args = args
-        self.kwargs = kwargs
-
-    def render(self, context):
-        args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
-        return self._render(context, *args, **kwargs)
-
-    def _render(self, context, edit=None, used=None):
-        output = self.nodelist.render(context)
-        if edit is None and used is None:
-            return output
-        elif used is None:
-            used = edit
-
-        try:
-            counter = context['towel_editable_counter']
-        except KeyError:
-            counter = context.dicts[0]['towel_editable_counter'] = (
-                generate_counter())
-
-        ident = 'towel_editable_%s' % counter.next()
-
-        try:
-            towel_editable = context['towel_editable']
-            towel_editable[ident] = output
-
-            dependencies = towel_editable.setdefault('dependencies', {})
-
-            for field in re.split('[,\s]+', used):
-                dependencies.setdefault(field.strip(), []).append(ident)
-
-        except KeyError:
-            # Ignore this silently -- towel_editable will not be available most
-            # of the time
-            pass
-
-        attrs = {
-            'id': ident,
-            }
-        if edit:
-            attrs['class'] = 'towel_editable'
-            attrs['data-edit'] = edit
-        if used:
-            attrs['data-used'] = used
-
-        return mark_safe('<span %s>%s</span>' % (flatatt(attrs), output))
