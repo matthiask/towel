@@ -42,7 +42,7 @@ class InlineModelView(ModelView):
     def add_view(self, request, parent):
         parent = get_object_or_404(
             # TODO make this generic
-            self.parent_class.objects.for_member(request.user.member),
+            self.parent_class.objects.for_access(request.user.access),
             id=parent,
             )
 
