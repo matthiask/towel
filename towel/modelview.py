@@ -949,7 +949,7 @@ class _MVUHelper(object):
 
         try:
             return reverse(self.viewname_pattern % item, **kw)
-        except NoReverseMatch, e:
+        except NoReverseMatch as e:
             try:
                 return reverse(self.viewname_pattern % item)
             except NoReverseMatch:
