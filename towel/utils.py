@@ -1,6 +1,7 @@
 import itertools
 import re
 
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db.models.deletion import Collector
 
 
@@ -142,3 +143,14 @@ def changed_regions(regions, fields):
 
     return dict((key, value) for key, value in regions.iteritems()
         if key in to_update)
+
+
+def tryreverse(*args, **kwargs):
+    """
+    Calls ``django.core.urlresolvers.reverse``, and returns ``None`` on
+    failure instead of raising an exception.
+    """
+    try:
+        return reverse(*args, **kwargs)
+    except NoReverseMatch:
+        return None

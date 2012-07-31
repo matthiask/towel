@@ -3,7 +3,7 @@ from __future__ import with_statement
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models, transaction
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
@@ -14,18 +14,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
-from towel.utils import related_classes, safe_queryset_and
-
-
-def _tryreverse(*args, **kwargs):
-    """
-    Calls ``django.core.urlresolvers.reverse``, and returns ``None`` on
-    failure instead of raising an exception.
-    """
-    try:
-        return reverse(*args, **kwargs)
-    except NoReverseMatch:
-        return None
+from towel.utils import related_classes, safe_queryset_and, tryreverse
 
 
 class ModelView(object):
@@ -475,8 +464,8 @@ class ModelView(object):
         return {
             'verbose_name': self.model._meta.verbose_name,
             'verbose_name_plural': self.model._meta.verbose_name_plural,
-            'list_url': _tryreverse('%s_%s_list' % info),
-            'add_url': _tryreverse('%s_%s_add' % info),
+            'list_url': tryreverse('%s_%s_list' % info),
+            'add_url': tryreverse('%s_%s_add' % info),
             'base_template': self.base_template,
 
             'adding_allowed': self.adding_allowed(request),
@@ -549,7 +538,7 @@ class ModelView(object):
         """
         self.add_message(request, 'adding_denied')
         info = self.model._meta.app_label, self.model._meta.module_name
-        url = _tryreverse('%s_%s_list' % info)
+        url = tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
 
     def response_edit(self, request, instance, form, formsets):
@@ -576,7 +565,7 @@ class ModelView(object):
         """
         self.add_message(request, 'object_deleted')
         info = self.model._meta.app_label, self.model._meta.module_name
-        url = _tryreverse('%s_%s_list' % info)
+        url = tryreverse('%s_%s_list' % info)
         return HttpResponseRedirect(url if url else '../../')
 
     def response_deletion_denied(self, request, instance):
@@ -700,7 +689,7 @@ class ModelView(object):
                 self.model._meta.app_label,
                 self.model._meta.module_name,
                 )
-            url = _tryreverse('%s_%s_list' % info)
+            url = tryreverse('%s_%s_list' % info)
             return HttpResponseRedirect(url if url else '.')
 
     def detail_view(self, request, *args, **kwargs):
