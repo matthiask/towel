@@ -154,3 +154,20 @@ def tryreverse(*args, **kwargs):
         return reverse(*args, **kwargs)
     except NoReverseMatch:
         return None
+
+
+def substitute_with(to_delete, instance):
+    """
+    Substitute the first argument with the second in all relations,
+    and delete the first argument afterwards.
+    """
+    assert to_delete.__class__ == instance.__class__
+    assert to_delete.pk != instance.pk
+
+    for related_object in to_delete._meta.get_all_related_objects():
+        queryset = related_object.model._base_manager.complex_filter({
+            related_object.field.name: to_delete.pk,
+            })
+
+        queryset.update(**{related_object.field.name: instance.pk})
+    to_delete.delete()
