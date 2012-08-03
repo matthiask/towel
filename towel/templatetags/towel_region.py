@@ -27,7 +27,7 @@ def region(parser, token):
     """
     Defines a live-updateable region::
 
-        {% region "identifier" fields="family_name,given_name" %}
+        {% region "identifier" fields="family_name,given_name" tag="div" %}
             {# Template code #}
         {% endregion %}
 
@@ -61,7 +61,7 @@ class RegionNode(template.Node):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
         return self._render(context, *args, **kwargs)
 
-    def _render(self, context, identifier, fields=u''):
+    def _render(self, context, identifier, fields=u'', tag='div'):
         regions = context.get('regions')
 
         region_id = u'twrg-%s' % identifier
@@ -74,7 +74,8 @@ class RegionNode(template.Node):
             for field in re.split('[,\s]+', fields):
                 dependencies.setdefault(field, []).append(region_id)
 
-        return mark_safe('<span %s>%s</span>' % (
-            flatatt({'id': region_id}),
-            output,
+        return mark_safe(u'<{tag} {attrs}>{output}</{tag}>'.format(
+            attrs=flatatt({'id': region_id}),
+            output=output,
+            tag=tag,
             ))
