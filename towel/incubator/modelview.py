@@ -15,8 +15,7 @@ class ParentModelView(ModelView):
             'regions': regions,
             })
         return HttpResponse(
-            # TODO form.changed_data?
-            json.dumps(changed_regions(regions, form.fields.keys())),
+            json.dumps(changed_regions(regions, form.changed_data)),
             content_type='application/json')
 
     def render_form(self, request, context, change):
