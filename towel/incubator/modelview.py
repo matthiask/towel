@@ -1,13 +1,42 @@
 import json
 
-from django.http import HttpResponse
+from django.forms.models import model_to_dict
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from towel.modelview import ModelView
 from towel.utils import changed_regions
 
 
-class ParentModelView(ModelView):
+class EditLiveModelView(ModelView):
+    #: The form class used for live editing. Should only contain fields
+    #: for which editing through the editlive mechanism is allowed.
+    editlive_form = None
+
+    def editlive(self, request, *args, **kwargs):
+        if not self.editlive_form:
+            raise Http404('No live editing support.')
+
+        instance = self.get_object_or_404(request, *args, **kwargs)
+
+        data = model_to_dict(instance,
+            fields=self.editlive_form._meta.fields,
+            exclude=self.editlive_form._meta.exclude,
+            )
+
+        for key, value in request.POST.items():
+            data[key] = value
+
+        form = self.editlive_form(data, instance=instance, request=request)
+
+        if form.is_valid():
+            project = form.save()
+            return self.response_edit(request, form.save(), form, {})
+
+        return HttpResponse('FAIL')
+
+
+class ParentModelView(EditLiveModelView):
     def response_edit(self, request, new_instance, form, formsets):
         regions = {}
         self.render_detail(request, {
@@ -25,7 +54,7 @@ class ParentModelView(ModelView):
             change=change)
 
 
-class InlineModelView(ModelView):
+class InlineModelView(EditLiveModelView):
     parent_attr = 'parent'
 
     @property
@@ -62,3 +91,5 @@ class InlineModelView(ModelView):
             content_type='application/json')
 
     response_delete = response_edit = response_add
+    # TODO what about response_adding_denied, response_editing_denied and
+    # response_deletion_denied?
