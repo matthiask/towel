@@ -33,7 +33,8 @@ class EditLiveModelView(ModelView):
             project = form.save()
             return self.response_edit(request, form.save(), form, {})
 
-        return HttpResponse('FAIL')
+        # FIXME the content is alert()ed on the other side. That's ugly.
+        return HttpResponse(unicode(form.errors))
 
 
 class ParentModelView(EditLiveModelView):
