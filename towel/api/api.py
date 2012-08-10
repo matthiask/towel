@@ -412,6 +412,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
                         related,
                         inline_depth=inline_depth - 1,
                         build_absolute_uri=build_absolute_uri,
+                        only_registered=only_registered,
                         )
 
         elif isinstance(f, models.FileField):
@@ -439,6 +440,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
                     obj,
                     inline_depth=inline_depth - 1,
                     build_absolute_uri=build_absolute_uri,
+                    only_registered=only_registered,
                 ) for obj in getattr(instance, f.name).all()]
 
             if any(related):
