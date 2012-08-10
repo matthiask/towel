@@ -62,6 +62,10 @@ def safe_queryset_and(qs1, qs2):
         else:
             res = res.select_related()
 
+    res._prefetch_related_lookups = list(
+        set(qs1._prefetch_related_lookups)
+        | set(qs2._prefetch_related_lookups))
+
     return res
 
 
