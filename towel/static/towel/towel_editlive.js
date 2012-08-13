@@ -10,8 +10,6 @@
                 $.each(data, function(key, value) {
                     initForms($('#' + key).html(value).flash());
                 });
-
-                $('textarea.autogrow').autogrow();
             }
         });
     }
