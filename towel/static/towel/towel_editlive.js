@@ -8,6 +8,10 @@
                 alert(data);
             } else {
                 $.each(data, function(key, value) {
+                    if (key == '!redirect') {
+                        window.location.href = value;
+                        return false;
+                    }
                     initForms($('#' + key).html(value).flash());
                 });
             }
