@@ -1,3 +1,10 @@
+"""
+``ModelView``
+=============
+
+As long as you use this class, everything should just work (tm).
+"""
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.forms.models import modelform_factory

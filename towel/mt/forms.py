@@ -1,3 +1,16 @@
+"""
+Forms
+=====
+
+These three form subclasses will automatically add limitation by tenant
+to all form fields with a ``queryset`` attribute.
+
+.. warning::
+
+    If you customized the dropdown using ``choices`` you have to limit the
+    choices by the current tenant yourself.
+"""
+
 from django import forms
 
 from towel import forms as towel_forms

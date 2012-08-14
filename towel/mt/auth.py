@@ -1,3 +1,8 @@
+"""
+Authentication backend which preloads access and client models
+==============================================================
+"""
+
 from django.contrib.auth.backends import ModelBackend as _ModelBackend
 from django.contrib.auth.models import User
 

@@ -1,3 +1,11 @@
+"""
+Making ``towel.api`` multitenancy-aware
+=======================================
+
+All you need is a view decorator handling the permissions and a resource
+subclass which makes sure that data is only ever shown from one tenant.
+"""
+
 from functools import wraps
 import httplib
 
@@ -9,6 +17,10 @@ from towel.utils import safe_queryset_and
 
 
 def api_access(minimal):
+    """
+    Decorator which ensures that the current ``request.access`` model
+    provides at least ``minimal`` access.
+    """
     def _decorator(func):
         @wraps(func)
         def _fn(request, *args, **kwargs):

@@ -12,9 +12,6 @@
 
 import sys, os
 
-import PIL.Image
-sys.modules['Image'] = PIL.Image
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -209,3 +206,6 @@ intersphinx_mapping = {
     'http://docs.python.org/': None,
     'django': ('http://docs.djangoproject.com/en/dev/', 'http://docs.djangoproject.com/en/dev/_objects/'),
     }
+
+
+print sys.path

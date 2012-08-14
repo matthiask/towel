@@ -1,4 +1,7 @@
 """
+Models for multitenant Django projects
+======================================
+
 The models for ``towel.mt`` have to be provided by the project where
 ``towel.mt`` is used, that's why this file is empty.
 
