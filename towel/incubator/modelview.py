@@ -41,7 +41,7 @@ class ParentModelView(EditLiveModelView):
     def response_edit(self, request, new_instance, form, formsets):
         regions = {}
         self.render_detail(request, {
-            'object': new_instance,
+            self.template_object_name: new_instance,
             'regions': regions,
             })
         return HttpResponse(
