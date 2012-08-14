@@ -25,6 +25,10 @@ def api_access(minimal):
 
 
 class Resource(api.Resource):
+    """
+    Resource subclass which automatically applies filtering by
+    ``request.access`` to all querysets used.
+    """
     def get_query_set(self):
         return safe_queryset_and(
             super(Resource, self).get_query_set(),
