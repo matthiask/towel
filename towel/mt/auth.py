@@ -6,7 +6,7 @@ from towel.mt import access_model, client_model
 
 class ModelBackend(_ModelBackend):
     """
-    Custom authentication backend for Keetab
+    Custom authentication backend for towel-mt
 
     This authentication backend serves two purposes:
 
