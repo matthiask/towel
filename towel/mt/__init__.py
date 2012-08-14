@@ -17,8 +17,8 @@ def access_model():
 class AccessDecorator(object):
     def __new__(cls):
         instance = object.__new__(cls)
-        import towel.mt
-        towel.mt._access_decorator = instance
+        from towel import mt
+        mt._access_decorator = instance
         return instance
 
     def __call__(self, minimal):
@@ -63,7 +63,3 @@ class AccessDecorator(object):
     def handle_missing(self, request, *args, **kwargs):
         from django.core.exceptions import PermissionDenied
         raise PermissionDenied('Missing permissions')
-
-
-# Create at least one instance so that towel.mt.access always exists
-AccessDecorator()
