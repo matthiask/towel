@@ -30,6 +30,7 @@ def safe_queryset_and(qs1, qs2):
     * ``reverse()``
     * ``transform()``
     * ``select_related()``
+    * ``prefetch_related()``
     """
 
     if qs1.query.distinct or qs2.query.distinct:
