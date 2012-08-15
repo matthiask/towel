@@ -3,11 +3,12 @@ from decimal import Decimal
 import httplib
 import json
 from lxml.etree import Element, SubElement, tostring
-import mimeparse
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
+
+from towel.api.mimeparse import best_match
 
 
 class Serializer(object):
@@ -61,7 +62,7 @@ class Serializer(object):
         if output_format is None:
             # Thanks django-tastypie!
             try:
-                output_format = mimeparse.best_match(reversed([
+                output_format = best_match(reversed([
                     'application/xml',
                     'application/json',
                     ]),
