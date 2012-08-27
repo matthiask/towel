@@ -19,7 +19,8 @@
     }
 
     // XXX handle the return key too in inputs?
-    $(document).on('focusout', 'input[type=text].editlive, textarea.editlive', function() {
+    $(document.body).on('focusout',
+            'input[type=text].editlive, textarea.editlive', function(event) {
         var $this = $(this),
             original = $this.data('original'),
             attribute = $this.data('attribute');
@@ -30,7 +31,8 @@
         editLive($this.data('action'), $this.data('attribute'), this.value);
     });
 
-    $(document).on('click', 'input[type=checkbox].editlive', function() {
+    $(document.body).on('click',
+            'input[type=checkbox].editlive', function(event) {
         var $this = $(this),
             attribute = $this.data('attribute');
 
@@ -38,16 +40,17 @@
             $this.attr('checked') ? true : false);
     });
 
-    $(document).on('click', 'a.editlive', function() {
+    $(document.body).on('click', 'a.editlive', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
         var $this = $(this),
             value = $this.data('value'),
             original = $this.data('original');
 
         if (value == original)
-            return false;
+            return;
 
         editLive($this.data('action'), $this.data('attribute'), value);
-
-        return false;
     });
 })(jQuery);
