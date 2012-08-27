@@ -48,18 +48,19 @@ class RequestParser(object):
             'application/x-www-form-urlencoded')
 
         handlers = {
-            'application/x-www-form-urlencoded': self.parse_form,
-            'multipart/form-data': self.parse_form,
-            'application/json': self.parse_json,
-            }
+            r'^application/x-www-form-urlencoded': self.parse_form,
+            r'^multipart/form-data': self.parse_form,
+            r'^application/json': self.parse_json,
+        }
 
-        if content_type not in handlers:
-            return Serializer().serialize({
-                'error': '%r is not supported' % content_type,
-                }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
-                output_format=request.GET.get('format'))
+        for pattern, hander in handlers.items():
+            if re.match(pattern, content_type):
+                return handlers[pattern](request)
 
-        return handlers[content_type](request)
+        return Serializer().serialize({
+            'error': '%r is not supported' % content_type,
+            }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
+            output_format=request.GET.get('format'))
 
     def parse_form(self, request):
         """
