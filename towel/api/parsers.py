@@ -53,9 +53,9 @@ class RequestParser(object):
             r'^application/json': self.parse_json,
         }
 
-        for pattern, hander in handlers.items():
+        for pattern, handler in handlers.items():
             if re.match(pattern, content_type):
-                return handlers[pattern](request)
+                return handler(request)
 
         return Serializer().serialize({
             'error': '%r is not supported' % content_type,
