@@ -53,4 +53,19 @@
 
         editLive($this.data('action'), $this.data('attribute'), value);
     });
+
+    $('form.editlive').each(function() {
+        var $form = $(this),
+            action = $form.attr('action');
+
+        $form.on('submit', false);
+        $form.on('change', 'input[type=text], textarea, select',
+            function(event) {
+                // TODO what about form prefixes?
+                // TODO handle original value
+                editLive(action, this.name, this.value);
+            });
+
+        // TODO checkboxes etc.
+    });
 })(jQuery);
