@@ -1,5 +1,6 @@
 import httplib
 import json
+import re
 
 from .serializers import Serializer
 
