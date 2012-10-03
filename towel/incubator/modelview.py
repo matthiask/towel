@@ -31,14 +31,12 @@ class EditLiveModelView(ModelView):
 
         if form.is_valid():
             project = form.save()
-            return self.response_edit(request, form.save(), form, {})
+            return self.response_editlive(request, form.save(), form, {})
 
         # FIXME the content is alert()ed on the other side. That's ugly.
         return HttpResponse(unicode(form.errors))
 
-
-class ParentModelView(EditLiveModelView):
-    def response_edit(self, request, new_instance, form, formsets):
+    def response_editlive(self, request, new_instance, form, formsets):
         regions = {}
         self.render_detail(request, {
             self.template_object_name: new_instance,
@@ -47,6 +45,11 @@ class ParentModelView(EditLiveModelView):
         return HttpResponse(
             json.dumps(changed_regions(regions, form.changed_data)),
             content_type='application/json')
+
+
+class ParentModelView(EditLiveModelView):
+    def response_edit(self, request, new_instance, form, formsets):
+        return self.response_editlive(request, new_instance, form, formsets)
 
     def render_form(self, request, context, change):
         if change:
@@ -91,6 +94,6 @@ class InlineModelView(EditLiveModelView):
                 ])),
             content_type='application/json')
 
-    response_delete = response_edit = response_add
+    response_delete = response_editlive = response_edit = response_add
     # TODO what about response_adding_denied, response_editing_denied and
     # response_deletion_denied?
