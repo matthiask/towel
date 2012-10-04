@@ -30,18 +30,19 @@ def _process_fields(form, request):
 
 class Form(forms.Form):
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request')
+        self._request = kwargs.pop('request')
         super(Form, self).__init__(*args, **kwargs)
-        _process_fields(self, request)
+        _process_fields(self, self._request)
 
 
 class ModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request')
+        self._request = kwargs.pop('request')
         super(ModelForm, self).__init__(*args, **kwargs)
-        _process_fields(self, request)
+        _process_fields(self, self._request)
 
 
 class SearchForm(towel_forms.SearchForm):
     def post_init(self, request):
-        _process_fields(self, request)
+        self._request = request
+        _process_fields(self, self._request)
