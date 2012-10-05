@@ -19,7 +19,7 @@ from towel.utils import safe_queryset_and
 
 def _process_fields(form, request):
     for field in form.fields.values():
-        if getattr(field, 'queryset', None):
+        if hasattr(field, 'queryset'):
             model = field.queryset.model
 
             field.queryset = safe_queryset_and(
