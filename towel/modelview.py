@@ -674,16 +674,18 @@ class ModelView(object):
             if isinstance(result, HttpResponse):
                 return result
 
-            elif isinstance(result, dict):
-                # TODO this does not make any sense because of the redirect
-                # further below
-                ctx.update(result)
-
             elif hasattr(result, '__iter__'):
                 messages.success(request,
                     _('Processed the following items: <br>\n %s') % (
                         u'<br>\n '.join(
                             unicode(item) for item in result)))
+
+            elif result is not None:
+                # Not None, but cannot make sense of it either.
+                raise TypeError(u'Return value %r of %s.process() invalid.' % (
+                    result,
+                    form.__class__.__name__,
+                    ))
 
             info = (
                 self.model._meta.app_label,
