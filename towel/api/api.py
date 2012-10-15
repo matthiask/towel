@@ -68,6 +68,8 @@ class API(object):
         self.serializers = {}
         self.views = []
 
+        self.default_serializer = serialize_model_instance
+
     @property
     def urls(self):
         """
@@ -218,6 +220,13 @@ class API(object):
         if serializer:
             self.serializers[model] = serializer
 
+    def set_default_serializer(self, serializer):
+        """
+        By default, ``serialize_model_instance`` is used to serialize models.
+        This can be changed by passing a different function to this method.
+        """
+        self.default_serializer = serializer
+
     def serialize_instance(self, instance, **kwargs):
         """
         Returns a serialized version of the passed model instance
@@ -227,7 +236,7 @@ class API(object):
         this API.
         """
         serializer = self.serializers.get(instance.__class__,
-            serialize_model_instance)
+            self.default_serializer)
         return serializer(instance, api=self, **kwargs)
 
     def add_view(self, view, prefix=None, decorators=None):
