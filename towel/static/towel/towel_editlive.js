@@ -69,6 +69,8 @@
                 editLive(action, this.name, this.value);
             });
 
-        // TODO checkboxes etc.
+        $form.on('change', 'input[type=checkbox]', function(event) {
+            editLive(action, this.name, this.checked);
+        });
     });
 })(jQuery);
