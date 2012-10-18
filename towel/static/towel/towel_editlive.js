@@ -1,4 +1,38 @@
 ;(function($) {
+    var updateLive = function(data) {
+        $.each(data, function(key, value) {
+            if (key == '!redirect') {
+                window.location.href = value;
+                return false;
+            } else if (key[0] == '!') {
+                // unknown command, skip.
+                return;
+            }
+
+            var elem = $('#' + key),
+                update = elem.data('update') || 'replace';
+
+            switch(update) {
+                case 'append':
+                    elem.append(value);
+                    break;
+                case 'prepend':
+                    elem.prepend(value);
+                    break;
+                default:
+                    elem.html(value);
+            }
+
+            elem.flash();
+
+            if (window.initForms) {
+                // towel-bootstrap (TODO That's ugly, tight coupling)
+                initForms(elem);
+            }
+        });
+    };
+    if (!window.updateLive) window.updateLive = updateLive;
+
     var editLive = function(action, attribute, value) {
         var data = {};
         data[attribute] = value;
@@ -7,16 +41,7 @@
             if (typeof(data) == 'string') {
                 alert(data);
             } else {
-                $.each(data, function(key, value) {
-                    if (key == '!redirect') {
-                        window.location.href = value;
-                        return false;
-                    } else if (key[0] == '!') {
-                        // unknown command, skip.
-                        return;
-                    }
-                    initForms($('#' + key).html(value).flash());
-                });
+                return updateLive(data);
             }
         });
     }
