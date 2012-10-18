@@ -70,7 +70,7 @@ def safe_queryset_and(qs1, qs2):
     return res
 
 
-_KWARG_RE = re.compile("(?:(\w+)=)?(.+)")
+_KWARG_RE = re.compile("(?:([-\w]+)=)?(.+)")
 
 
 def parse_args_and_kwargs(parser, bits):

@@ -42,6 +42,12 @@ def region(parser, token):
     field and relation names here, but you are free to use anything you
     want. It can also be left empty if you purely want to update regions by
     their identifier.
+
+    The ``tag`` argument defines the HTML tag used to render the region.
+    The default tag is a ``div``.
+
+    Additional keyword arguments will be rendered as attributes. This can
+    be used to specify classes, data attributes or whatever you desire.
     """
 
     nodelist = parser.parse(('endregion',))
@@ -61,7 +67,7 @@ class RegionNode(template.Node):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
         return self._render(context, *args, **kwargs)
 
-    def _render(self, context, identifier, fields=u'', tag='div'):
+    def _render(self, context, identifier, fields=u'', tag='div', **kwargs):
         regions = context.get('regions')
 
         region_id = u'twrg-%s' % identifier
@@ -74,8 +80,10 @@ class RegionNode(template.Node):
             for field in re.split('[,\s]+', fields):
                 dependencies.setdefault(field, []).append(region_id)
 
+        kwargs['id'] = region_id
+
         return mark_safe(u'<{tag} {attrs}>{output}</{tag}>'.format(
-            attrs=flatatt({'id': region_id}),
+            attrs=flatatt(kwargs),
             output=output,
             tag=tag,
             ))
