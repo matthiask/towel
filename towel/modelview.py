@@ -650,6 +650,12 @@ class ModelView(object):
 
         if self.search_form:
             form = self.search_form(request.GET, request=request)
+            if not form.is_valid():
+                self.add_message(request, _('The search query was invalid.'),
+                    level=messages.ERROR)
+
+                return queryset, HttpResponseRedirect('?clear=1')
+
             queryset = safe_queryset_and(queryset, form.queryset(self.model))
 
             ctx['search_form'] = form
