@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-22 10:44+0200\n"
+"POT-Creation-Date: 2012-10-31 15:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,47 +17,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: forms.py:126
+#: forms.py:130
 msgid "No items selected"
 msgstr "Keine Elemente gewählt"
 
-#: forms.py:233 forms.py:234
+#: forms.py:258 forms.py:259
 msgid "Query"
 msgstr "Suchbegriff"
 
-#: forms.py:473
+#: forms.py:498
 msgid "Ignore warnings"
 msgstr "Warnungen ignorieren"
 
-#: forms.py:611
+#: forms.py:636
 msgid "clear"
 msgstr ""
 
-#: modelview.py:83
+#: modelview.py:93
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: modelview.py:85
+#: modelview.py:95
 msgid "You are not allowed to add objects."
 msgstr "Es ist ihnen nicht erlaubt, Objekte hinzuzufügen."
 
-#: modelview.py:87
+#: modelview.py:97
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: modelview.py:89
+#: modelview.py:99
 msgid "You are not allowed to edit this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu bearbeiten."
 
-#: modelview.py:91
+#: modelview.py:101
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: modelview.py:93
+#: modelview.py:103
 msgid "You are not allowed to delete this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
 
-#: modelview.py:95
+#: modelview.py:105
 #, python-format
 msgid ""
 "Deletion not allowed: There are %(pretty_classes)s related to this object."
@@ -65,60 +65,45 @@ msgstr ""
 "Löschen nicht erlaubt: Es sind %(pretty_classes)s mit diesem Objekt "
 "verbunden."
 
-#: modelview.py:636
+#: modelview.py:654
+msgid "The search query was invalid."
+msgstr "Die Suchanfrage war ungültig."
+
+#: modelview.py:685
 #, python-format
 msgid ""
 "Processed the following items: <br>\n"
 " %s"
 msgstr ""
-"Die folgenden Elemente wurden bearbeitet: <br>\n %s"
+"Die folgenden Elemente wurden bearbeitet: <br>\n"
+" %s"
 
-#: modelview.py:721
+#: modelview.py:777
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: modelview.py:753
+#: modelview.py:809
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: modelview.py:796 modelview.py:846
+#: modelview.py:852 modelview.py:904
 msgid " and "
 msgstr " und "
 
-#: modelview.py:876
+#: modelview.py:934
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"
 
-#: quick.py:156
+#: quick.py:152
 msgid "Today"
 msgstr "Heute"
 
-#: quick.py:157
+#: quick.py:153
 msgid "Tomorrow"
 msgstr "Morgen"
-
-#: templates/_form_errors.html:3
-msgid "Please correct the following errors:"
-msgstr "Bitte korrigieren Sie die folgenden Fehler:"
-
-#: templates/_form_errors.html:8 templates/_form_errors.html.py:24
-msgid "Form errors"
-msgstr "Formularfehler"
-
-#: templates/_form_errors.html:19
-msgid "Fieldset errors"
-msgstr "Formularfehler"
-
-#: templates/_form_warnings.html:3
-msgid "Please review the following warnings:"
-msgstr "Bitte prüfen Sie die folgenden Warnungen:"
-
-#: templates/_pagination.html:17
-msgid "show all"
-msgstr "alle anzeigen"
 
 #: templates/modelview/object_delete_confirmation.html:10
 #, python-format
@@ -142,10 +127,6 @@ msgstr "abbrechen"
 #: templates/modelview/object_detail.html:21
 msgid "edit"
 msgstr "bearbeiten"
-
-#: templates/modelview/object_editfields.html:23
-msgid "Save"
-msgstr "Sichern"
 
 #: templates/modelview/object_form.html:39
 msgid "save"
@@ -176,6 +157,26 @@ msgstr "Stapelbearbeitung"
 msgid "Submit"
 msgstr "Abschicken"
 
+#: templates/towel/_form_errors.html:3
+msgid "Please correct the following errors:"
+msgstr "Bitte korrigieren Sie die folgenden Fehler:"
+
+#: templates/towel/_form_errors.html:8 templates/towel/_form_errors.html:24
+msgid "Form errors"
+msgstr "Formularfehler"
+
+#: templates/towel/_form_errors.html:19
+msgid "Fieldset errors"
+msgstr "Formularfehler"
+
+#: templates/towel/_form_warnings.html:3
+msgid "Please review the following warnings:"
+msgstr "Bitte prüfen Sie die folgenden Warnungen:"
+
+#: templates/towel/_pagination.html:17
+msgid "show all"
+msgstr "alle anzeigen"
+
 #: templatetags/modelview_detail.py:51
 msgid "yes"
 msgstr "ja"
@@ -187,6 +188,9 @@ msgstr "nein"
 #: templatetags/modelview_detail.py:53
 msgid "unknown"
 msgstr "unbekannt"
+
+#~ msgid "Save"
+#~ msgstr "Sichern"
 
 #~ msgid ""
 #~ "Deletion of %(instance)s not allowed: <small>There are %(classes)s "
