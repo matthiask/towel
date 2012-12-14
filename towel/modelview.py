@@ -2,7 +2,7 @@ from __future__ import with_statement
 
 from django import forms
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models, transaction
 from django.forms.formsets import all_valid
@@ -653,6 +653,12 @@ class ModelView(object):
             if not form.is_valid():
                 self.add_message(request, _('The search query was invalid.'),
                     level=messages.ERROR)
+
+                if request.get_full_path().endswith('?clear=1'):
+                    # No redirect loop generation
+                    raise ImproperlyConfigured(
+                        'Search form %r does not validate after'
+                        ' clearing.' % form)
 
                 return queryset, HttpResponseRedirect('?clear=1')
 
