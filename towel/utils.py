@@ -12,6 +12,9 @@ def related_classes(instance):
     itself. Does **not** return instances, only classes.
     """
     collector = Collector(using=instance._state.db)
+    # We really do not want fast deletion, we absolutely need to know whether
+    # there are related objects around!
+    collector.can_fast_delete = lambda *args, **kwargs: False
     collector.collect([instance])
 
     # Save collected objects for later referencing (well yes, it does return
