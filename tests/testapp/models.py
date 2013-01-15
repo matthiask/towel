@@ -22,7 +22,7 @@ class Person(models.Model):
         return u'%s %s' % (self.given_name, self.family_name)
 
     def get_absolute_url(self):
-        return self.urls.url('detail')
+        return self.urls['detail']
 
 
 class EmailManager(SearchManager):
@@ -40,4 +40,4 @@ class EmailAddress(deletion.Model):
         return self.email
 
     def get_absolute_url(self):
-        return self.urls.url('detail')
+        return self.urls['detail']
