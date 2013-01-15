@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from towel.utils import related_classes, safe_queryset_and
+from towel.utils import related_classes, safe_queryset_and, tryreverse
 
 from testapp.models import Person, EmailAddress
 
@@ -53,3 +53,7 @@ class UtilsTest(TestCase):
             )
 
         self.assertTrue(qs.query.select_related)
+
+    def test_tryreverse(self):
+        self.assertEqual(tryreverse('asdf42'), None)
+        self.assertEqual(tryreverse('admin:index'), '/admin/')
