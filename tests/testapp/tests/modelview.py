@@ -23,12 +23,19 @@ class ModelViewTest(TestCase):
 
     def test_crud(self):
         self.assertContains(self.client.get('/persons/add/'), '<form', 1)
-        self.assertEqual(self.client.post('/persons/add/', {}).status_code,
+        self.assertEqual(self.client.post('/persons/add/', {
+            'emails-TOTAL_FORMS': 0,
+            'emails-INITIAL_FORMS': 0,
+            'emails-MAX_NUM_FORMS': 10,
+            }).status_code,
             200)
         response = self.client.post('/persons/add/', {
             'family_name': 'Blub',
             'given_name': 'Blab',
             'created': '2013-01-01 01:00:00',
+            'emails-TOTAL_FORMS': 0,
+            'emails-INITIAL_FORMS': 0,
+            'emails-MAX_NUM_FORMS': 10,
             })
         person = Person.objects.get()
         self.assertRedirects(response, person.get_absolute_url())
