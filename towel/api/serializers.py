@@ -66,7 +66,7 @@ class Serializer(object):
                     'application/xml',
                     'application/json',
                     ]),
-                    request.META.get('HTTP_ACCEPT'))
+                    request.META.get('HTTP_ACCEPT', ''))
             except (IndexError, ValueError):
                 pass
 
