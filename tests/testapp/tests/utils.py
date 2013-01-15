@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from towel.utils import related_classes, safe_queryset_and, tryreverse
+from towel.utils import (related_classes, safe_queryset_and, tryreverse,
+    substitute_with)
 
 from testapp.models import Person, EmailAddress
 
@@ -38,6 +39,7 @@ class UtilsTest(TestCase):
         self.assertFalse(qs.query.standard_ordering)
         self.assertEqual(qs.query.select_related, {'person': {}})
         self.assertTrue(qs.query.distinct)
+        self.assertEqual(list(qs), [])
 
         qs = safe_queryset_and(
             EmailAddress.objects.select_related(),
@@ -57,3 +59,22 @@ class UtilsTest(TestCase):
     def test_tryreverse(self):
         self.assertEqual(tryreverse('asdf42'), None)
         self.assertEqual(tryreverse('admin:index'), '/admin/')
+
+    def test_substitute_with(self):
+        p1 = Person.objects.create()
+        p2 = Person.objects.create()
+
+        p1.emailaddress_set.create()
+        p1.emailaddress_set.create()
+        p1.emailaddress_set.create()
+        p2.emailaddress_set.create()
+        p2.emailaddress_set.create()
+
+        self.assertEqual(Person.objects.count(), 2)
+        self.assertEqual(EmailAddress.objects.count(), 5)
+
+        substitute_with(p1, p2)
+
+        p = Person.objects.get()
+        self.assertEqual(p2, p)
+        self.assertEqual(EmailAddress.objects.count(), 5)
