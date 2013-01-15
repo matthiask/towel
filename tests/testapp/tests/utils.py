@@ -24,8 +24,10 @@ class UtilsTest(TestCase):
             )
 
     def test_safe_queryset_and(self):
-        def _transform_nothing(queryset):
+        class AnyException(Exception):
             pass
+        def _transform_nothing(queryset):
+            raise AnyException
 
         qs1 = EmailAddress.objects.search('blub').transform(
             _transform_nothing).select_related()
@@ -39,7 +41,8 @@ class UtilsTest(TestCase):
         self.assertFalse(qs.query.standard_ordering)
         self.assertEqual(qs.query.select_related, {'person': {}})
         self.assertTrue(qs.query.distinct)
-        self.assertEqual(list(qs), [])
+        self.assertEqual(qs.count(), 0)
+        self.assertRaises(AnyException, list, qs)
 
         qs = safe_queryset_and(
             EmailAddress.objects.select_related(),
