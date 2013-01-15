@@ -1,7 +1,9 @@
 from django.db import models
+from django.utils.timezone import now
 
 from towel import deletion
 from towel.managers import SearchManager
+from towel.modelview import ModelViewURLs
 
 
 class PersonManager(SearchManager):
@@ -9,10 +11,18 @@ class PersonManager(SearchManager):
 
 
 class Person(models.Model):
+    created = models.DateTimeField(default=now)
     family_name = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
 
     objects = PersonManager()
+    urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
+
+    def __unicode__(self):
+        return u'%s %s' % (self.given_name, self.family_name)
+
+    def get_absolute_url(self):
+        return self.urls.url('detail')
 
 
 class EmailManager(SearchManager):
@@ -24,3 +34,10 @@ class EmailAddress(deletion.Model):
     email = models.EmailField()
 
     objects = EmailManager()
+    urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
+
+    def __unicode__(self):
+        return self.email
+
+    def get_absolute_url(self):
+        return self.urls.url('detail')
