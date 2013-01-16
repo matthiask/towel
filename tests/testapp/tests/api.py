@@ -15,10 +15,7 @@ class APITest(TestCase):
                 family_name='Given %s' % i,
                 )
             person.emailaddress_set.create(email='test%s@example.com' % i)
-        self.api = json.loads(self.client.get(
-            '/api/v1/',
-            HTTP_ACCEPT='application/json',
-            ).content)
+        self.api = self.get_json('/api/v1/')
 
     def get_json(self, uri):
         try:
