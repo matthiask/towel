@@ -18,6 +18,9 @@ class Person(models.Model):
     objects = PersonManager()
     urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
 
+    class Meta:
+        ordering = ['family_name', 'given_name']
+
     def __unicode__(self):
         return u'%s %s' % (self.given_name, self.family_name)
 
@@ -37,6 +40,7 @@ class EmailAddress(deletion.Model):
     urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
 
     class Meta:
+        ordering = ['email']
         verbose_name = 'email address'
         verbose_name_plural = 'email addresses'
 

@@ -44,7 +44,7 @@ class APITest(TestCase):
         self.assertEqual(data['message']['__uri__'],
             'http://testserver/api/v1/message/')
 
-    def test_list(self):
+    def test_list_detail(self):
         person_uri = self.api['person']['__uri__']
         data = self.get_json(person_uri)
 
@@ -58,18 +58,19 @@ class APITest(TestCase):
             })
 
         first = Person.objects.order_by('id')[0]
-        serialized = data['objects'][0]
+        first_person = data['objects'][0]
+        correct = {
+            'id': first.pk,
+            '__pk__': first.pk,
+            '__pretty__': {},
+            '__str__': 'Given 0 Given 0',
+            '__uri__': 'http://testserver/api/v1/person/%s/' % first.pk,
+            'family_name': 'Given 0',
+            'given_name': 'Given 0',
+            }
 
-        for key, value in {
-                'id': first.pk,
-                '__pk__': first.pk,
-                '__pretty__': {},
-                '__str__': 'Given 0 Given 0',
-                '__uri__': 'http://testserver/api/v1/person/%s/' % first.pk,
-                'family_name': 'Given 0',
-                'given_name': 'Given 0',
-                }.items():
-            self.assertEqual(serialized[key], value)
+        for key, value in correct.items():
+            self.assertEqual(first_person[key], value)
 
 
         self.assertEqual(
@@ -85,3 +86,17 @@ class APITest(TestCase):
             50,
             )
 
+        data = self.get_json(first_person['__uri__'] + '?full=1')
+        for key, value in correct.items():
+            self.assertEqual(data[key], value)
+
+        data = self.get_json(self.api['emailaddress']['__uri__'])
+        first_email = data['objects'][0]
+        self.assertEqual(data['meta']['total'], 100)
+        self.assertEqual(first_email['email'], 'test0@example.com')
+
+        data = self.get_json(first_email['__uri__'])
+        self.assertEqual(data['person'], first_person['__uri__'])
+
+        data = self.get_json(first_email['__uri__'] + '?full=1')
+        self.assertEqual(data['person'], first_person)
