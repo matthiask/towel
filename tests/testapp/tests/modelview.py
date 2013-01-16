@@ -16,6 +16,15 @@ class ModelViewTest(TestCase):
             'name="batch_', 5)
         self.assertContains(self.client.get('/persons/?page=2'),
             'name="batch_', 2)
+        # Invalid page number -> first page
+        self.assertContains(self.client.get('/persons/?page=abc'),
+            'name="batch_', 5)
+        # Empty page -> last page
+        self.assertContains(self.client.get('/persons/?page=42'),
+            'name="batch_', 2)
+        # Everything
+        self.assertContains(self.client.get('/persons/?all=1'),
+            'name="batch_', 7)
 
         self.assertContains(self.client.get(p.get_absolute_url()),
             'Family 6')
