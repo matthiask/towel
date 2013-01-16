@@ -112,3 +112,12 @@ class APITest(TestCase):
 
         self.assertFalse('meta' in data)
         self.assertEqual(len(data['objects']), 5)
+
+        self.assertEqual(
+            self.get_json(person_uri + '0;/'),
+            {u'error': u'Some objects do not exist.'},
+            )
+        self.assertEqual(
+            self.get_json(person_uri + '0/'),
+            {u'error': u'No Person matches the given query.'},
+            )
