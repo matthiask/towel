@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from towel import deletion
@@ -51,3 +52,21 @@ class ModelViewTest(TestCase):
         self.assertRedirects(response, person.get_absolute_url())
         self.assertContains(self.client.get(person.get_absolute_url()),
             'Blab Blub')
+
+    def test_modelviewurls(self):
+        person = Person.objects.create()
+
+        self.assertEqual(person.urls['detail'],
+            '/persons/%s/' % person.pk)
+        self.assertEqual(person.urls['edit'],
+            '/persons/%s/edit/' % person.pk)
+        self.assertEqual(person.urls['delete'],
+            '/persons/%s/delete/' % person.pk)
+        self.assertEqual(person.urls['list'],
+            '/persons/')
+
+        self.assertEqual(reverse('testapp_person_list'), '/persons/')
+        self.assertEqual(
+            reverse('testapp_person_detail', kwargs={'pk': person.pk}),
+            person.get_absolute_url(),
+            )
