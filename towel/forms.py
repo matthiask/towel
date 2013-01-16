@@ -519,34 +519,27 @@ class WarningsForm(forms.BaseForm):
         return True
 
 
-class StrippedTextInput(forms.TextInput):
+class StrippedInputMixin(object):
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, None)
+        if isinstance(value, (str, unicode)):
+            return value.strip()
+        return value
+
+
+class StrippedTextInput(StrippedInputMixin, forms.TextInput):
     """
     ``TextInput`` form widget subclass returning stripped contents only
     """
-
-    def value_from_datadict(self, data, files, name):
-        value = data.get(name, None)
-        if isinstance(value, (str, unicode)):
-            return value.strip()
-        return value
-
-    def render(self, *args, **kwargs):
-        return super(StrippedTextInput, self).render(*args, **kwargs)
+    pass
 
 
-class StrippedTextarea(forms.Textarea):
+
+class StrippedTextarea(StrippedInputMixin, forms.Textarea):
     """
     ``Textarea`` form widget subclass returning stripped contents only
     """
-
-    def value_from_datadict(self, data, files, name):
-        value = data.get(name, None)
-        if isinstance(value, (str, unicode)):
-            return value.strip()
-        return value
-
-    def render(self, *args, **kwargs):
-        return super(StrippedTextarea, self).render(*args, **kwargs)
+    pass
 
 
 def towel_formfield_callback(field, **kwargs):
