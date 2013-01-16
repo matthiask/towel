@@ -36,6 +36,10 @@ class ModelView(towel_modelview.ModelView):
     #: if not explicitly set
     crud_access = None
 
+    #: The editing form class, defaults to ``towel.mt.forms.ModelForm``
+    #: instead of ``django.forms.ModelForm``
+    form_class = ModelForm
+
     def view_decorator(self, func):
         return towel.mt._access_decorator(self.view_access)(func)
 
@@ -45,16 +49,6 @@ class ModelView(towel_modelview.ModelView):
 
     def get_query_set(self, request, *args, **kwargs):
         return self.model.objects.for_access(request.access)
-
-    def get_formfield_callback(self, request):
-        return towel_formfield_callback
-
-    def get_form(self, request, instance=None, change=None, **kwargs):
-        kwargs.setdefault('formfield_callback',
-            self.get_formfield_callback(request))
-        kwargs.setdefault('form', self.form_class or ModelForm)
-
-        return modelform_factory(self.model, **kwargs)
 
     def get_form_instance(self, request, form_class, instance=None,
             change=None, **kwargs):
