@@ -246,20 +246,22 @@ class Resource(generic.View):
             }
 
         if page.offset > 0:
-            meta['previous'] = u'%s?%s' % (list_url, querystring(
-                self.request.GET,
-                exclude=('offset', 'limit'),
-                offset=max(0, page.offset - page.limit),
-                limit=page.limit,
-                ))
+            meta['previous'] = request.build_absolute_uri(
+                u'%s?%s' % (list_url, querystring(
+                    self.request.GET,
+                    exclude=('offset', 'limit'),
+                    offset=max(0, page.offset - page.limit),
+                    limit=page.limit,
+                    )))
 
         if page.offset + page.limit < page.total:
-            meta['next'] = u'%s?%s' % (list_url, querystring(
-                self.request.GET,
-                exclude=('offset', 'limit'),
-                offset=page.offset + page.limit,
-                limit=page.limit,
-                ))
+            meta['next'] = request.build_absolute_uri(
+                u'%s?%s' % (list_url, querystring(
+                    self.request.GET,
+                    exclude=('offset', 'limit'),
+                    offset=page.offset + page.limit,
+                    limit=page.limit,
+                    )))
 
         return {
             'objects': [
