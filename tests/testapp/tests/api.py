@@ -21,10 +21,14 @@ class APITest(TestCase):
             ).content)
 
     def get_json(self, uri):
-        return json.loads(self.client.get(
-            uri,
-            HTTP_ACCEPT='application/json',
-            ).content)
+        try:
+            response = self.client.get(
+                uri,
+                HTTP_ACCEPT='application/json',
+                )
+            return json.loads(response.content)
+        except ValueError:
+            print uri, response.status_code, response.content
 
     def test_info(self):
         self.assertEqual(self.client.get('/api/v1/').status_code, 406)
@@ -100,3 +104,11 @@ class APITest(TestCase):
 
         data = self.get_json(first_email['__uri__'] + '?full=1')
         self.assertEqual(data['person'], first_person)
+
+        # Sets
+        persons = ';'.join(str(person.pk) for person
+            in Person.objects.all()[:5])
+        data = self.get_json(person_uri + '%s/' % persons)
+
+        self.assertFalse('meta' in data)
+        self.assertEqual(len(data['objects']), 5)
