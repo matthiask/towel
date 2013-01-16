@@ -41,3 +41,13 @@ class EmailAddress(deletion.Model):
 
     def get_absolute_url(self):
         return self.urls['detail']
+
+
+class Message(models.Model):
+    """
+    This model is used to test the behavior of
+    ``save_formset_deletion_allowed_if_only``. The presence of message
+    instances should protect email addresses from getting deleted.
+    """
+    sent_to = models.ForeignKey(EmailAddress)
+    message = models.TextField()

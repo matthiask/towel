@@ -24,6 +24,13 @@ class PersonModelView(ModelView):
     def get_formfield_callback(self, request):
         return towel_formfield_callback
 
+    def deletion_allowed(self, request, instance):
+        return self.deletion_allowed_if_only(request, instance, [Person])
+
+    def save_formsets(self, request, form, formsets, change):
+        self.save_formset_deletion_allowed_if_only(request, form,
+            formsets['emails'], change, [EmailAddress])
+
 
 person_views = PersonModelView(Person,
     search_form=PersonSearchForm,
