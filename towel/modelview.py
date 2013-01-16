@@ -14,6 +14,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
+from towel.forms import towel_formfield_callback
 from towel.utils import related_classes, safe_queryset_and, tryreverse
 
 
@@ -339,10 +340,9 @@ class ModelView(object):
     def get_formfield_callback(self, request):
         """
         Returns a formfield callback used to initialize the model form and
-        inline formsets. May also be ``None``, which means that the default
-        behavior isn't changed.
+        inline formsets.
         """
-        return None
+        return towel_formfield_callback
 
     def get_form(self, request, instance=None, change=None, **kwargs):
         """
