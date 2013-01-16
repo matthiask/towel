@@ -36,6 +36,10 @@ class EmailAddress(deletion.Model):
     objects = EmailManager()
     urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
 
+    class Meta:
+        verbose_name = 'email address'
+        verbose_name_plural = 'email addresses'
+
     def __unicode__(self):
         return self.email
 

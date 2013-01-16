@@ -90,6 +90,18 @@ class ModelViewTest(TestCase):
         emailaddress = person.emailaddress_set.get()
         self.assertEqual(emailaddress.email, 'test@example.com')
 
+        # Deleting the person should not work because of the email addresses
+        self.assertRedirects(self.client.get(person.urls['delete']),
+            person.urls['detail'])
+        response = self.client.post(person.urls['delete'])
+        self.assertRedirects(response, person.urls['detail'])
+        # Nothing has been deleted
+        self.assertEqual(Person.objects.count(), 1)
+        self.assertTrue(
+            ('Deletion not allowed: There are email addresses related'
+                ' to this object.') in str(response.cookies))
+
+        # Add another email address
         self.assertRedirects(self.client.post(person.urls['edit'], {
             'family_name': 'Blub',
             'given_name': 'Blab',
