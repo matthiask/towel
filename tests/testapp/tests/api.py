@@ -121,7 +121,7 @@ class APITest(TestCase):
             {u'error': u'No Person matches the given query.'},
             )
 
-    def test_options(self):
+    def test_http_methods(self):
         response = self.client.options('/api/v1/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Allow'], 'GET, HEAD, OPTIONS')
@@ -132,6 +132,59 @@ class APITest(TestCase):
         response = self.client.options(self.api['person']['__uri__'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Allow'], 'GET, HEAD, OPTIONS')
+
+        response = self.client.post('/api/v1/person/',
+            HTTP_ACCEPT='application/json',
+            )
+        self.assertEqual(response.status_code, 405)
+
+    def test_post_message(self):
+        person = Person.objects.create()
+        emailaddress = person.emailaddress_set.create()
+
+        response = self.client.post('/api/v1/message/')
+        self.assertEqual(response.status_code, 406)
+
+        response = self.client.post('/api/v1/message/', {
+            }, HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['error'], u'Validation failed')
+        self.assertEqual(data['form']['message'],
+            [u'This field is required.'])
+        self.assertEqual(data['form']['sent_to'],
+            [u'This field is required.'])
+
+        response = self.client.post('/api/v1/message/', {
+            'message': 'Blabla',
+            'sent_to': emailaddress.pk,
+            }, HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 201)
+        message = Message.objects.get()
+        data = self.get_json(response['Location'])
+        self.assertEqual(data['__pk__'], message.pk)
+
+        response = self.client.post('/api/v1/message/', json.dumps({
+            'message': 'Blabla',
+            'sent_to': emailaddress.pk,
+            }), 'application/json', HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 201)
+        message = Message.objects.latest('pk')
+        data = self.get_json(response['Location'])
+        self.assertEqual(data['__pk__'], message.pk)
+
+        self.assertEqual(Message.objects.count(), 2)
+
+    def test_unsupported_content_type(self):
+        response = self.client.post('/api/v1/message/', {
+            })
+
+        response = self.client.post('/api/v1/message/',
+            'blabla',
+            'application/octet-stream',  # Unsupported
+            HTTP_ACCEPT='application/json',
+            )
+        self.assertEqual(response.status_code, 415)
 
     def test_api_reverse(self):
         person = Person.objects.create()
