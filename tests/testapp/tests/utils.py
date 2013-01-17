@@ -1,3 +1,4 @@
+from django.template import Template, Context
 from django.test import TestCase
 
 from towel.utils import (related_classes, safe_queryset_and, tryreverse,
@@ -82,5 +83,20 @@ class UtilsTest(TestCase):
         self.assertEqual(p2, p)
         self.assertEqual(EmailAddress.objects.count(), 5)
 
+    def test_template_tag_helpers(self):
+        testcases = [
+            ('', ''),
+            ('{% testtag %}', 'ARGS: KWARGS:'),
+            ('{% testtag 3 4 5 %}', 'ARGS: 3,4,5 KWARGS:'),
+            ('{% testtag 3 "4" 5 %}', 'ARGS: 3,4,5 KWARGS:'),
+            ('{% testtag abcd "42" %}', 'ARGS: ,42 KWARGS:'),
+            ('{% testtag "abcd" "42" %}', 'ARGS: abcd,42 KWARGS:'),
+            ('{% testtag "abcd" "42" a=b %}', 'ARGS: abcd,42 KWARGS: a='),
+            ('{% testtag "abcd" a="b" "42" %}', 'ARGS: abcd,42 KWARGS: a=b'),
+            ('{% testtag bla="blub" blo="blob" %}',
+                'ARGS: KWARGS: bla=blub,blo=blob'),
+            ]
 
-# TODO template tag, parse_args_and_kwargs, resolve_args_and_kwargs test
+        for test, result in testcases:
+            t = Template(u'{% load testapp_tags %}' + test)
+            self.assertHTMLEqual(t.render(Context({})), result)
