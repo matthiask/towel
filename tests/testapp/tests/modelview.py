@@ -172,8 +172,29 @@ class ModelViewTest(TestCase):
             person.get_absolute_url(),
             )
 
+    def test_emailaddress_views(self):
+        emailaddress = EmailAddress.objects.create(
+            person=Person.objects.create(
+                given_name='Testa',
+                family_name='Testi',
+                ),
+            email='test@example.com',
+            )
+        response = self.client.get(emailaddress.get_absolute_url())
+        self.assertContains(response, 'Testa Testi')
+        # <title>, <h2>, <table>
+        self.assertContains(response, 'test@example.com', 3)
+        self.assertContains(response,
+            reverse('testapp_person_detail', kwargs={
+                'pk': emailaddress.person_id,
+                }))
 
-# TODO modelview_list / model_row test
-# TODO ordering test
-# TODO search form test
+        response = self.client.get(reverse('testapp_emailaddress_list'))
+        self.assertContains(response,
+            '<a href="/emailaddresses/%s/">test@example.com</a>' % (
+                emailaddress.pk))
+        self.assertContains(response,
+            '<a href="/persons/%s/">Testa Testi</a>' % emailaddress.person_id)
+
+
 # TODO batch form test

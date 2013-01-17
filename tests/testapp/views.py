@@ -106,3 +106,8 @@ person_views = PersonModelView(Person,
         'emails': {'model': EmailAddress},
         },
     )
+
+
+emailaddress_views = ModelView(EmailAddress,
+    paginate_by=5,
+    )
