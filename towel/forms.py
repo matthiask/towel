@@ -146,7 +146,7 @@ class BatchForm(forms.Form):
         """
         return self.queryset.filter(id__in=self.ids)
 
-    def process(self):
+    def process(self):  # pragma: no cover
         """
         Actually processes the batch form submission. Override this with
         your own behavior.

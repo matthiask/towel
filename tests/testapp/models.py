@@ -60,3 +60,6 @@ class Message(models.Model):
     """
     sent_to = models.ForeignKey(EmailAddress)
     message = models.TextField()
+
+    # No get_absolute_url method on purpose; is automatically added by
+    # ModelView

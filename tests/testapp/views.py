@@ -120,3 +120,8 @@ person_views = PersonModelView(Person,
 emailaddress_views = ModelView(EmailAddress,
     paginate_by=5,
     )
+
+
+message_views = ModelView(Message,
+    paginate_by=5,
+    )
