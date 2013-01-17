@@ -3,7 +3,7 @@ import httplib
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 
-from towel.api import API, APIException, Resource
+from towel.api import API, APIException, Resource, RequestParser, Serializer
 
 from .models import Person, EmailAddress, Message
 
@@ -33,6 +33,21 @@ class MessageResource(Resource):
             headers={'Location': data['__uri__']})
 
 
+def info(request, api):
+    response = RequestParser().parse(request)
+    if response:
+        return response
+
+    return Serializer().serialize({
+        'hello': 'World!',
+        'method': request.method,
+        'data': request.POST.copy(),
+        },
+        request=request,
+        status=200,
+        output_format=request.GET.get('format'))
+
+
 api_v1 = API('v1', decorators=[
     csrf_exempt,
     ])
@@ -42,3 +57,4 @@ api_v1.register(EmailAddress)
 api_v1.register(Message,
     view_class=MessageResource,
     )
+api_v1.add_view(info)

@@ -47,6 +47,8 @@ class APITest(TestCase):
         self.assertEqual(data['message']['__uri__'],
             'http://testserver/api/v1/message/')
 
+        self.assertEqual(len(data['views']), 1)
+
     def test_list_detail(self):
         person_uri = self.api['person']['__uri__']
         data = self.get_json(person_uri)
@@ -192,6 +194,41 @@ class APITest(TestCase):
             HTTP_ACCEPT='application/json',
             )
         self.assertEqual(response.status_code, 415)
+
+    def test_info_view(self):
+        response = self.client.get('/api/v1/info/',
+            HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['hello'], 'World!')
+        self.assertEqual(data['method'], 'GET')
+
+        response = self.client.post('/api/v1/info/', {
+            'bla': 'blaaa',
+            }, HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(data['data']['bla'], 'blaaa')
+
+        response = self.client.post('/api/v1/info/', json.dumps({
+            'bla': 'blaaa',
+            }), 'application/json', HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(data['data']['bla'], 'blaaa')
+
+        response = self.client.put('/api/v1/info/', json.dumps({
+            'bla': 'blaaa',
+            }), 'application/json', HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(data['method'], 'PUT')
+        self.assertEqual(data['data']['bla'], 'blaaa')
+
+        response = self.client.delete('/api/v1/info/', json.dumps({
+            'bla': 'blaaa',
+            }), 'application/json', HTTP_ACCEPT='application/json')
+        data = json.loads(response.content)
+        self.assertEqual(data['method'], 'DELETE')
+        # We are a good HTTP citizen; the body of DELETE requests is dropped
+        self.assertFalse('bla' in data['data'])
 
     def test_api_reverse(self):
         person = Person.objects.create()
