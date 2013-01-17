@@ -1,6 +1,9 @@
+import re
+
 from django import forms
 from django.shortcuts import redirect
 
+from towel import quick
 from towel.forms import (BatchForm, SearchForm, WarningsForm,
     towel_formfield_callback)
 from towel.modelview import ModelView
@@ -13,7 +16,18 @@ class PersonBatchForm(BatchForm):
 
 
 class PersonSearchForm(SearchForm):
+    quick_rules = [
+        (re.compile(r'^is:active$'),
+            quick.static(is_active=True)),
+        (re.compile(r'^is:inactive$'),
+            quick.static(is_active=False)),
+        (re.compile(r'^active:(?P<bool>\w+)$'),
+            quick.bool_mapper('is_active')),
+        (re.compile(r'^year:(?P<year>\d+)$'),
+            lambda values: {'created__year': values['year']}),
+        ]
     created__year = forms.IntegerField(required=False)
+    is_active = forms.NullBooleanField(required=False)
 
 
 class PersonForm(forms.ModelForm):

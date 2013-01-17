@@ -12,6 +12,7 @@ class PersonManager(SearchManager):
 
 class Person(models.Model):
     created = models.DateTimeField(default=now)
+    is_active = models.BooleanField(default=True)
     family_name = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
 
