@@ -120,8 +120,11 @@ person_views = PersonModelView(Person,
 class EmailAddressSearchForm(SearchForm):
     default = {
         'person__is_active': True,
+        'person__relationship': ('', 'single'),
     }
     person__is_active = forms.NullBooleanField(required=False)
+    person__relationship = forms.MultipleChoiceField(required=False,
+        choices=Person.RELATIONSHIP_CHOICES)
 
 
 emailaddress_views = ModelView(EmailAddress,

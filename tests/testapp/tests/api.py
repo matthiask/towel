@@ -67,11 +67,14 @@ class APITest(TestCase):
         correct = {
             'id': first.pk,
             '__pk__': first.pk,
-            '__pretty__': {},
+            '__pretty__': {
+                'relationship': 'unspecified',
+                },
             '__str__': 'Given 0 Given 0',
             '__uri__': 'http://testserver/api/v1/person/%s/' % first.pk,
             'family_name': 'Given 0',
             'given_name': 'Given 0',
+            'relationship': '',
             }
 
         for key, value in correct.items():

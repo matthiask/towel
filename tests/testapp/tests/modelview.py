@@ -224,6 +224,12 @@ class ModelViewTest(TestCase):
             '<span>1 - 5 / 5</span>',
             )
 
+        # Multiple choice it up a bit.
+        self.assertContains(
+            self.client.get(list_url + '?person__relationship=married&person__relationship=divorced'),
+            '<span>0 - 0 / 0</span>',
+            )
+
     def test_batchform(self):
         for i in range(20):
             Person.objects.create(

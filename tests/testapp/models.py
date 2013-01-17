@@ -11,10 +11,20 @@ class PersonManager(SearchManager):
 
 
 class Person(models.Model):
+    RELATIONSHIP_CHOICES = (
+        ('', 'unspecified'),
+        ('single', 'single'),
+        ('relation', 'in a relationship'),
+        ('married', 'married'),
+        ('divorced', 'divorced'),
+        )
+
     created = models.DateTimeField(default=now)
     is_active = models.BooleanField(default=True)
     family_name = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
+    relationship = models.CharField(max_length=20, blank=True,
+        choices=RELATIONSHIP_CHOICES)
 
     objects = PersonManager()
     urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
