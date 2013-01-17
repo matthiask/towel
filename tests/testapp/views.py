@@ -1,9 +1,11 @@
 from django import forms
+from django.shortcuts import redirect
 
-from towel.forms import BatchForm, SearchForm, towel_formfield_callback
+from towel.forms import (BatchForm, SearchForm, WarningsForm,
+    towel_formfield_callback)
 from towel.modelview import ModelView
 
-from .models import Person, EmailAddress
+from .models import Person, EmailAddress, Message
 
 
 class PersonBatchForm(BatchForm):
@@ -20,7 +22,30 @@ class PersonForm(forms.ModelForm):
         fields = ('family_name', 'given_name')
 
 
+class MessageForm(forms.ModelForm, WarningsForm):
+    class Meta:
+        model = Message
+
+    def __init__(self, *args, **kwargs):
+        person = kwargs.pop('person')
+        super(MessageForm, self).__init__(*args, **kwargs)
+        self.fields['sent_to'].queryset = person.emailaddress_set.all()
+
+    def clean(self):
+        data = super(MessageForm, self).clean()
+
+        if not data.get('message', '').strip():
+            self.add_warning('Only spaces in message, really send?')
+
+        return data
+
+
 class PersonModelView(ModelView):
+    def additional_urls(self):
+        return (
+            (r'^%(detail)s/message/$', self.message),
+            )
+
     def get_formfield_callback(self, request):
         return towel_formfield_callback
 
@@ -30,6 +55,26 @@ class PersonModelView(ModelView):
     def save_formsets(self, request, form, formsets, change):
         self.save_formset_deletion_allowed_if_only(request, form,
             formsets['emails'], change, [EmailAddress])
+
+    def message(self, request, *args, **kwargs):
+        instance = self.get_object_or_404(request, *args, **kwargs)
+
+        if request.method == 'POST':
+            form = MessageForm(request.POST, person=instance)
+
+            if form.is_valid():
+                form.save()
+                return redirect(instance)
+
+        else:
+            form = MessageForm(person=instance)
+
+        return self.render(request,
+            self.get_template(request, 'form'),
+            self.get_context(request, {
+                self.template_object_name: instance,
+                'form': form,
+                }))
 
 
 person_views = PersonModelView(Person,
