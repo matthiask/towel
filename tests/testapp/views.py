@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.contrib import messages
 from django.shortcuts import redirect
 
 from towel import quick
@@ -12,7 +13,15 @@ from .models import Person, EmailAddress, Message
 
 
 class PersonBatchForm(BatchForm):
-    pass
+    is_active = forms.NullBooleanField()
+
+    def process(self):
+        if self.cleaned_data.get('is_active') is not None:
+            updated = self.batch_queryset.update(
+                is_active=self.cleaned_data['is_active'])
+            messages.success(self.request, '%s have been updated.' % updated)
+
+        return self.batch_queryset
 
 
 class PersonSearchForm(SearchForm):

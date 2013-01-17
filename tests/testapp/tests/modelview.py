@@ -196,5 +196,36 @@ class ModelViewTest(TestCase):
         self.assertContains(response,
             '<a href="/persons/%s/">Testa Testi</a>' % emailaddress.person_id)
 
+    def test_batchform(self):
+        for i in range(20):
+            Person.objects.create(
+                given_name='Given %s' % i,
+                family_name='Family %s' % i,
+                )
 
-# TODO batch form test
+        self.assertContains(self.client.get('/persons/'),
+            '<span>1 - 5 / 20</span>')
+
+        response = self.client.post('/persons/', {
+            'batchform': 1,
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+            '<ul class="errorlist"><li>No items selected</li></ul>')
+
+        self.assertEqual(Person.objects.filter(is_active=False).count(), 0)
+        data = {
+            'batchform': 1,
+            'batch-is_active': 3,
+            }
+        for pk in Person.objects.values_list('id', flat=True)[:3]:
+            data['batch_%s' % pk] = pk
+        response = self.client.post('/persons/', data)
+        self.assertRedirects(response, '/persons/')
+
+        cookies = str(response.cookies)
+        self.assertTrue('3 have been updated.' in cookies)
+        self.assertTrue('Given 0 Family 0' in cookies)
+        self.assertTrue('Given 1 Family 1' in cookies)
+        self.assertTrue('Given 10 Family 10' in cookies)
+        self.assertEqual(Person.objects.filter(is_active=False).count(), 3)
