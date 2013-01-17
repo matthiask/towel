@@ -3,6 +3,7 @@ import json
 from django.test import TestCase
 
 from towel import deletion
+from towel.api import api_reverse
 
 from testapp.models import Person, EmailAddress, Message
 
@@ -117,4 +118,35 @@ class APITest(TestCase):
         self.assertEqual(
             self.get_json(person_uri + '0/'),
             {u'error': u'No Person matches the given query.'},
+            )
+
+    def test_options(self):
+        response = self.client.options('/api/v1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Allow'], 'GET, HEAD, OPTIONS')
+
+        response = self.client.post('/api/v1/')
+        self.assertEqual(response.status_code, 406)
+
+        response = self.client.options(self.api['person']['__uri__'])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Allow'], 'GET, HEAD, OPTIONS')
+
+    def test_api_reverse(self):
+        person = Person.objects.create()
+        self.assertEqual(
+            api_reverse(Person, 'list', api_name='v1'),
+            '/api/v1/person/',
+            )
+        self.assertEqual(
+            api_reverse(Person, 'detail', api_name='v1', pk=person.pk),
+            '/api/v1/person/%s/' % person.pk,
+            )
+        self.assertEqual(
+            api_reverse(person, 'detail', api_name='v1', pk=person.pk),
+            '/api/v1/person/%s/' % person.pk,
+            )
+        self.assertEqual(
+            api_reverse(Person, 'set', api_name='v1', pks='2;3;4'),
+            '/api/v1/person/2;3;4/',
             )
