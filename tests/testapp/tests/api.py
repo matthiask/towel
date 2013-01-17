@@ -18,12 +18,13 @@ class APITest(TestCase):
             person.emailaddress_set.create(email='test%s@example.com' % i)
         self.api = self.get_json('/api/v1/')
 
-    def get_json(self, uri):
+    def get_json(self, uri, status_code=200):
         try:
             response = self.client.get(
                 uri,
                 HTTP_ACCEPT='application/json',
                 )
+            self.assertEqual(response.status_code, status_code)
             return json.loads(response.content)
         except ValueError:
             print uri, response.status_code, response.content
@@ -112,11 +113,11 @@ class APITest(TestCase):
         self.assertEqual(len(data['objects']), 5)
 
         self.assertEqual(
-            self.get_json(person_uri + '0;/'),
+            self.get_json(person_uri + '0;/', status_code=404),
             {u'error': u'Some objects do not exist.'},
             )
         self.assertEqual(
-            self.get_json(person_uri + '0/'),
+            self.get_json(person_uri + '0/', status_code=404),
             {u'error': u'No Person matches the given query.'},
             )
 
