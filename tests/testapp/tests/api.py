@@ -250,5 +250,4 @@ class APITest(TestCase):
             )
 
 
-# TODO API.add_view test
 # TODO serialize_model_instance test
