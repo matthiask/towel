@@ -89,14 +89,20 @@ class UtilsTest(TestCase):
             ('{% testtag %}', 'ARGS: KWARGS:'),
             ('{% testtag 3 4 5 %}', 'ARGS: 3,4,5 KWARGS:'),
             ('{% testtag 3 "4" 5 %}', 'ARGS: 3,4,5 KWARGS:'),
-            ('{% testtag abcd "42" %}', 'ARGS: ,42 KWARGS:'),
+            ('{% testtag abcd "42" %}', 'ARGS: yay,42 KWARGS:'),
             ('{% testtag "abcd" "42" %}', 'ARGS: abcd,42 KWARGS:'),
             ('{% testtag "abcd" "42" a=b %}', 'ARGS: abcd,42 KWARGS: a='),
             ('{% testtag "abcd" a="b" "42" %}', 'ARGS: abcd,42 KWARGS: a=b'),
             ('{% testtag bla="blub" blo="blob" %}',
                 'ARGS: KWARGS: bla=blub,blo=blob'),
+            ('{% testtag bla=blub blo="blob" %}',
+                'ARGS: KWARGS: bla=blubber,blo=blob'),
             ]
 
         for test, result in testcases:
             t = Template(u'{% load testapp_tags %}' + test)
-            self.assertHTMLEqual(t.render(Context({})), result)
+            self.assertHTMLEqual(t.render(Context({
+                'abcd': 'yay',
+                'bla': 'blaaa',
+                'blub': 'blubber',
+                })), result)
