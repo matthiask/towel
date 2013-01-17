@@ -16,6 +16,11 @@ class PersonBatchForm(BatchForm):
 
 
 class PersonSearchForm(SearchForm):
+    orderings = {
+        'name': ('family_name', 'given_name'),
+        'is_active': ('-is_active', 'family_name'),
+        }
+
     quick_rules = [
         (re.compile(r'^is:active$'),
             quick.static(is_active=True)),

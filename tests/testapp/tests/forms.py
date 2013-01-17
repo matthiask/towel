@@ -126,6 +126,23 @@ class FormsTest(TestCase):
             '<span>1 - 5 / 100</span>',
             )
 
+        # Ordering
+        self.assertContains(
+            self.client.get(list_url),
+            'Given 0 Family 0',
+            )
+        self.assertContains(
+            self.client.get(list_url + '?o=name'),
+            'Given 12 Family 12',
+            )
+        self.assertContains(
+            self.client.get(list_url + '?o=-name'),
+            'Given 99 Family 99',
+            )
+        response = self.client.get(list_url + '?o=is_active')
+        self.assertContains(response, 'Given 14 Family 14')
+        self.assertNotContains(response, 'Given 12 Family 12')  # inactive
+
         # TODO multiple choice fields
         # TODO SearchForm.default
 
