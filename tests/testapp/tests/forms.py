@@ -84,6 +84,14 @@ class FormsTest(TestCase):
             self.client.get(list_url + '?query="Given+1"+year%3A2012'),
             '<span>1 - 5 / 11</span>',
             )
+        self.assertContains(
+            self.client.get(list_url + '?query="%2BGiven+1"+year%3A2012'),
+            '<span>1 - 5 / 11</span>',
+            )
+        self.assertContains(
+            self.client.get(list_url + '?query="-Given+1"+year%3A2012'),
+            '<span>1 - 5 / 81</span>',
+            )
 
         # Form field
         self.assertContains(
