@@ -211,3 +211,7 @@ class APITest(TestCase):
             api_reverse(Person, 'set', api_name='v1', pks='2;3;4'),
             '/api/v1/person/2;3;4/',
             )
+
+
+# TODO API.add_view test
+# TODO serialize_model_instance test

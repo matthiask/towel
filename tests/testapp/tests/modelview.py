@@ -171,3 +171,9 @@ class ModelViewTest(TestCase):
             reverse('testapp_person_detail', kwargs={'pk': person.pk}),
             person.get_absolute_url(),
             )
+
+
+# TODO modelview_list / model_row test
+# TODO ordering test
+# TODO search form test
+# TODO batch form test

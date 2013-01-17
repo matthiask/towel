@@ -81,3 +81,6 @@ class UtilsTest(TestCase):
         p = Person.objects.get()
         self.assertEqual(p2, p)
         self.assertEqual(EmailAddress.objects.count(), 5)
+
+
+# TODO template tag, parse_args_and_kwargs, resolve_args_and_kwargs test
