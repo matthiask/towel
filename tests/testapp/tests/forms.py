@@ -105,6 +105,13 @@ class FormsTest(TestCase):
             list_url + '?clear=1',
             )
 
+        # Mixed quick (only inactive) and form field (only active)
+        # Form field takes precedence
+        self.assertContains(
+            self.client.get(list_url + '?is_active=2&query=is:inactive'),
+            '<span>1 - 5 / 66</span>',
+            )
+
         # Search form persistence
         self.assertContains(
             self.client.get(list_url + '?s=1&is_active=3'),
@@ -120,6 +127,7 @@ class FormsTest(TestCase):
             )
 
         # TODO multiple choice fields
+        # TODO SearchForm.default
 
 
 # TODO autocompletion widget tests?
