@@ -180,6 +180,7 @@ class ModelViewTest(TestCase):
                 ),
             email='test@example.com',
             )
+
         response = self.client.get(emailaddress.get_absolute_url())
         self.assertContains(response, 'Testa Testi')
         # <title>, <h2>, <table>
@@ -189,12 +190,39 @@ class ModelViewTest(TestCase):
                 'pk': emailaddress.person_id,
                 }))
 
-        response = self.client.get(reverse('testapp_emailaddress_list'))
+        list_url = reverse('testapp_emailaddress_list')
+
+        response = self.client.get(list_url)
         self.assertContains(response,
             '<a href="/emailaddresses/%s/">test@example.com</a>' % (
                 emailaddress.pk))
         self.assertContains(response,
             '<a href="/persons/%s/">Testa Testi</a>' % emailaddress.person_id)
+
+        for i in range(10):
+            EmailAddress.objects.create(
+                person=Person.objects.create(
+                    given_name='Testa',
+                    family_name='Testi',
+                    is_active=bool(i % 2),
+                    ),
+                email='test%s@example.com' % i,
+                )
+
+        # The EmailAddressSearchForm defaults to only showing email addresses
+        # of active persons.
+        self.assertContains(
+            self.client.get(list_url),
+            '<span>1 - 5 / 6</span>',
+            )
+        self.assertContains(
+            self.client.get(list_url + '?person__is_active=1'),
+            '<span>1 - 5 / 11</span>',
+            )
+        self.assertContains(
+            self.client.get(list_url + '?person__is_active=3'),
+            '<span>1 - 5 / 5</span>',
+            )
 
     def test_batchform(self):
         for i in range(20):
