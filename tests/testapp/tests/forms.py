@@ -131,17 +131,26 @@ class FormsTest(TestCase):
             self.client.get(list_url),
             'Given 0 Family 0',
             )
-        self.assertContains(
-            self.client.get(list_url + '?o=name'),
-            'Given 12 Family 12',
-            )
-        self.assertContains(
-            self.client.get(list_url + '?o=-name'),
-            'Given 99 Family 99',
-            )
+        response = self.client.get(list_url + '?o=name')
+        self.assertContains(response, 'Given 12 Family 12')
+        self.assertContains(response,
+            '<a class="ordering desc" href="?&o=-name"> name</a>')
+        self.assertContains(response,
+            '<a class="ordering " href="?&o=is_active"> is active</a>')
+
+        response = self.client.get(list_url + '?o=-name')
+        self.assertContains(response, 'Given 99 Family 99')
+        self.assertContains(response,
+            '<a class="ordering asc" href="?&o=name"> name</a>')
+        self.assertContains(response,
+            '<a class="ordering " href="?&o=is_active"> is active</a>')
         response = self.client.get(list_url + '?o=is_active')
         self.assertContains(response, 'Given 14 Family 14')
         self.assertNotContains(response, 'Given 12 Family 12')  # inactive
+        self.assertContains(response,
+            '<a class="ordering " href="?&o=name"> name</a>')
+        self.assertContains(response,
+            '<a class="ordering desc" href="?&o=-is_active"> is active</a>')
 
         # TODO multiple choice fields
         # TODO SearchForm.default

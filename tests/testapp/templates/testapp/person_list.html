@@ -1,13 +1,16 @@
 {% extends "modelview/object_list.html" %}
 
-{% load i18n modelview_list towel_batch_tags %}
+{% load modelview_list towel_batch_tags %}
 
 {% block objects %}
 <table class="objects">
     <thead>
         <tr>
             {% if batch_form %}<td><input type="checkbox"></td>{% endif %}
-            <th>{% trans "object"|capfirst %}</th>
+            <th>{% ordering_link "name" request title="name" %}</th>
+            <td></td>
+            <td>{% ordering_link "is_active" request title="is active" %}</td>
+            <td></td>
         </tr>
     </thead>
     <tbody>
@@ -15,7 +18,7 @@
         <tr class="{% cycle 'odd' 'even' %}">
             {% if batch_form %}<td>{% batch_checkbox batch_form object.id %}</td>{% endif %}
             <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
-            {% for verbose_name, field in object|model_row:"created,is_active" %}
+            {% for verbose_name, field in object|model_row:"created,is_active,__unicode__" %}
                 <td>{{ field }}</td>
             {% endfor %}
         </tr>
