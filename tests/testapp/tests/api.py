@@ -1,5 +1,6 @@
 import json
 
+from django.core.urlresolvers import NoReverseMatch
 from django.test import TestCase
 
 from towel import deletion
@@ -251,6 +252,13 @@ class APITest(TestCase):
             api_reverse(Person, 'set', api_name='v1', pks='2;3;4'),
             '/api/v1/person/2;3;4/',
             )
+        self.assertEqual(
+            api_reverse(Person, 'sets', api_name='v1', pks='2;3;4',
+                fail_silently=True),
+            None,
+            )
+        self.assertRaises(NoReverseMatch, api_reverse,
+            Person, 'sets', api_name='v1', pks='2;')
 
 
 # TODO serialize_model_instance test
