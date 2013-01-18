@@ -102,3 +102,6 @@ class QuickTest(TestCase):
                     QUICK_RULES)[0]['relationship'],
             'relation',
             )
+        self.assertTrue(
+            'relation' not in quick.parse_quickadd(
+                'relationship:(stupidity)', QUICK_RULES)[0])
