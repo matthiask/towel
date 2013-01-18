@@ -44,6 +44,11 @@ class QuickTest(TestCase):
         self.assertEqual(data['important'], True)
         self.assertEqual(rest, ['Phone', 'call'])
 
+        data, rest = quick.parse_quickadd('@Unknown Phone', QUICK_RULES)
+        self.assertTrue('assigned_to' not in data)
+        self.assertEqual(rest, ['Phone'])
+        # XXX Stop dropping unknowns?
+
         self.assertEqual(
             quick.parse_quickadd('^+3', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=3),
