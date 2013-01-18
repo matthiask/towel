@@ -79,7 +79,7 @@ class APITest(TestCase):
 
         for key, value in correct.items():
             self.assertEqual(first_person[key], value)
-
+        self.assertTrue('is_active' not in first_person)
 
         self.assertEqual(
             len(self.get_json(person_uri + '?limit=100')['objects']),
