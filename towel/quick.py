@@ -128,9 +128,8 @@ def model_choices_mapper(data, attribute):
                 Ticket.VISIBILITY_CHOICES, 'visibility')),
             ]
     """
-    reverse = dict((unicode(value), key) for key, value in data)
-
     def _fn(values):
+        reverse = dict((unicode(value), key) for key, value in data)
         try:
             return {attribute: reverse[values['value']]}
         except KeyError:
