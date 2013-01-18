@@ -74,9 +74,6 @@ class PersonModelView(ModelView):
             (r'^%(detail)s/message/$', self.message),
             )
 
-    def get_formfield_callback(self, request):
-        return towel_formfield_callback
-
     def deletion_allowed(self, request, instance):
         return self.deletion_allowed_if_only(request, instance, [Person])
 
