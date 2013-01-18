@@ -1,0 +1,83 @@
+import re
+
+from datetime import date, timedelta
+
+from django.test import TestCase
+from django.utils import timezone
+
+from towel import quick
+
+from testapp.models import Person
+
+
+QUICK_RULES = [
+    (re.compile(r'!!'), quick.static(important=True)),
+    (re.compile(r'@(?P<family_name>\w+)'),
+        quick.model_mapper(Person.objects.filter(is_active=True),
+            'assigned_to')),
+    (re.compile(r'\^\+(?P<due>\d+)'),
+        lambda v: {'due': date.today() + timedelta(days=int(v['due']))}),
+    (re.compile(r'=(?P<estimated_hours>[\d\.]+)h'),
+        quick.identity()),
+    (re.compile(r'relationship:\((?P<value>[^\)]*)\)'),
+        quick.model_choices_mapper(Person.RELATIONSHIP_CHOICES,
+            'relationship')),
+    ]
+
+
+class QuickTest(TestCase):
+    def test_parse_quickadd(self):
+        data, rest = quick.parse_quickadd('', QUICK_RULES)
+        self.assertEqual(data.items(), [])
+        self.assertEqual(rest, [])
+
+        data, rest = quick.parse_quickadd('!! do this do that', QUICK_RULES)
+        self.assertEqual(data.items(), [('important', True)])
+        self.assertEqual(u' '.join(rest), 'do this do that')
+
+        p_muster = Person.objects.create(family_name='Muster')
+        Person.objects.create(family_name='Blaa')
+        Person.objects.create()
+        data, rest = quick.parse_quickadd('@Muster Phone call !!', QUICK_RULES)
+        self.assertEqual(data['assigned_to'], p_muster.pk)
+        self.assertEqual(data['assigned_to_'], p_muster)
+        self.assertEqual(data['important'], True)
+        self.assertEqual(rest, ['Phone', 'call'])
+
+        self.assertEqual(
+            quick.parse_quickadd('^+3', QUICK_RULES)[0]['due'],
+            date.today() + timedelta(days=3),
+            )
+        self.assertEqual(
+            quick.parse_quickadd('^+42', QUICK_RULES)[0]['due'],
+            date.today() + timedelta(days=42),
+            )
+
+        self.assertEqual(
+            quick.parse_quickadd('=0.3h', QUICK_RULES)[0]['estimated_hours'],
+            '0.3',
+            )
+        self.assertEqual(
+            quick.parse_quickadd('=10.3h', QUICK_RULES)[0]['estimated_hours'],
+            '10.3',
+            )
+        self.assertEqual(
+            quick.parse_quickadd('=37h', QUICK_RULES)[0]['estimated_hours'],
+            '37',
+            )
+
+        self.assertEqual(
+                quick.parse_quickadd('relationship:(unspecified)',
+                    QUICK_RULES)[0]['relationship'],
+            '',
+            )
+        self.assertEqual(
+                quick.parse_quickadd('relationship:(married)',
+                    QUICK_RULES)[0]['relationship'],
+            'married',
+            )
+        self.assertEqual(
+                quick.parse_quickadd('relationship:(in a relationship)',
+                    QUICK_RULES)[0]['relationship'],
+            'relation',
+            )
