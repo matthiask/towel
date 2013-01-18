@@ -17,6 +17,8 @@ QUICK_RULES = [
             'assigned_to')),
     (re.compile(r'\^\+(?P<due>\d+)'),
         lambda v: {'due': date.today() + timedelta(days=int(v['due']))}),
+    (re.compile(r'\^(?P<due>[^\s]+)'),
+        quick.due_mapper('due')),
     (re.compile(r'=(?P<estimated_hours>[\d\.]+)h'),
         quick.identity()),
     (re.compile(r'relationship:\((?P<value>[^\)]*)\)'),
@@ -57,6 +59,20 @@ class QuickTest(TestCase):
             quick.parse_quickadd('^+42', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=42),
             )
+        self.assertEqual(
+            quick.parse_quickadd('^Today', QUICK_RULES)[0]['due'],
+            date.today() + timedelta(days=0),
+            )
+        self.assertEqual(
+            quick.parse_quickadd('^Tomorrow', QUICK_RULES)[0]['due'],
+            date.today() + timedelta(days=1),
+            )
+        for name in (
+                'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,'
+                'Sunday'.split(',')):
+            due = quick.parse_quickadd('^%s' % name, QUICK_RULES)[0]['due']
+            self.assertTrue(
+                date.today() <= due < date.today() + timedelta(days=7))
 
         self.assertEqual(
             quick.parse_quickadd('=0.3h', QUICK_RULES)[0]['estimated_hours'],
