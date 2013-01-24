@@ -399,6 +399,11 @@ def serialize_model_instance(instance, api, inline_depth=0,
             continue
 
         if f.rel:
+            value = f.value_from_object(instance)
+            if value is None:
+                data[f.name] = None
+                continue
+
             try:
                 data[f.name] = build_absolute_uri(api_reverse(
                     f.rel.to,
