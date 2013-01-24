@@ -6,6 +6,10 @@ from towel.managers import SearchManager
 from towel.modelview import ModelViewURLs
 
 
+class Group(models.Model):
+    name = models.CharField(max_length=100)
+
+
 class PersonManager(SearchManager):
     search_fields = ('family_name', 'given_name')
 
@@ -25,6 +29,7 @@ class Person(models.Model):
     given_name = models.CharField(max_length=100)
     relationship = models.CharField(max_length=20, blank=True,
         choices=RELATIONSHIP_CHOICES)
+    groups = models.ManyToManyField(Group, related_name='members')
 
     objects = PersonManager()
     urls = ModelViewURLs(lambda obj: {'pk': obj.pk})

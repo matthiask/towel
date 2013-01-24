@@ -6,7 +6,7 @@ from django.test import TestCase
 from towel import deletion
 from towel.api import api_reverse
 
-from testapp.models import Person, EmailAddress, Message
+from testapp.models import Group, Person, EmailAddress, Message
 
 
 class APITest(TestCase):
@@ -14,7 +14,7 @@ class APITest(TestCase):
         for i in range(100):
             person = Person.objects.create(
                 given_name='Given %s' % i,
-                family_name='Given %s' % i,
+                family_name='Family %s' % i,
                 )
             person.emailaddress_set.create(email='test%s@example.com' % i)
         self.api = self.get_json('/api/v1/')
@@ -40,13 +40,15 @@ class APITest(TestCase):
 
         self.assertEqual(data['__str__'], 'v1')
         self.assertEqual(data['__uri__'], 'http://testserver/api/v1/')
-        self.assertEqual(len(data['resources']), 3)
+        self.assertEqual(len(data['resources']), 4)
         self.assertEqual(data['person']['__uri__'],
             'http://testserver/api/v1/person/')
         self.assertEqual(data['emailaddress']['__uri__'],
             'http://testserver/api/v1/emailaddress/')
         self.assertEqual(data['message']['__uri__'],
             'http://testserver/api/v1/message/')
+        self.assertEqual(data['group']['__uri__'],
+            'http://testserver/api/v1/group/')
 
         self.assertEqual(len(data['views']), 1)
 
@@ -71,9 +73,9 @@ class APITest(TestCase):
             '__pretty__': {
                 'relationship': 'unspecified',
                 },
-            '__str__': 'Given 0 Given 0',
+            '__str__': 'Given 0 Family 0',
             '__uri__': 'http://testserver/api/v1/person/%s/' % first.pk,
-            'family_name': 'Given 0',
+            'family_name': 'Family 0',
             'given_name': 'Given 0',
             'relationship': '',
             }
@@ -260,5 +262,42 @@ class APITest(TestCase):
         self.assertRaises(NoReverseMatch, api_reverse,
             Person, 'sets', api_name='v1', pks='2;')
 
+    def test_serialization(self):
+        from pprint import pprint
+        person = Person.objects.order_by('id')[0]
+        group = Group.objects.create(
+            name='grouup',
+            )
+        person.groups.add(group)
+        person.emailaddress_set.create(email='another@example.com')
 
-# TODO serialize_model_instance test
+        person_uri = api_reverse(person, 'detail', api_name='v1',
+            pk=person.id)
+
+        self.assertEqual(person.groups.count(), 1)
+        self.assertEqual(person.emailaddress_set.count(), 2)
+
+        data = self.get_json(person_uri)
+        self.assertEqual(data['given_name'], 'Given 0')
+        self.assertEqual(data['family_name'], 'Family 0')
+        self.assertFalse('emailaddress_set' in data)
+        self.assertFalse('groups' in data)
+
+        data = self.get_json(person_uri + '?full=1')
+        self.assertTrue('emailaddress_set' in data)
+        self.assertTrue('groups' in data)
+
+        data = self.get_json(self.api['group']['__uri__'])
+        self.assertEqual(
+            len(data['objects']),
+            1)
+        group_uri = data['objects'][0]['__uri__']
+
+        data = self.get_json(group_uri)
+        self.assertEqual(data['name'], 'grouup')
+        self.assertFalse('members' in data)
+
+        data = self.get_json(group_uri + '?full=1')
+        self.assertEqual(data['name'], 'grouup')
+        self.assertTrue('members' in data)
+        self.assertEqual(len(data['members']), 1)

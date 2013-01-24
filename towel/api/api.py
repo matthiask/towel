@@ -3,6 +3,7 @@ import httplib
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf.urls import patterns, include, url
 from django.db import models
+from django.db.models.related import RelatedObject
 from django.http import HttpResponse
 from django.utils.functional import curry
 from django.views.decorators.csrf import csrf_exempt
@@ -391,14 +392,29 @@ def serialize_model_instance(instance, api, inline_depth=0,
         }
     opts = instance._meta
 
-    for f in opts.fields:
+    for f_name in opts.get_all_field_names():
+        f, model, direct, m2m = opts.get_field_by_name(f_name)
+
         if fields and f.name not in fields:
             continue
 
         if f.name in exclude:
             continue
 
-        if f.rel:
+        if isinstance(f, (models.ManyToManyField, RelatedObject)):
+            if inline_depth > 0:
+                name = (f.get_accessor_name() if isinstance(f, RelatedObject)
+                    else f.name)
+
+                data[name] = [
+                    api.serialize_instance(
+                        obj,
+                        inline_depth=inline_depth - 1,
+                        build_absolute_uri=build_absolute_uri,
+                        only_registered=only_registered,
+                    ) for obj in getattr(instance, name).all()]
+
+        elif f.rel:
             value = f.value_from_object(instance)
             if value is None:
                 data[f.name] = None
@@ -443,40 +459,5 @@ def serialize_model_instance(instance, api, inline_depth=0,
             if f.flatchoices:
                 data['__pretty__'][f.name] = unicode(
                     dict(f.flatchoices).get(data[f.name], '-'))
-
-    if inline_depth > 0:
-        for rel in opts.get_all_related_objects():
-            # TODO verify whether this works correctly on both sides of
-            # a M2M relation
-            accessor = rel.get_accessor_name()
-            if not accessor or accessor in exclude:
-                continue
-
-            if rel.field.rel.multiple:
-                related = [
-                    api.serialize_instance(
-                        obj,
-                        inline_depth=inline_depth - 1,
-                        build_absolute_uri=build_absolute_uri,
-                        only_registered=only_registered,
-                    ) for obj in getattr(instance, accessor).all()]
-
-                if any(related):
-                    data[accessor] = related
-
-            else:
-                try:
-                    related = getattr(instance, accessor)
-                except models.ObjectDoesNotExist:
-                    continue
-
-                related = api.serialize_instance(
-                        related,
-                        inline_depth=inline_depth - 1,
-                        build_absolute_uri=build_absolute_uri,
-                        only_registered=only_registered,
-                    )
-                if related:
-                    data[accessor] = related
 
     return data

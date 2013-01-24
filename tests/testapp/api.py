@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from towel.api import (API, APIException, Resource, RequestParser, Serializer,
     serialize_model_instance)
 
-from .models import Person, EmailAddress, Message
+from .models import Group, Person, EmailAddress, Message
 
 
 class MessageForm(forms.ModelForm):
@@ -54,6 +54,7 @@ api_v1 = API('v1', decorators=[
     csrf_exempt,
     ])
 
+api_v1.register(Group)
 api_v1.register(Person,
     serializer=partial(serialize_model_instance, exclude=('is_active',)),
     )
@@ -61,4 +62,5 @@ api_v1.register(EmailAddress)
 api_v1.register(Message,
     view_class=MessageResource,
     )
+
 api_v1.add_view(info)
