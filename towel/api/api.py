@@ -401,18 +401,35 @@ def serialize_model_instance(instance, api, inline_depth=0,
         if f.name in exclude:
             continue
 
+        # TODO maybe check before querying the database whether the objects
+        # are included in the API or only_registered=False?
+
         if isinstance(f, (models.ManyToManyField, RelatedObject)):
             if inline_depth > 0:
-                name = (f.get_accessor_name() if isinstance(f, RelatedObject)
-                    else f.name)
+                is_relobj = isinstance(f, RelatedObject)
+                name = f.get_accessor_name() if is_relobj else f.name
 
-                data[name] = [
-                    api.serialize_instance(
+                if is_relobj and not f.field.rel.multiple:
+                    try:
+                        obj = getattr(instance, name)
+                    except models.ObjectDoesNotExist:
+                        obj = None
+
+                    data[name] = api.serialize_instance(
                         obj,
                         inline_depth=inline_depth - 1,
                         build_absolute_uri=build_absolute_uri,
                         only_registered=only_registered,
-                    ) for obj in getattr(instance, name).all()]
+                        ) if obj else None
+                else:
+                    related = [api.serialize_instance(
+                        obj,
+                        inline_depth=inline_depth - 1,
+                        build_absolute_uri=build_absolute_uri,
+                        only_registered=only_registered,
+                        ) for obj in getattr(instance, name).all()]
+                    if any(related):
+                        data[name] = related
 
         elif f.rel:
             value = f.value_from_object(instance)
