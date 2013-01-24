@@ -445,19 +445,38 @@ def serialize_model_instance(instance, api, inline_depth=0,
                     dict(f.flatchoices).get(data[f.name], '-'))
 
     if inline_depth > 0:
-        for f in opts.many_to_many:
-            if f.name in exclude:
+        for rel in opts.get_all_related_objects():
+            # TODO verify whether this works correctly on both sides of
+            # a M2M relation
+            accessor = rel.get_accessor_name()
+            if not accessor or accessor in exclude:
                 continue
 
-            related = [
-                api.serialize_instance(
-                    obj,
-                    inline_depth=inline_depth - 1,
-                    build_absolute_uri=build_absolute_uri,
-                    only_registered=only_registered,
-                ) for obj in getattr(instance, f.name).all()]
+            if rel.field.rel.multiple:
+                related = [
+                    api.serialize_instance(
+                        obj,
+                        inline_depth=inline_depth - 1,
+                        build_absolute_uri=build_absolute_uri,
+                        only_registered=only_registered,
+                    ) for obj in getattr(instance, accessor).all()]
 
-            if any(related):
-                data[f.name] = related
+                if any(related):
+                    data[accessor] = related
+
+            else:
+                try:
+                    related = getattr(instance, accessor)
+                except models.ObjectDoesNotExist:
+                    continue
+
+                related = api.serialize_instance(
+                        related,
+                        inline_depth=inline_depth - 1,
+                        build_absolute_uri=build_absolute_uri,
+                        only_registered=only_registered,
+                    )
+                if related:
+                    data[accessor] = related
 
     return data
