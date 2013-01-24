@@ -228,13 +228,10 @@ class APITest(TestCase):
         self.assertEqual(data['method'], 'PUT')
         self.assertEqual(data['data']['bla'], 'blaaa')
 
-        response = self.client.delete('/api/v1/info/', json.dumps({
-            'bla': 'blaaa',
-            }), 'application/json', HTTP_ACCEPT='application/json')
+        response = self.client.delete('/api/v1/info/',
+            HTTP_ACCEPT='application/json')
         data = json.loads(response.content)
         self.assertEqual(data['method'], 'DELETE')
-        # We are a good HTTP citizen; the body of DELETE requests is dropped
-        self.assertFalse('bla' in data['data'])
 
     def test_api_reverse(self):
         person = Person.objects.create()
