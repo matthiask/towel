@@ -131,7 +131,7 @@ class APITest(TestCase):
         response = self.client.get('/api/v1/person/',
             HTTP_ACCEPT='application/xml')
         self.assertContains(response,
-            '<value type="string" name="family_name">',
+            'name="family_name"',
             20)
 
     def test_http_methods(self):
