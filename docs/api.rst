@@ -285,7 +285,7 @@ A typical request-response cycle
     If ``response`` is already a :py:class:`~django.http.HttpResponse`
     instance, it is returned directly.
 
-    The content types supported by :py:class:`Serializer` are JSON and XML,
+    The content types supported by :py:class:`Serializer` are JSON,
     but more on that later.
 
 
@@ -295,7 +295,7 @@ The serializer
 
 .. class:: Serializer()
 
-The API supports output as XML or as JSON. The format is determined
+The API supports output as JSON. The format is determined
 by looking at the HTTP ``Accept`` header first. If no acceptable encoding
 is found, a HTTP 406 Not acceptable error is returned to the client.
 
@@ -304,7 +304,6 @@ a querystring parameter naemd ``format``. The supported values are as
 follows:
 
 - ``?format=json`` or ``?format=application/json`` for JSON output
-- ``?format=xml`` or ``?format=application/xml`` for XML output
 
 
 The request parser
@@ -540,8 +539,8 @@ The following fields should always be available on objects returned:
   method.
 
 A few fields' values have to be treated specially, because their values
-do not have an obvious representation in an XML or JSON document. The
-fields and their representations are as follows:
+do not have an obvious representation in an JSON document. The fields and
+their representations are as follows:
 
 - :py:class:`~datetime.date` and :py:class:`~datetime.datetime` objects
   are converted into strings using :py:func:`str`.

@@ -129,13 +129,6 @@ class APITest(TestCase):
             {u'error': u'No Person matches the given query.'},
             )
 
-        # XML
-        response = self.client.get('/api/v1/person/',
-            HTTP_ACCEPT='application/xml')
-        self.assertContains(response,
-            'name="family_name"',
-            20)
-
     def test_http_methods(self):
         response = self.client.options('/api/v1/')
         self.assertEqual(response.status_code, 200)
