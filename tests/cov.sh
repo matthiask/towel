@@ -1,3 +1,3 @@
 #!/bin/sh
-coverage run --branch --include="*towel/towel*" ./manage.py test testapp
+coverage run --branch --include="*towel/towel*" --omit="*tests*" ./manage.py test testapp
 coverage html
