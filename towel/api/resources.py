@@ -11,12 +11,8 @@ from .serializers import Serializer
 from .utils import querystring
 
 
-#: The return value of ``Resource.objects``
-Objects = namedtuple('Objects', 'queryset page set single')
-
-
 #: The ``page`` object from ``Resource.objects``
-Page = namedtuple('Page', 'queryset offset limit total')
+Page = namedtuple('Page', 'queryset offset limit full_queryset')
 
 
 class Resource(generic.View):
@@ -62,6 +58,9 @@ class Resource(generic.View):
           instance most of the time) which is then serialized into the
           requested format or some different supported format.
         """
+
+        # The following three lines can be removed when we move to
+        # Django 1.5 only
         self.request = request
         self.args = args
         self.kwargs = kwargs
@@ -74,14 +73,27 @@ class Resource(generic.View):
         # defer to the error handler. Also defer to the error handler if the
         # request method isn't on the approved list.
         method = self.request.method.lower()
-        if not (method in self.http_method_names and hasattr(self, method)):
-            handler = self.http_method_not_allowed
-        else:
-            handler = getattr(self, method)
+        if method == 'head':
+            method = 'get'
+        handler = self.http_method_not_allowed
+
+        if method in self.http_method_names:
+            if hasattr(self, method):
+                handler = getattr(self, method)
+
+            if 'pk' in self.kwargs:
+                handler = getattr(self, '%s_detail' % method, handler)
+                self.request_type = 'detail'
+            elif 'pks' in self.kwargs:
+                handler = getattr(self, '%s_set' % method, handler)
+                self.request_type = 'set'
+            else:
+                handler = getattr(self, '%s_list' % method, handler)
+                self.request_type = 'list'
 
         try:
-            return self.serialize_response(handler(
-                self.request, *self.args, **self.kwargs))
+            return self.serialize_response(
+                handler(self.request, *self.args, **self.kwargs))
         except Http404 as exc:
             return self.serialize_response({'error': exc[0]},
                 status=httplib.NOT_FOUND)
@@ -135,112 +147,81 @@ class Resource(generic.View):
         """
         return queryset
 
-    def objects(self):
+    def detail_object_or_404(self):
         """
-        Returns a ``namedtuple`` with the following attributes:
-
-        - ``queryset``: Available items, filtered and all (if applicable).
-        - ``page``: Current page
-        - ``set``: List of objects or ``None`` if not applicable. Will be used
-          for requests such as ``/api/product/1;3/``.
-        - ``single``: Single instances if applicable, used for URIs such as
-          ``/api/product/1/``.
-
-        Raises a ``Http404`` exception if the referenced items do not exist in
-        the queryset returned by ``Resource.get_query_set()``.
+        Returns the current object for detail resources such as
+        ``/api/product/1/``.
         """
-        queryset, page, set_, single = self.get_query_set(), None, None, None
+        return get_object_or_404(self.get_query_set(), pk=self.kwargs['pk'])
 
-        if 'pk' in self.kwargs:
-            single = get_object_or_404(queryset, pk=self.kwargs['pk'])
-
-        elif 'pks' in self.kwargs:
-            pks = set(pk for pk in self.kwargs['pks'].split(';') if pk)
-            set_ = queryset.in_bulk(pks).values()
-
-            if len(pks) != len(set_):
-                raise Http404('Some objects do not exist.')
-
-        else:
-            queryset = self.apply_filters(queryset)
-
-            try:
-                offset = int(self.request.GET.get('offset'))
-            except (TypeError, ValueError):
-                offset = 0
-
-            try:
-                limit = int(self.request.GET.get('limit'))
-            except (TypeError, ValueError):
-                limit = self.limit_per_page
-
-            # Do not allow more than max_limit_per_page entries in one request,
-            # ever
-            limit = min(limit, self.max_limit_per_page)
-
-            # Sanitize range
-            offset = max(offset, 0)
-            limit = max(limit, 0)
-
-            page = Page(
-                queryset[offset:offset + limit],
-                offset,
-                limit,
-                queryset.count(),
-                )
-
-        return Objects(queryset, page, set_, single)
-
-    def get(self, request, *args, **kwargs):
+    def set_objects_or_404(self):
         """
-        Processes GET requests by returning lists, sets or detail data. All of
-        these URLs are supported by this implementation:
-
-        - ``resource/``: Paginated list of objects, first page
-        - ``resource/?page=3``: Paginated list of objects, third page
-        - ``resource/42/``: Object with primary key of 42
-        - ``resource/1;3;5/``: Set of the three objects with a primary key of
-          1, 3 and 5. The last item may have a semicolon too for simplicity, it
-          will be ignored. The following URI would be equivalent:
-          ``resource/1;;3;5;`` (but it is bad style).
-
-        Filtering or searching is not supported at the moment.
+        Returns the current set of objects for set resources such as
+        ``/api/product/1;3/``.
         """
-        objects = self.objects()
+        pks = set(pk for pk in self.kwargs['pks'].split(';') if pk)
+        set_ = self.get_query_set().in_bulk(pks).values()
 
-        if objects.single:
-            return self.get_single(request, objects, *args, **kwargs)
-        elif objects.set:
-            return self.get_set(request, objects, *args, **kwargs)
-        else:
-            return self.get_page(request, objects, *args, **kwargs)
+        if len(pks) != len(set_):
+            raise Http404('Some objects do not exist.')
 
-    def get_single(self, request, objects, *args, **kwargs):
+        return set_
+
+    def page_objects_or_404(self):
+        """
+        Returns the current page for list resources such as
+        ``/api/product/?limit=20&offset=40``. Applies filtering using
+        ``apply_filters`` as well.
+        """
+        queryset = self.apply_filters(self.get_query_set())
+
+        try:
+            offset = int(self.request.GET.get('offset'))
+        except (TypeError, ValueError):
+            offset = 0
+
+        try:
+            limit = int(self.request.GET.get('limit'))
+        except (TypeError, ValueError):
+            limit = self.limit_per_page
+
+        # Do not allow more than max_limit_per_page entries in one request,
+        # ever
+        limit = min(limit, self.max_limit_per_page)
+
+        # Sanitize range
+        offset = max(offset, 0)
+        limit = max(limit, 0)
+
+        return Page(queryset[offset:offset + limit], offset, limit, queryset)
+
+    def get_detail(self, request, *args, **kwargs):
         kw = {}
         if request.GET.get('full'):
             kw['inline_depth'] = 1
         return self.api.serialize_instance(
-            objects.single,
+            self.detail_object_or_404(),
             build_absolute_uri=request.build_absolute_uri,
             **kw)
 
-    def get_set(self, request, objects, *args, **kwargs):
+    def get_set(self, request, *args, **kwargs):
         return {
             'objects': [
                 self.api.serialize_instance(
                     instance,
                     build_absolute_uri=request.build_absolute_uri,
-                    ) for instance in objects.set],
+                    ) for instance in self.set_objects_or_404()],
             }
 
-    def get_page(self, request, objects, *args, **kwargs):
-        page = objects.page
-        list_url = api_reverse(objects.queryset.model, 'list',
+    def get_list(self, request, *args, **kwargs):
+        page = self.page_objects_or_404()
+
+        list_url = api_reverse(page.queryset.model, 'list',
             api_name=self.api.name)
         meta = {
             'offset': page.offset,
             'limit': page.limit,
-            'total': page.total,
+            'total': page.full_queryset.count(),
             'previous': None,
             'next': None,
             }
@@ -254,7 +235,7 @@ class Resource(generic.View):
                     limit=page.limit,
                     )))
 
-        if page.offset + page.limit < page.total:
+        if page.offset + page.limit < meta['total']:
             meta['next'] = request.build_absolute_uri(
                 u'%s?%s' % (list_url, querystring(
                     self.request.GET,
@@ -280,4 +261,10 @@ class Resource(generic.View):
         return response
 
     def _allowed_methods(self):
-        return [m.upper() for m in self.http_method_names if hasattr(self, m)]
+        methods = set(m.upper() for m in self.http_method_names if (
+            hasattr(self, m)
+            or hasattr(self, '%s_%s' % (m, self.request_type))
+            ))
+        if 'GET' in methods:
+            methods.add('HEAD')
+        return sorted(methods)
