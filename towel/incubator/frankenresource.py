@@ -25,25 +25,19 @@ class FrankenResource(Resource):
     def get_query_set(self):
         return self.modelview.get_query_set(self.request)
 
-    def post(self, request, *args, **kwargs):
+    def post_list(self, request, *args, **kwargs):
         """
         POST handler. Only supports full creation of objects by posting to
         the listing endpoint currently.
         """
-        objects = self.objects()
-        if objects.single or objects.set:
-            raise APIException(status=httplib.NOT_IMPLEMENTED)
-
         if not self.modelview.adding_allowed(request):
             raise APIException(status=httplib.FORBIDDEN)
 
         form_class = self.modelview.get_form(request,
-            instance=objects.single,
             change=False,
             )
         form = self.modelview.get_form_instance(request,
             form_class=form_class,
-            instance=objects.single,
             change=False,
             )
 
@@ -73,7 +67,7 @@ class FrankenResource(Resource):
             'Location': data['__uri__'],
             })
 
-    def put(self, request, *args, **kwargs):
+    def put_detail(self, request, *args, **kwargs):
         """
         PUT handler. Only supports update of existing resources. Sets are not
         supported.
@@ -82,25 +76,21 @@ class FrankenResource(Resource):
         validation fails. If you are looking for partial updates, have a look
         at PATCH.
         """
-        objects = self.objects()
-        if not objects.single:
-            # Only update of existing resources supported; sets are not
-            # supported though
-            raise APIException(status=httplib.NOT_IMPLEMENTED)
+        instance = self.detail_object_or_404()
 
-        if not self.modelview.editing_allowed(request, objects.single):
+        if not self.modelview.editing_allowed(request, instance):
             raise APIException(status=httplib.FORBIDDEN)
 
         # The ModelView code only does the right thing when method is POST
         request.method = 'POST'
 
         form_class = self.modelview.get_form(request,
-            instance=objects.single,
+            instance=instance,
             change=True,
             )
         form = self.modelview.get_form_instance(request,
             form_class=form_class,
-            instance=objects.single,
+            instance=instance,
             change=True,
             )
 
@@ -126,14 +116,12 @@ class FrankenResource(Resource):
         serialized representation from the database, overwrites values using
         the data from the PATCH request and calls PUT afterwards.
         """
-        objects = self.objects()
-        if not objects.single:
-            raise APIException(status=httplib.NOT_IMPLEMENTED)
+        instance = self.detail_object_or_404()
 
-        if not self.modelview.editing_allowed(request, objects.single):
+        if not self.modelview.editing_allowed(request, instance):
             raise APIException(status=httplib.FORBIDDEN)
 
-        data = self.api.serialize_instance(objects.single,
+        data = self.api.serialize_instance(instance,
             build_absolute_uri=request.build_absolute_uri)
         for key in request.POST:
             if isinstance(data[key], (list, tuple)):
@@ -144,16 +132,13 @@ class FrankenResource(Resource):
 
         return self.put(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
+    def delete_detail(self, request, *args, **kwargs):
         """
         DELETE handler. Only supports deletion of single items at the moment.
         """
-        objects = self.objects()
-        if not objects.single:
-            # It would be quite easy to support deletion of sets...
-            raise APIException(status=httplib.NOT_IMPLEMENTED)
+        instance = self.detail_object_or_404()
 
-        if not self.modelview.deletion_allowed(request, objects.single):
+        if not self.modelview.deletion_allowed(request, instance):
             raise APIException(status=httplib.FORBIDDEN, data={
                 'messages': [{
                     'message': unicode(msg),
@@ -161,5 +146,5 @@ class FrankenResource(Resource):
                     } for msg in get_messages(request)],
                 })
 
-        objects.single.delete()
+        instance.delete()
         return self.serialize_response({}, status=httplib.NO_CONTENT)
