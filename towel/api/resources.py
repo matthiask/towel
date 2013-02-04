@@ -44,9 +44,15 @@ class Resource(generic.View):
     #: the URLconf entries. The format is a list of tuples containing
     #: (regular expression, URL name suffix).
     urls = [
-        (r'^$', 'list'),
-        (r'^(?P<pk>\d+)/$', 'detail'),
-        (r'^(?P<pks>(?:\d+;)*\d+);?/$', 'set'),
+        (r'^$', 'list', {
+            'request_type': 'list',
+            }),
+        (r'^(?P<pk>\d+)/$', 'detail', {
+            'request_type': 'detail',
+            }),
+        (r'^(?P<pks>(?:\d+;)*\d+);?/$', 'set', {
+            'request_type': 'set',
+            }),
         ]
 
     def dispatch(self, request, *args, **kwargs):
@@ -87,18 +93,12 @@ class Resource(generic.View):
         handler = self.http_method_not_allowed
 
         if method in self.http_method_names:
-            if hasattr(self, method):
+            self.request_type = kwargs.get('request_type')
+            if (self.request_type
+                    and hasattr(self, '%s_%s' % (method, self.request_type))):
+                handler = getattr(self, '%s_%s' % (method, self.request_type))
+            elif hasattr(self, method):
                 handler = getattr(self, method)
-
-            if 'pk' in self.kwargs:
-                handler = getattr(self, '%s_detail' % method, handler)
-                self.request_type = 'detail'
-            elif 'pks' in self.kwargs:
-                handler = getattr(self, '%s_set' % method, handler)
-                self.request_type = 'set'
-            else:
-                handler = getattr(self, '%s_list' % method, handler)
-                self.request_type = 'list'
 
         try:
             return self.serialize_response(

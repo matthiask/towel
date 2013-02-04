@@ -16,10 +16,7 @@ class MessageForm(forms.ModelForm):
 
 
 class MessageResource(Resource):
-    def post(self, request, *args, **kwargs):
-        if (args or kwargs):
-            raise APIException()
-
+    def post_list(self, request, *args, **kwargs):
         form = MessageForm(request.POST)
         if not form.is_valid():
             raise APIException('Validation failed', data={
