@@ -42,11 +42,11 @@ class Resource(generic.View):
 
     #: A list of URL patterns which will be used by ``API.register`` to build
     #: the URLconf entries. The format is a list of tuples containing
-    #: (regular expression, view, URL name suffix).
+    #: (regular expression, URL name suffix).
     urls = [
-        (r'^$', view, 'list'),
-        (r'^(?P<pk>\d+)/$', view, 'detail'),
-        (r'^(?P<pks>(?:\d+;)*\d+);?/$', view, 'set'),
+        (r'^$', 'list'),
+        (r'^(?P<pk>\d+)/$', 'detail'),
+        (r'^(?P<pks>(?:\d+;)*\d+);?/$', 'set'),
         ]
 
     def dispatch(self, request, *args, **kwargs):

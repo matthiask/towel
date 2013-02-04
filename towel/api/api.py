@@ -212,8 +212,8 @@ class API(object):
             'canonical': canonical,
             'prefix': prefix or r'^%s/' % model.__name__.lower(),
             'urlpatterns': patterns('', *[
-                url(regex, view, name=name(name))
-                for regex, view, name in view_class.urls
+                url(regex, view, name=name(suffix))
+                for regex, suffix in view_class.urls
                 ]),
             })
 
