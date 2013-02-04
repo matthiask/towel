@@ -211,11 +211,10 @@ class API(object):
             'model': model,
             'canonical': canonical,
             'prefix': prefix or r'^%s/' % model.__name__.lower(),
-            'urlpatterns': patterns('',
-                url(r'^$', view, name=name('list')),
-                url(r'^(?P<pk>\d+)/$', view, name=name('detail')),
-                url(r'^(?P<pks>(?:\d+;)*\d+);?/$', view, name=name('set')),
-                ),
+            'urlpatterns': patterns('', *[
+                url(regex, view, name=name(name))
+                for regex, view, name in view_class.urls
+                ]),
             })
 
         if serializer:

@@ -40,6 +40,15 @@ class Resource(generic.View):
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch',
         'options', 'trace']
 
+    #: A list of URL patterns which will be used by ``API.register`` to build
+    #: the URLconf entries. The format is a list of tuples containing
+    #: (regular expression, view, URL name suffix).
+    urls = [
+        (r'^$', view, 'list'),
+        (r'^(?P<pk>\d+)/$', view, 'detail'),
+        (r'^(?P<pks>(?:\d+;)*\d+);?/$', view, 'set'),
+        ]
+
     def dispatch(self, request, *args, **kwargs):
         """
         This method is almost the same as Django's own
