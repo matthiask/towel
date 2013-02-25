@@ -94,9 +94,9 @@ class TransformQuerySet(models.query.QuerySet):
         c._transform_fns = self._transform_fns[:]
         return c
 
-    def transform(self, fn):
+    def transform(self, *fn):
         c = self._clone()
-        c._transform_fns.append(fn)
+        c._transform_fns.extend(fn)
         return c
 
     def iterator(self):
@@ -113,5 +113,5 @@ class TransformManager(models.Manager):
     def get_query_set(self):
         return TransformQuerySet(self.model, using=self._db)
 
-    def transform(self, fn):
-        return self.get_query_set().transform(fn)
+    def transform(self, *fn):
+        return self.get_query_set().transform(*fn)
