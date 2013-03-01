@@ -23,6 +23,7 @@
                     elem.html(value);
             }
 
+            elem.trigger('updateLive');
             elem.flash();
 
             if (window.initForms) {
