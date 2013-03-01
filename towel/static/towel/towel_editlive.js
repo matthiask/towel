@@ -51,21 +51,26 @@
     $(document.body).on('focusout',
             'input[type=text].editlive, textarea.editlive', function(event) {
         var $this = $(this),
+            action = $(this).data('action'),
             original = $this.data('original'),
             attribute = $this.data('attribute');
 
-        if (this.value == original)
+        if (!action || this.value == original)
             return;
 
-        editLive($this.data('action'), $this.data('attribute'), this.value);
+        editLive(action, $this.data('attribute'), this.value);
     });
 
     $(document.body).on('click',
             'input[type=checkbox].editlive', function(event) {
         var $this = $(this),
+            action = $(this).data('action'),
             attribute = $this.data('attribute');
 
-        editLive($this.data('action'), $this.data('attribute'),
+        if (!action)
+            return;
+
+        editLive(action, $this.data('attribute'),
             $this.attr('checked') ? true : false);
     });
 
@@ -74,13 +79,14 @@
         event.preventDefault();
 
         var $this = $(this),
+            action = $(this).data('action'),
             value = $this.data('value'),
             original = $this.data('original');
 
-        if (value == original)
+        if (!action || value == original)
             return;
 
-        editLive($this.data('action'), $this.data('attribute'), value);
+        editLive(action, $this.data('attribute'), value);
     });
 
     $('form.editlive').each(function() {
