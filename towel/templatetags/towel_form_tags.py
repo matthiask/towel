@@ -29,7 +29,7 @@ def form_items(form):
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
-        }) for field in form)
+        }) for field in form if field.name != 'ignore_warnings')
 
 
 @register.inclusion_tag('towel/_form_item.html')

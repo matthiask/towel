@@ -21,6 +21,7 @@
 <form method="post" action="{{ request.get_full_path|default:"." }}">{% csrf_token %}
     {% form_errors form %}
     {% form_warnings form %}
+    {% form_items form %}
     <div class="buttons cf">
         <button type="submit">{% trans "delete"|capfirst %}</button>
         <a href="{{ object.get_absolute_url }}" class="button">
