@@ -410,6 +410,18 @@ class ModelView(object):
 
         return formsets
 
+    def get_deletion_form_instance(self, request, instance, **kwargs):
+        """
+        Returns a form instance which can be used to ask additional
+        questions about the deletion before it actually takes place.
+
+        Defaults to an empty form which only verifies that the deletion
+        request has been POSTed.
+        """
+        if request.method == 'POST':
+            return forms.Form(request.POST, request.FILES)
+        return forms.Form()
+
     def save_form(self, request, form, change):
         """
         Return an unsaved instance when editing an object.
@@ -926,7 +938,9 @@ class ModelView(object):
         if not self.deletion_allowed(request, obj):
             return self.response_deletion_denied(request, obj)
 
-        if request.method == 'POST':
+        form = self.get_deletion_form_instance(request, obj)
+
+        if form.is_valid():
             obj.delete()
             return self.response_delete(request, obj)
         else:
@@ -941,6 +955,7 @@ class ModelView(object):
                     self.model._meta.verbose_name),
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
+                'form': form,
                 })
 
 

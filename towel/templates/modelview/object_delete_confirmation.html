@@ -1,6 +1,6 @@
 {% extends base_template|default:"base.html" %}
 
-{% load i18n %}
+{% load i18n towel_form_tags %}
 
 {% block title %}{{ title }} {{ object }} - {{ block.super }}{% endblock %}
 
@@ -19,6 +19,8 @@
 {% endif %}
 
 <form method="post" action="{{ request.get_full_path|default:"." }}">{% csrf_token %}
+    {% form_errors form %}
+    {% form_warnings form %}
     <div class="buttons cf">
         <button type="submit">{% trans "delete"|capfirst %}</button>
         <a href="{{ object.get_absolute_url }}" class="button">
