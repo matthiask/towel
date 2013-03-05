@@ -24,12 +24,6 @@
             }
 
             elem.trigger('updateLive');
-            elem.flash();
-
-            if (window.initForms) {
-                // towel-bootstrap (TODO That's ugly, tight coupling)
-                initForms(elem);
-            }
         });
     };
     if (!window.updateLive) window.updateLive = updateLive;
