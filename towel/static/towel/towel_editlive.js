@@ -23,7 +23,7 @@
                     elem.html(value);
             }
 
-            elem.trigger('updateLive');
+            elem.trigger('updateLive', [elem]);
         });
     };
     if (!window.updateLive) window.updateLive = updateLive;
