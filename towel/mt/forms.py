@@ -46,3 +46,9 @@ class SearchForm(towel_forms.SearchForm):
     def post_init(self, request):
         self.request = request
         _process_fields(self, self.request)
+
+
+class BatchForm(towel_forms.BatchForm):
+    def __init__(self, *args, **kwargs):
+        super(BatchForm, self).__init__(*args, **kwargs)
+        _process_fields(self, self.request)
