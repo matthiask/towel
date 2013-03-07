@@ -6,7 +6,7 @@
 <table class="objects">
     <thead>
         <tr>
-            {% if batch_form %}<td><input type="checkbox"></td>{% endif %}
+            {% if batch_form %}<td><input class="batch" type="checkbox"></td>{% endif %}
             <th>{% ordering_link "name" request title="name" %}</th>
             <td></td>
             <td>{% ordering_link "is_active" request title="is active" %}</td>
