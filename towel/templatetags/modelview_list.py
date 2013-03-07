@@ -91,8 +91,8 @@ def querystring(data, exclude='page,all'):
     return urllib.urlencode(items)
 
 
-@register.inclusion_tag('towel/_ordering_link.html')
-def ordering_link(field, request, title='', base_url='', **kwargs):
+@register.inclusion_tag('towel/_ordering_link.html', takes_context=True)
+def ordering_link(context, field, request, title='', base_url='', **kwargs):
     """
     Shows a table column header suitable for use as a link to change the
     ordering of objects in a list::
@@ -121,8 +121,15 @@ def ordering_link(field, request, title='', base_url='', **kwargs):
 
     current = request.GET.get('o', '')
 
+    # Automatically handle search form persistency
+    data = request.GET.copy()
+    if not data:
+        form = context.get('search_form')
+        if form is not None and getattr(form, 'persistency', False):
+            data = form.data
+
     ctx = {
-        'querystring': querystring(request.GET, exclude='page,all,o'),
+        'querystring': querystring(data, exclude='page,all,o'),
         'field': field,
         'used': current in (field, '-%s' % field),
         'descending': current == field,
