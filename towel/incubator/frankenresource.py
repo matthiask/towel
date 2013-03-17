@@ -108,7 +108,7 @@ class FrankenResource(Resource):
             )
         return self.serialize_response(data, status=httplib.OK)
 
-    def patch(self, request, *args, **kwargs):
+    def patch_detail(self, request, *args, **kwargs):
         """
         PATCH handler. Only supports update of existing resources.
 
@@ -130,7 +130,7 @@ class FrankenResource(Resource):
                 data[key] = request.POST[key]
         request.POST = data
 
-        return self.put(request, *args, **kwargs)
+        return self.put_detail(request, *args, **kwargs)
 
     def delete_detail(self, request, *args, **kwargs):
         """
