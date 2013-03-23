@@ -5,6 +5,7 @@ from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
+from django.http import HttpResponse
 from django.utils.encoding import force_unicode
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
@@ -570,6 +571,18 @@ def stripped_formfield_callback(field, **kwargs):
         ' towel_formfield_callback, please start using the new name.',
         DeprecationWarning, stacklevel=2)
     return towel_formfield_callback(field, **kwargs)
+
+
+def autocompletion_response(queryset, limit=10):
+    """
+    Helper which returns a ``HttpResponse`` list of instances in a format
+    suitable for consumption by jQuery UI Autocomplete, respectively
+    ``towel.forms.ModelAutocompleteWidget``.
+    """
+    return HttpResponse(json.dumps([{
+        'label': unicode(instance),
+        'value': instance.pk,
+        } for instance in queryset[:limit]]), content_type='application/json')
 
 
 class ModelAutocompleteWidget(forms.TextInput):
