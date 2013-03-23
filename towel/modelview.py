@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.encoding import force_unicode
+from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
@@ -792,7 +793,7 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            'title': _('Add %s') % force_unicode(opts.verbose_name),
+            'title': capfirst(_('Add %s') % force_unicode(opts.verbose_name)),
             'form': form,
             'formsets': formsets,
             }
@@ -824,7 +825,8 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            'title': _('Change %s') % force_unicode(opts.verbose_name),
+            'title': capfirst(
+                _('Change %s') % force_unicode(opts.verbose_name)),
             'form': form,
             'formsets': formsets,
             self.template_object_name: instance,
@@ -951,8 +953,8 @@ class ModelView(object):
                 in obj._collected_objects.items()]
 
             return self.render_delete_confirmation(request, {
-                'title': _('Delete %s') % force_unicode(
-                    self.model._meta.verbose_name),
+                'title': capfirst(_('Delete %s') % force_unicode(
+                    self.model._meta.verbose_name)),
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
                 'form': form,
