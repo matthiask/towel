@@ -78,7 +78,8 @@ class InlineModelView(EditLiveModelView):
     def save_model(self, request, instance, form, change):
         if hasattr(request, '_parent'):
             setattr(instance, self.parent_attr, request._parent)
-        instance.save()
+        super(InlineModelView, self).save_model(request, instance,
+            form=form, change=change)
 
     def response_add(self, request, instance, *args, **kwargs):
         regions = {}
