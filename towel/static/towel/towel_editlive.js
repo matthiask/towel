@@ -41,9 +41,7 @@
         });
     }
 
-    // XXX handle the return key too in inputs?
-    $(document.body).on('focusout',
-            'input[type=text].editlive, textarea.editlive', function(event) {
+    var formFieldHandler = function(event) {
         var $this = $(this),
             action = $(this).data('action'),
             original = $this.data('original'),
@@ -53,7 +51,15 @@
             return;
 
         editLive(action, $this.data('attribute'), this.value);
-    });
+    }
+
+    // XXX handle the return key too in inputs?
+    $(document.body).on('focusout',
+        'input[type=text].editlive, textarea.editlive',
+        formFieldHandler);
+    $(document.body).on('change',
+        'input[type=hidden].editlive',
+        formFieldHandler);
 
     $(document.body).on('click',
             'input[type=checkbox].editlive', function(event) {
