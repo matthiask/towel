@@ -15,7 +15,9 @@ def _type_class(item):
     elif isinstance(item.field.widget, (forms.RadioSelect,
             forms.CheckboxSelectMultiple)):
         return 'list'
-    return ''
+    elif isinstance(item.field.widget, forms.Select):
+        return 'choice'
+    return 'default'
 
 
 @register.simple_tag
