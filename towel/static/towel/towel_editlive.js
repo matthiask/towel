@@ -55,7 +55,7 @@
 
     // XXX handle the return key too in inputs?
     $(document.body).on('focusout',
-        'input[type=text].editlive, textarea.editlive',
+        'input.editlive, textarea.editlive',
         formFieldHandler);
     $(document.body).on('change',
         'input[type=hidden].editlive',
@@ -74,7 +74,7 @@
             $this.attr('checked') ? true : false);
     });
 
-    $(document.body).on('click', 'a.editlive', function(event) {
+    $(document.body).on('click', 'a.editlive, li.editlive', function(event) {
         event.stopPropagation();
         event.preventDefault();
 
