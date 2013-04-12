@@ -12,15 +12,18 @@ register = template.Library()
 @register.filter
 def model_row(instance, fields):
     """
-    Shows a row in a modelview object list::
+    Shows a row in a modelview object list:
+
+    ::
 
         {% for object in object_list %}
             <tr>
-            {% for verbose_name, field in object|model_row:"name,url" %}
-                <td>{{ field }}</td>
-            {% endfor %}
+                {% for verbose_name, field in object|model_row:"name,url" %}
+                    <td>{{ field }}</td>
+                {% endfor %}
             </tr>
         {% endfor %}
+
     """
 
     for name in fields.split(','):

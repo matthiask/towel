@@ -37,7 +37,9 @@ def form_items(form):
 @register.inclusion_tag('towel/_form_item.html')
 def form_item(item, additional_classes=None):
     """
-    Helper for easy displaying of form items::
+    Helper for easy displaying of form items:
+
+    ::
 
         {% for field in form %}
             {% form_item field %}
