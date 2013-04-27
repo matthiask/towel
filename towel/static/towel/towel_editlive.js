@@ -4,6 +4,9 @@
             if (key == '!redirect') {
                 window.location.href = value;
                 return false;
+            } else if (key == '!reload') {
+                window.location.reload();
+                return false;
             } else if (key[0] == '!') {
                 // unknown command, skip.
                 return;
