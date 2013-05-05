@@ -7,6 +7,7 @@ smaller, more reusable parts, and using class-based views at the same time
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
+from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
@@ -321,6 +322,36 @@ class DetailView(ModelResourceView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+class FormView(ModelResourceView):
+    form_class = forms.ModelForm
+    object = None
+    template_name_suffix = '_form'
+
+    def get_form(self):
+        r = self.request
+        args = (r.POST, r.FILES) if r.method in ('POST', 'PUT') else ()
+        form_class = modelform_factory(self.model, form=self.form_class)
+        return form_class(*args, instance=self.object)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        context = self.get_context_data(form=form, object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            # TODO messages.success
+            self.object = form.save()
+            # TODO continue editing?
+            return redirect(self.object)
+
+        context = self.get_context_data(form=form, object=self.object)
         return self.render_to_response(context)
 
 
