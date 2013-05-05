@@ -8,7 +8,7 @@ from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
 
@@ -59,7 +59,7 @@ class ModelResourceView(TemplateView):
                                        % self.__class__.__name__)
 
     def get_object(self):
-        return self.get_queryset().get(**self.kwargs)
+        return get_object_or_404(self.get_queryset(), **self.kwargs)
 
     CREATE = type('CREATE', (), {})
     UPDATE = type('UPDATE', (), {})
