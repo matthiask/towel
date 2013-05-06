@@ -237,6 +237,23 @@ class DetailView(ModelResourceView):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
+    @classmethod
+    def render_regions(cls, view, **kwargs):
+        """
+        This is quite helpful when using ``towel_region`` template tags.
+        """
+        self = cls()
+        self.request = view.request
+        self.model = view.model
+        self.object = view.object  # This is, of course, not always correct.
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        regions = {}
+        context = self.get_context_data(object=self.object, regions=regions)
+        self.render_to_response(context).render()
+        return regions
+
 
 class FormView(ModelResourceView):
     form_class = forms.ModelForm
@@ -312,8 +329,6 @@ class EditView(FormView):
 
 
 class LiveFormView(FormView):
-    form_class = forms.ModelForm
-
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.allow_edit(self.object, silent=True):
@@ -332,13 +347,7 @@ class LiveFormView(FormView):
         if form.is_valid():
             self.object = form.save()
 
-            # TODO make this pluggable
-            regions = {}
-            context = self.get_context_data(
-                object=self.object,
-                regions=regions,
-                )
-            self.render_to_response(context).render()
+            regions = DetailView.render_regions(self)
             return HttpResponse(
                 json.dumps(changed_regions(regions, form.changed_data)),
                 content_type='application/json')
