@@ -356,6 +356,13 @@ class FormView(ModelResourceView):
         return self.render_to_response(context)
 
 
+class EditView(FormView):
+    pass
+class AddView(FormView):
+    def get_object(self):
+        return None
+
+
 class LiveFormView(FormView):
     form_class = forms.ModelForm
 
