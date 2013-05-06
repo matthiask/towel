@@ -273,6 +273,8 @@ class FormView(ModelResourceView):
         context = self.get_context_data(form=form, object=self.object)
         return self.render_to_response(context)
 
+    # TODO put title in context
+
 
 class AddView(FormView):
     def get(self, request, *args, **kwargs):
