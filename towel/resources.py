@@ -142,7 +142,8 @@ class ListView(ModelResourceView):
         actions = self.get_batch_actions()
         if actions:
             form = BatchForm(self.request, self.object_list)
-            form.fields['actions'] = forms.ChoiceField(
+            form.actions = actions
+            form.fields['action'] = forms.ChoiceField(
                 label=_('Action'),
                 choices=[('', '---------')] + [row[:2] for row in actions],
                 widget=forms.HiddenInput,
@@ -168,6 +169,9 @@ class ListView(ModelResourceView):
                 return redirect(self.url('list'))
 
         return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
 
     def get_batch_actions(self):
         """
