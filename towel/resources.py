@@ -244,7 +244,7 @@ class DetailView(ModelResourceView):
     @classmethod
     def render_regions(cls, view, **kwargs):
         """
-        This is quite helpful when using ``towel_region`` template tags.
+        This is mostly helpful when using ``{% region %}`` template tags.
         """
         self = cls()
         self.request = view.request
