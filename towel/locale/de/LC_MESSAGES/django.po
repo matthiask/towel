@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-31 15:13+0100\n"
+"POT-Creation-Date: 2013-05-06 17:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,47 +17,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: forms.py:130
+#: forms.py:131
 msgid "No items selected"
 msgstr "Keine Elemente gewählt"
 
-#: forms.py:258 forms.py:259
+#: forms.py:259 forms.py:260
 msgid "Query"
 msgstr "Suchbegriff"
 
-#: forms.py:498
+#: forms.py:499
 msgid "Ignore warnings"
 msgstr "Warnungen ignorieren"
 
-#: forms.py:636
+#: forms.py:642
 msgid "clear"
 msgstr ""
 
-#: modelview.py:93
+#: modelview.py:95
 msgid "The new object has been successfully created."
 msgstr "Das neue Objekt wurde erfolgreich erstellt."
 
-#: modelview.py:95
+#: modelview.py:97
 msgid "You are not allowed to add objects."
 msgstr "Es ist ihnen nicht erlaubt, Objekte hinzuzufügen."
 
-#: modelview.py:97
+#: modelview.py:99
 msgid "The object has been successfully updated."
 msgstr "Das Objekt wurde erfolgreich aktualisiert."
 
-#: modelview.py:99
+#: modelview.py:101
 msgid "You are not allowed to edit this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu bearbeiten."
 
-#: modelview.py:101
+#: modelview.py:103
 msgid "The object has been successfully deleted."
 msgstr "Das Objekt wurde erfolgreich gelöscht."
 
-#: modelview.py:103
+#: modelview.py:105
 msgid "You are not allowed to delete this object."
 msgstr "Es ist nicht erlaubt dieses Objekt zu löschen."
 
-#: modelview.py:105
+#: modelview.py:107
 #, python-format
 msgid ""
 "Deletion not allowed: There are %(pretty_classes)s related to this object."
@@ -65,11 +65,11 @@ msgstr ""
 "Löschen nicht erlaubt: Es sind %(pretty_classes)s mit diesem Objekt "
 "verbunden."
 
-#: modelview.py:654
+#: modelview.py:667 resources.py:132
 msgid "The search query was invalid."
 msgstr "Die Suchanfrage war ungültig."
 
-#: modelview.py:685
+#: modelview.py:704 resources.py:160
 #, python-format
 msgid ""
 "Processed the following items: <br>\n"
@@ -78,32 +78,76 @@ msgstr ""
 "Die folgenden Elemente wurden bearbeitet: <br>\n"
 " %s"
 
-#: modelview.py:777
+#: modelview.py:796
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
 
-#: modelview.py:809
+#: modelview.py:829
 #, python-format
 msgid "Change %s"
 msgstr "%s ändern"
 
-#: modelview.py:852 modelview.py:904
+#: modelview.py:872 modelview.py:924
 msgid " and "
 msgstr " und "
 
-#: modelview.py:934
+#: modelview.py:956
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"
 
-#: quick.py:152
+#: quick.py:151
 msgid "Today"
 msgstr "Heute"
 
-#: quick.py:153
+#: quick.py:152
 msgid "Tomorrow"
 msgstr "Morgen"
+
+#: resources.py:79
+#, python-format
+msgid "You are not allowed to delete %(verbose_name_plural)s."
+msgstr "Es ist nicht erlaubt %(verbose_name_plural)s zu löschen."
+
+#: resources.py:82
+#, python-format
+msgid "You are not allowed to delete this %(verbose_name)s."
+msgstr "Es ist nicht erlaubt dieses %(verbose_name)s zu löschen."
+
+#: resources.py:146
+msgid "Action"
+msgstr "Aktion"
+
+#: resources.py:181 resources.py:220
+msgid "Delete selected"
+msgstr "Ausgewählte löschen"
+
+#: resources.py:204
+msgid "You are not allowed to delete any object in the selection."
+msgstr "Es ist nicht erlaubt, Objekte aus dieser Auswahl zu löschen."
+
+#: resources.py:210
+msgid ""
+"Deletion of some objects not allowed. Those have been excluded from the "
+"selection already."
+msgstr ""
+"Löschen einiger Objekte nicht erlaubt. Diese wurden schon aus der Auswahl "
+"entfernt."
+
+#: resources.py:214
+msgid "Deletion successful."
+msgstr "Löschen erfolgreich."
+
+#: resources.py:285
+#, python-format
+msgid "The %(verbose_name)s has been successfully saved."
+msgstr "%(verbose_name)s wurde erfolgreich aktualisiert."
+
+#: resources.py:414
+#, python-format
+msgid "The %(verbose_name)s has been successfully deleted."
+msgstr "%(verbose_name)s wurde erfolgreich gelöscht."
 
 #: templates/modelview/object_delete_confirmation.html:10
 #, python-format
@@ -114,13 +158,13 @@ msgstr "Wollen Sie %(object)s wirklich löschen?"
 msgid "You are about to delete the following objects:"
 msgstr "Die folgenden Objekte werden gelöscht:"
 
-#: templates/modelview/object_delete_confirmation.html:23
+#: templates/modelview/object_delete_confirmation.html:26
 #: templates/modelview/object_detail.html:20
 msgid "delete"
 msgstr "löschen"
 
-#: templates/modelview/object_delete_confirmation.html:25
-#: templates/modelview/object_form.html:42
+#: templates/modelview/object_delete_confirmation.html:28
+#: templates/modelview/object_form.html:43
 msgid "cancel"
 msgstr "abbrechen"
 
@@ -128,11 +172,11 @@ msgstr "abbrechen"
 msgid "edit"
 msgstr "bearbeiten"
 
-#: templates/modelview/object_form.html:39
+#: templates/modelview/object_form.html:40
 msgid "save"
 msgstr "sichern"
 
-#: templates/modelview/object_form.html:40
+#: templates/modelview/object_form.html:41
 msgid "Save and continue editing"
 msgstr "Sichern und weiter bearbeiten"
 
