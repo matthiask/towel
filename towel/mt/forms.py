@@ -14,6 +14,7 @@ to all form fields with a ``queryset`` attribute.
 from django import forms
 
 from towel import forms as towel_forms
+from towel.mt import client_model
 from towel.utils import safe_queryset_and
 
 
@@ -40,6 +41,12 @@ class ModelForm(forms.ModelForm):
         self.request = kwargs.pop('request')
         super(ModelForm, self).__init__(*args, **kwargs)
         _process_fields(self, self.request)
+
+    def save(self, commit=True):
+        Client = client_model()
+        attr = Client.__name__.lower()
+        setattr(self.instance, attr, getattr(self.request.access, attr))
+        return super(ModelForm, self).save(commit=commit)
 
 
 class SearchForm(towel_forms.SearchForm):

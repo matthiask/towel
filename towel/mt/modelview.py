@@ -59,22 +59,3 @@ class ModelView(towel_modelview.ModelView):
             })
 
         return form_class(*args, **kwargs)
-
-    def save_model(self, request, instance, form, change):
-        Client = towel.mt.client_model()
-        client_attr = Client.__name__.lower()
-        try:
-            if self.model._meta.get_field(client_attr).rel.to == Client:
-                setattr(instance, client_attr, getattr(
-                    request.access, client_attr))
-        except models.FieldDoesNotExist:
-            pass
-
-        try:
-            if (self.model._meta.get_field('created_by').rel.to == User
-                    and not instance.created_by_id):
-                instance.created_by = request.user
-        except models.FieldDoesNotExist:
-            pass
-
-        instance.save()
