@@ -247,13 +247,6 @@ class ListView(ModelResourceView):
             for item in post_values)
 
     def delete_selected(self, request, queryset):
-        # HACK ALARM. XXX ugly. Makes ModelView.add_message never add a
-        # message again in this request/response cycle.
-        class Bla(list):
-            def __contains__(self, key):
-                return True
-        request._towel_add_message_ignore = Bla()
-
         allowed = [self.allow_delete(item) for item in queryset]
         queryset = [item for item, perm in zip(queryset, allowed) if perm]
 
