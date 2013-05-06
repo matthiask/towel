@@ -39,6 +39,9 @@ class ModelResourceView(TemplateView):
                 raise
             return None
 
+    def get_title(self):
+        return None
+
     def get_context_data(self, **kwargs):
         opts = self.model._meta
         context = {
@@ -50,6 +53,9 @@ class ModelResourceView(TemplateView):
             'add_url': self.url('add', fail_silently=True),
             'list_url': self.url('list', fail_silently=True),
             }
+        title = self.get_title()
+        if title:
+            context['title'] = title
         context.update(kwargs)
         return context
 
@@ -272,6 +278,11 @@ class FormView(ModelResourceView):
     object = None
     template_name_suffix = '_form'
 
+    def get_title(self):
+        if self.object and self.object.pk:
+            return _('Edit %s') % self.object
+        return _('Add %s') % self.model._meta.verbose_name
+
     def get_form_kwargs(self, **kwargs):
         kw = {'instance': self.object}
         if self.request.method in ('POST', 'PUT'):
@@ -370,6 +381,9 @@ class LiveFormView(FormView):
 class PickerView(ModelResourceView):
     template_name_suffix = '_picker'
 
+    def get_title(self):
+        return _('Select a %s') % self.model._meta.verbose_name
+
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         regions = None
@@ -397,6 +411,9 @@ class PickerView(ModelResourceView):
 class DeleteView(ModelResourceView):
     template_name_suffix = '_delete_confirmation'
     form_class = forms.Form
+
+    def get_title(self):
+        return _('Delete %s') % self.object
 
     def get_form(self):
         if self.request.method == 'POST':
