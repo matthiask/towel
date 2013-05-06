@@ -4,18 +4,20 @@ smaller, more reusable parts, and using class-based views at the same time
 (not the generic class based views, though)
 """
 
+import json
+
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.forms.models import modelform_factory
+from django.forms.models import modelform_factory, model_to_dict
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
 
-from towel.forms import BatchForm
+from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import safe_queryset_and
+from towel.utils import changed_regions, safe_queryset_and
 
 
 class ModelResourceView(TemplateView):
@@ -316,18 +318,24 @@ class FormView(ModelResourceView):
     object = None
     template_name_suffix = '_form'
 
-    def get_form_kwargs(self):
-        kwargs = {'instance': self.object}
+    def get_form_kwargs(self, **kwargs):
+        kw = {'instance': self.object}
         if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
+            kw.update({
                 'data': self.request.POST,
                 'files': self.request.FILES,
                 })
-        return kwargs
+        kw.update(kwargs)
+        return kw
+
+    def get_form_class(self):
+        return modelform_factory(self.model,
+            form=self.form_class,
+            formfield_callback=towel_formfield_callback,
+            )
 
     def get_form(self):
-        form_class = modelform_factory(self.model, form=self.form_class)
-        return form_class(**self.get_form_kwargs())
+        return self.get_form_class()(**self.get_form_kwargs())
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -346,6 +354,39 @@ class FormView(ModelResourceView):
 
         context = self.get_context_data(form=form, object=self.object)
         return self.render_to_response(context)
+
+
+class LiveFormView(FormView):
+    form_class = forms.ModelForm
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+
+        data = model_to_dict(self.object,
+            fields=form_class._meta.fields,
+            exclude=form_class._meta.exclude,
+            )
+        for key, value in request.POST.items():
+            data[key] = value
+
+        form = form_class(self.get_form_kwargs(data=data))
+
+        if form.is_valid():
+            self.object = form.save()
+
+            # TODO make this pluggable
+            regions = {}
+            context = self.get_context_data(
+                object=self.object,
+                regions=regions,
+                )
+            self.render_to_response(context)
+            return HttpResponse(
+                json.dumps(changed_regions(regions, form.changed_data)),
+                content_type='application/json')
+
+        return HttpResponse(unicode(form.errors))
 
 
 class DeleteView(ModelResourceView):
