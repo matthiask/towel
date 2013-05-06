@@ -346,6 +346,32 @@ class LiveFormView(FormView):
         return HttpResponse(unicode(form.errors))
 
 
+class PickerView(ModelResourceView):
+    template_name_suffix = '_picker'
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        regions = None
+        query = request.GET.get('query')
+
+        if query is not None:
+            self.object_list = safe_queryset_and(self.object_list,
+                self.model.objects._search(query))
+            regions = {}
+
+        context = self.get_context_data(object_list=self.object_list,
+            regions=regions)
+        response = self.render_to_response(context)
+
+        if query is not None:
+            data = changed_regions(regions, ['object_list'])
+            data['!keep'] = True  # Keep modal open
+            return HttpResponse(json.dumps(data),
+                content_type='application/json')
+
+        return response
+
+
 class DeleteView(ModelResourceView):
     template_name_suffix = '_delete_confirmation'
     form_class = forms.Form
