@@ -123,49 +123,51 @@ class ListView(ModelResourceView):
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
-
         context = {}
-
-        self.object_list, response = self.handle_search_form(
-            context, self.object_list)
-        if response:
-            return response
-
-        response = self.handle_batch_form(context, self.object_list)
-        if response:
-            return response
-
-        context.update(self.get_context_data(object_list=self.object_list))
-        return self.render_to_response(context)
-
-    def handle_search_form(self, context, queryset=None):
-        """
-        Must return a tuple consisting of a queryset and either a HttpResponse
-        or ``None``
-        """
-
-        if queryset is None:
-            queryset = self.get_query_set(self.request)
 
         if self.search_form:
             form = self.search_form(self.request.GET, request=self.request)
             if not form.is_valid():
                 messages.error(self.request,
                     _('The search query was invalid.'))
-
-                if self.request.get_full_path().endswith('?clear=1'):
-                    # No redirect loop generation
-                    raise ImproperlyConfigured(
-                        'Search form %r does not validate after'
-                        ' clearing.' % form)
-
-                return queryset, HttpResponseRedirect('?clear=1')
-
-            queryset = safe_queryset_and(queryset, form.queryset(self.model))
-
+                return redirect('?clear=1')
+            self.object_list = safe_queryset_and(
+                self.object_list,
+                form.queryset(self.model),
+                )
             context['search_form'] = form
 
-        return queryset, None
+        context.update(self.get_context_data(object_list=self.object_list))
+
+        actions = self.get_batch_actions()
+        if actions:
+            form = BatchForm(self.request, self.object_list)
+            form.fields['actions'] = forms.ChoiceField(
+                label=_('Action'),
+                choices=[('', '---------')] + [row[:2] for row in actions],
+                widget=forms.HiddenInput,
+                )
+            context['batch_form'] = form
+
+            if form.should_process():
+                action = form.cleaned_data.get('action')
+                name, title, fn = [a for a in actions if action == a[0]][0]
+                result = fn(self.request, form.batch_queryset)
+                if isinstance(result, HttpResponse):
+                    return result
+                elif hasattr(result, '__iter__'):
+                    messages.success(self.request,
+                        _('Processed the following items: <br>\n %s')
+                        % (u'<br>\n '.join(
+                            unicode(item) for item in result)))
+                elif result is not None:
+                    # Not None, but cannot make sense of it either.
+                    raise TypeError('Return value %r of %s invalid.' % (
+                        result, fn.__name__))
+
+                return redirect(self.url('list'))
+
+        return self.render_to_response(context)
 
     def get_batch_actions(self):
         """
@@ -178,61 +180,6 @@ class ListView(ModelResourceView):
         return [
             ('delete_selected', _('Delete selected'), self.delete_selected),
             ]
-
-    def handle_batch_form(self, ctx, queryset):
-        """
-        May optionally return a HttpResponse which is directly returned to the
-        browser
-        """
-
-        actions = self.get_batch_actions()
-        if not actions:
-            return
-
-        class _Form(BatchForm):
-            def __init__(self, *args, **kwargs):
-                super(_Form, self).__init__(*args, **kwargs)
-                self.actions = actions
-                self.fields['action'] = forms.ChoiceField(
-                    label=_('Action'),
-                    choices=[('', '---------')] + [row[:2] for row in actions],
-                    widget=forms.HiddenInput,
-                    )
-
-            def process(self):
-                action = self.cleaned_data.get('action')
-                for row in actions:
-                    if action == row[0]:
-                        return row[2](self.request, self.batch_queryset)
-
-        form = _Form(self.request, queryset)
-        ctx['batch_form'] = form
-
-        if form.should_process():
-            result = form.process()
-
-            if isinstance(result, HttpResponse):
-                return result
-
-            elif hasattr(result, '__iter__'):
-                messages.success(self.request,
-                    _('Processed the following items: <br>\n %s') % (
-                        u'<br>\n '.join(
-                            unicode(item) for item in result)))
-
-            elif result is not None:
-                # Not None, but cannot make sense of it either.
-                raise TypeError(u'Return value %r of %s.process() invalid.' % (
-                    result,
-                    form.__class__.__name__,
-                    ))
-
-            info = (
-                self.model._meta.app_label,
-                self.model._meta.module_name,
-                )
-            url = tryreverse('%s_%s_list' % info)
-            return HttpResponseRedirect(url if url else '.')
 
     def batch_action_hidden_fields(self, queryset, additional=[]):
         """
