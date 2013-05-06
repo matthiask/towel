@@ -370,7 +370,7 @@ class LiveFormView(FormView):
         for key, value in request.POST.items():
             data[key] = value
 
-        form = form_class(self.get_form_kwargs(data=data))
+        form = form_class(**self.get_form_kwargs(data=data))
 
         if form.is_valid():
             self.object = form.save()
@@ -429,7 +429,6 @@ class MultitenancyMixin(object):
             raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
                                        % self.__class__.__name__)
 
-    def get_form_kwargs(self):
-        kwargs = super(MultitenancyMixin, self).get_form_kwargs()
+    def get_form_kwargs(self, **kwargs):
         kwargs['request'] = self.request
-        return kwargs
+        return super(MultitenancyMixin, self).get_form_kwargs(**kwargs)
