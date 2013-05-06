@@ -9,6 +9,7 @@ import json
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -27,9 +28,16 @@ class ModelResourceView(TemplateView):
     template_name_suffix = None
 
     def url(self, item, *args, **kwargs):
-        if getattr(self, 'object', None):
-            return self.object.urls.url(item, *args, **kwargs)
-        return self.model().urls.url(item, *args, **kwargs)
+        fail_silently = kwargs.pop('fail_silently', False)
+
+        try:
+            if getattr(self, 'object', None):
+                return self.object.urls.url(item, *args, **kwargs)
+            return self.model().urls.url(item, *args, **kwargs)
+        except NoReverseMatch:
+            if not fail_silently:
+                raise
+            return None
 
     def get_context_data(self, **kwargs):
         opts = self.model._meta
@@ -39,8 +47,8 @@ class ModelResourceView(TemplateView):
             'verbose_name_plural': opts.verbose_name_plural,
             'view': self,
 
-            'add_url': self.url('add'),
-            'list_url': self.url('list'),
+            'add_url': self.url('add', fail_silently=True),
+            'list_url': self.url('list', fail_silently=True),
             }
         context.update(kwargs)
         return context
