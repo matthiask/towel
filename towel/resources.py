@@ -388,7 +388,7 @@ class DeleteView(ModelResourceView):
 
     def get_form(self):
         if self.request.method == 'POST':
-            return self.form_class(request.POST)
+            return self.form_class(self.request.POST)
         return self.form_class()
 
     def get(self, request, *args, **kwargs):
