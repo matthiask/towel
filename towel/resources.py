@@ -10,7 +10,7 @@ from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.forms.models import modelform_factory, model_to_dict
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
@@ -26,6 +26,11 @@ class ModelResourceView(TemplateView):
     queryset = None
     template_name_suffix = None
 
+    def url(self, item, *args, **kwargs):
+        if getattr(self, 'object', None):
+            return self.object.urls.url(item, *args, **kwargs)
+        return self.model().urls.url(item, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         opts = self.model._meta
         context = {
@@ -34,10 +39,8 @@ class ModelResourceView(TemplateView):
             'verbose_name_plural': opts.verbose_name_plural,
             'view': self,
 
-            'add_url': tryreverse(
-                '%(app_label)s_%(module_name)s_add' % opts.__dict__),
-            'list_url': tryreverse(
-                '%(app_label)s_%(module_name)s_list' % opts.__dict__),
+            'add_url': self.url('add'),
+            'list_url': self.url('list'),
             }
         context.update(kwargs)
         return context
@@ -327,13 +330,13 @@ class FormView(ModelResourceView):
 class AddView(FormView):
     def get(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect('../')  # TODO fix target
+            return redirect(self.url('list'))
         form = self.get_form()
         return self.render_to_response(self.get_context_data(form=form))
 
     def post(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect('../')  # TODO fix target
+            return redirect(self.url('list'))
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
