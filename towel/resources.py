@@ -338,7 +338,7 @@ class LiveFormView(FormView):
                 object=self.object,
                 regions=regions,
                 )
-            self.render_to_response(context)
+            self.render_to_response(context).render()
             return HttpResponse(
                 json.dumps(changed_regions(regions, form.changed_data)),
                 content_type='application/json')
@@ -364,6 +364,7 @@ class PickerView(ModelResourceView):
         response = self.render_to_response(context)
 
         if query is not None:
+            response.render()
             data = changed_regions(regions, ['object_list'])
             data['!keep'] = True  # Keep modal open
             return HttpResponse(json.dumps(data),
