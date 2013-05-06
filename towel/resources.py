@@ -330,11 +330,18 @@ class FormView(ModelResourceView):
     object = None
     template_name_suffix = '_form'
 
+    def get_form_kwargs(self):
+        kwargs = {'instance': self.object}
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+                'files': self.request.FILES,
+                })
+        return kwargs
+
     def get_form(self):
-        r = self.request
-        args = (r.POST, r.FILES) if r.method in ('POST', 'PUT') else ()
         form_class = modelform_factory(self.model, form=self.form_class)
-        return form_class(*args, instance=self.object)
+        return form_class(**self.get_form_kwargs())
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
