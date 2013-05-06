@@ -8,7 +8,7 @@ import json
 
 from django import forms
 from django.contrib import messages
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -17,7 +17,7 @@ from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import changed_regions, safe_queryset_and
+from towel.utils import changed_regions, safe_queryset_and, tryreverse
 
 
 class ModelResourceView(TemplateView):
@@ -34,9 +34,10 @@ class ModelResourceView(TemplateView):
             'verbose_name_plural': opts.verbose_name_plural,
             'view': self,
 
-            # TODO add_url
-            # TODO list_url
-            # TODO adding_allowed
+            'add_url': tryreverse(
+                '%(app_label)s_%(module_name)s_add' % opts.__dict__),
+            'list_url': tryreverse(
+                '%(app_label)s_%(module_name)s_list' % opts.__dict__),
             }
         context.update(kwargs)
         return context
@@ -64,37 +65,20 @@ class ModelResourceView(TemplateView):
     def get_object(self):
         return get_object_or_404(self.get_queryset(), **self.kwargs)
 
-    CREATE = type('CREATE', (), {})
-    UPDATE = type('UPDATE', (), {})
-    DELETE = type('DELETE', (), {})
-
-    def allow(self, action, object=None, **kwargs):
-        if action in (self.CREATE, self.UPDATE):
-            return True
+    def allow_add(self, silent=True):
+        return True
+    def allow_edit(self, object=None, silent=True):
+        return True
+    def allow_delete(self, object=None, silent=True):
+        if not silent:
+            opts = self.model._meta
+            if object is None:
+                messages.error(self.request, _('You are not allowed to'
+                    ' delete %(verbose_name_plural)s.') % opts.__dict__)
+            else:
+                messages.error(self.request, _('You are not allowed to'
+                    ' delete this %(verbose_name)s.') % opts.__dict__)
         return False
-
-    default_messages = {
-        CREATE: (messages.SUCCESS,
-            _('The new object has been successfully created.')),
-        UPDATE: (messages.SUCCESS,
-            _('The object has been successfully updated.')),
-        DELETE: (messages.SUCCESS,
-            _('The object has been successfully deleted.')),
-
-        'adding_denied': (messages.ERROR,
-            _('You are not allowed to add objects.')),
-        'editing_denied': (messages.ERROR,
-            _('You are not allowed to edit this object.')),
-        'deletion_denied': (messages.ERROR,
-            _('You are not allowed to delete this object.')),
-        'deletion_denied_related': (messages.ERROR,
-            _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
-    }
-
-    def add_message(self, message, level=None, **kwargs):
-        if message in self.default_messages:
-            level, message = self.default_messages[message]
-        messages.add_message(self.request, level, message, **kwargs)
 
 
 class ListView(ModelResourceView):
@@ -270,14 +254,12 @@ class ListView(ModelResourceView):
                 return True
         request._towel_add_message_ignore = Bla()
 
-        allowed = [
-            self.deletion_allowed(request, item)
-            for item in queryset]
+        allowed = [self.allow_delete(item) for item in queryset]
         queryset = [item for item, perm in zip(queryset, allowed) if perm]
 
         if not queryset:
-            messages.error(request,
-                _('You are not allowed to delete any object in the selection.'))
+            messages.error(request, _('You are not allowed to delete any'
+                ' object in the selection.'))
             return
 
         elif not all(allowed):
@@ -337,30 +319,51 @@ class FormView(ModelResourceView):
     def get_form(self):
         return self.get_form_class()(**self.get_form_kwargs())
 
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request,
+            _('The %(verbose_name)s has been successfully saved.') %
+                self.object._meta.__dict__)
+        return redirect(self.object)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form, object=self.object)
+        return self.render_to_response(context)
+
+
+class AddView(FormView):
+    def get(self, request, *args, **kwargs):
+        if not self.allow_add(silent=False):
+            return redirect('../')  # TODO fix target
+        form = self.get_form()
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def post(self, request, *args, **kwargs):
+        if not self.allow_add(silent=False):
+            return redirect('../')  # TODO fix target
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        return self.form_invalid(form)
+
+
+class EditView(FormView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if not self.allow_edit(self.object, silent=False):
+            return redirect(self.object)
         form = self.get_form()
         context = self.get_context_data(form=form, object=self.object)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if not self.allow_edit(self.object, silent=False):
+            return redirect(self.object)
         form = self.get_form()
         if form.is_valid():
-            # TODO messages.success
-            self.object = form.save()
-            # TODO continue editing?
-            return redirect(self.object)
-
-        context = self.get_context_data(form=form, object=self.object)
-        return self.render_to_response(context)
-
-
-class EditView(FormView):
-    pass
-class AddView(FormView):
-    def get_object(self):
-        return None
+            return self.form_valid(form)
+        return self.form_invalid(self, form)
 
 
 class LiveFormView(FormView):
@@ -368,8 +371,10 @@ class LiveFormView(FormView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        form_class = self.get_form_class()
+        if not self.allow_edit(self.object, silent=True):
+            raise PermissionDenied
 
+        form_class = self.get_form_class()
         data = model_to_dict(self.object,
             fields=form_class._meta.fields,
             exclude=form_class._meta.exclude,
@@ -403,7 +408,7 @@ class DeleteView(ModelResourceView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if not self.allow('delete', self.object):
+        if not self.allow_delete(self.object, silent=False):
             return redirect(self.object)
 
         if request.method == 'POST':
