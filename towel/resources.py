@@ -398,26 +398,37 @@ class DeleteView(ModelResourceView):
     template_name_suffix = '_delete_confirmation'
     form_class = forms.Form
 
+    def get_form(self):
+        if self.request.method == 'POST':
+            return self.form_class(request.POST)
+        return self.form_class()
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-
         if not self.allow_delete(self.object, silent=False):
             return redirect(self.object)
+        form = self.get_form()
+        context = self.get_context_data(object=self.object, form=form)
+        return self.render_to_response(context)
 
-        if request.method == 'POST':
-            form = self.form_class(request.POST)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.allow_delete(self.object, silent=False):
+            return redirect(self.object)
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        return self.form_invalid(form)
 
-            if form.is_valid():
-                # TODO messages.success()
-                self.object.delete()
-                return self.object.urls.url('list')
-        else:
-            form = self.form_class()
+    def form_valid(self, form):
+        self.object.delete()
+        messages.success(self.request,
+            _('The %(verbose_name)s has been successfully deleted.') %
+                self.object._meta.__dict__)
+        return redirect(self.url('list'))
 
-        context = self.get_context_data(
-            object=self.object,
-            form=form,
-            )
+    def form_invalid(self, form):
+        context = self.get_context_data(object=self.object, form=form)
         return self.render_to_response(context)
 
 
