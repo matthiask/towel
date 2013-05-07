@@ -3,9 +3,9 @@ Authentication backend which preloads access and client models
 ==============================================================
 """
 
-from django.contrib.auth.backends import ModelBackend as _ModelBackend
 from django.contrib.auth.models import User
 
+from towel.auth import ModelBackend as _ModelBackend
 from towel.mt import access_model, client_model
 
 
@@ -19,20 +19,6 @@ class ModelBackend(_ModelBackend):
     2. Minimizing DB accesses by fetching additional information about the
        current user earlier (``get_user``)
     """
-
-    def authenticate(self, username=None, password=None):
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            try:
-                user = User.objects.get(email=username)
-            except User.DoesNotExist:
-                return None
-
-        if user.check_password(password):
-            return user
-
-        return None
 
     def get_user(self, user_id):
         Access = access_model()
