@@ -1,3 +1,8 @@
+"""
+This is mostly equivalent with Django's inline formsets mechanism, but
+used together with editlive.
+"""
+
 import json
 
 from django.http import HttpResponse
