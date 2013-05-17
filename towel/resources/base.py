@@ -390,9 +390,28 @@ class DetailView(ModelResourceView):
     @classmethod
     def render_regions(cls, view, **kwargs):
         """
-        This is mostly helpful when using ``{% region %}`` template tags.
+        This is mostly helpful when using ``{% region %}`` template tags. It
+        returns all regions when rendering the detail page of the passed
+        view. Those regions still have to be filtered using ``changed_regions``
+        if you do not want to exchange all snippets.
 
-        TODO write more documentation and rationale.
+        When editing data which is used to render a detail page of the same
+        or of a different, related model instance, rendering the detail page
+        and extracting (potentially) changed parts is necessary for
+        live-updating the affected HTML snippets in the frontend.
+
+        This class method achieves exactly that.
+
+        Usage examples::
+
+            # When editing the same model as is on display
+            regions = DetailView.render_regions(self)
+
+            # When using towel.resources.inlines
+            regions = DetailView.render_regions(self,
+                model=self.get_parent_class(),
+                object=self.parent,
+                )
         """
         self = cls()
         self.request = view.request
@@ -424,11 +443,22 @@ class FormView(ModelResourceView):
     template_name_suffix = '_form'
 
     def get_title(self):
+        """
+        Returns titles suitable for adding or editing objects depending on
+        whether ``self.object`` is set or not.
+        """
         if self.object and self.object.pk:
             return _('Edit %s') % self.object
         return _('Add %s') % self.model._meta.verbose_name
 
     def get_form_kwargs(self, **kwargs):
+        """
+        Returns a dictionary suitable for initializing a model form instance
+        when using the dictionary as keyword arguments.
+
+        All passed keyword arguments are added to the dictionary, and may
+        be used to override any of ``data``, ``files`` and ``instance``.
+        """
         kw = {'instance': self.object}
         if self.request.method in ('POST', 'PUT'):
             kw.update({
@@ -439,15 +469,27 @@ class FormView(ModelResourceView):
         return kw
 
     def get_form_class(self):
+        """
+        Returns the form class used in the view.
+        """
         return modelform_factory(self.model,
             form=self.form_class,
             formfield_callback=towel_formfield_callback,
             )
 
     def get_form(self):
+        """
+        Returns the form instance used in the view.
+        """
         return self.get_form_class()(**self.get_form_kwargs())
 
     def form_valid(self, form):
+        """
+        Processes the form if validation succeeded.
+
+        The default implementation saves the form first and redirects to
+        the detail URL of the returned instance.
+        """
         self.object = form.save()
         messages.success(self.request,
             _('The %(verbose_name)s has been successfully saved.') %
@@ -455,11 +497,22 @@ class FormView(ModelResourceView):
         return redirect(self.object)
 
     def form_invalid(self, form):
+        """
+        Processes the form if validation failed.
+
+        The default implementation renders the form again.
+        """
         context = self.get_context_data(form=form, object=self.object)
         return self.render_to_response(context)
 
 
 class AddView(FormView):
+    """
+    View class handling the creation of new items.
+
+    Checks whether adding objects is allowed first and redirects to the
+    list URL for the current model if not.
+    """
     def get(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
             return redirect(self.url('list'))
@@ -476,6 +529,17 @@ class AddView(FormView):
 
 
 class EditView(FormView):
+    """
+    View class handling the editing of existing items.
+
+    Fetches the instance from the database first and checks whether editing
+    it is allowed next. The permission check is done second because the result
+    might depend on the exact object.
+
+    The return value of not found versus permission denied exposes some
+    additional information right now. This will not necessarily stay like that
+    in the future, do not rely on it.
+    """
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.allow_edit(self.object, silent=False):
@@ -496,7 +560,11 @@ class EditView(FormView):
 
 class LiveFormView(FormView):
     """
-    Support for towel's editlive.
+    View most useful if the detail page contains editlive input fields. This
+    is the POST-only resource for updates.
+
+    Only supports updating fields on the model itself, and no many to many
+    fields either.
     """
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -521,12 +589,14 @@ class LiveFormView(FormView):
                 json.dumps(changed_regions(regions, form.changed_data)),
                 content_type='application/json')
 
+        # TODO that's actually quite ugly
         return HttpResponse(unicode(form.errors))
 
 
 class PickerView(ModelResourceView):
     """
-    View handling a picker opened in a modal layer.
+    View handling a picker opened in a modal layer. Requires the editlive
+    Javascript code to be loaded for searches to work.
     """
     template_name_suffix = '_picker'
 
@@ -558,18 +628,36 @@ class PickerView(ModelResourceView):
 
 
 class DeleteView(ModelResourceView):
-    #: ``object_delete_confirmation.html``
+    """
+    View class handling the deletion of items.
+
+    Fetches the instance from the database first and checks whether deletion
+    it is allowed next. The permission check is done second because the result
+    might depend on the exact object.
+
+    The return value of not found versus permission denied exposes some
+    additional information right now. This will not necessarily stay like that
+    in the future, do not rely on it.
+
+    This view uses a form for the confirmation. The default form is empty and
+    validates for all POST requests. You can optionally specify your own form
+    if additional confirmation is required.
+    """
+    #: ``object_delete_confirmation.html``.
     template_name_suffix = '_delete_confirmation'
 
-    #: The default form is only used to distinguish between GET and POST
-    #: requests. Having no fields, POST requests always validate. You can
-    #: optionally specify your own form if you need additional confirmation.
+    #: The form class used for deletions.
     form_class = forms.Form
 
     def get_title(self):
         return _('Delete %s') % self.object
 
     def get_form(self):
+        """
+        Returns the form instance. Customize this method if you need custom
+        form initialization; ``get_form_class`` and ``get_form_kwargs`` are
+        not available for deletions for simplicity.
+        """
         if self.request.method == 'POST':
             return self.form_class(self.request.POST)
         return self.form_class()
@@ -592,6 +680,10 @@ class DeleteView(ModelResourceView):
         return self.form_invalid(form)
 
     def form_valid(self, form):
+        """
+        On successful form validation, the object is deleted and the user is
+        redirected to the list view of the model.
+        """
         self.object.delete()
         messages.success(self.request,
             _('The %(verbose_name)s has been successfully deleted.') %
