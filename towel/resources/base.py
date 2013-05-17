@@ -558,7 +558,21 @@ class EditView(FormView):
         return self.form_invalid(self, form)
 
 
-class LiveFormView(FormView):
+class LiveUpdateAfterEditMixin(object):
+    """
+    Only uses the editlive mechanism for updating. The edit step happens
+    inside a standard modal.
+    """
+    def form_valid(self, form):
+        self.object = form.save()
+
+        regions = DetailView.render_regions(self)
+        return HttpResponse(
+            json.dumps(changed_regions(regions, form.changed_data)),
+            content_type='application/json')
+
+
+class LiveFormView(LiveUpdateAfterEditMixin, FormView):
     """
     View most useful if the detail page contains editlive input fields. This
     is the POST-only resource for updates.
@@ -582,12 +596,7 @@ class LiveFormView(FormView):
         form = form_class(**self.get_form_kwargs(data=data))
 
         if form.is_valid():
-            self.object = form.save()
-
-            regions = DetailView.render_regions(self)
-            return HttpResponse(
-                json.dumps(changed_regions(regions, form.changed_data)),
-                content_type='application/json')
+            return self.form_valid(form)
 
         # TODO that's actually quite ugly
         return HttpResponse(unicode(form.errors))
