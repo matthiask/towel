@@ -16,6 +16,11 @@ class MultitenancyMixin(object):
             raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
                                        % self.__class__.__name__)
 
+    def get_parent_queryset(self):
+        # towel.resources.inlines.ChildFormView
+        return self.get_parent_class()._default_manager.for_access(
+            self.request.access)
+
     def get_form_kwargs(self, **kwargs):
         kwargs['request'] = self.request
         return super(MultitenancyMixin, self).get_form_kwargs(**kwargs)

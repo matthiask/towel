@@ -20,7 +20,7 @@ class ChildFormView(FormView):
         return self.model._meta.get_field(self.parent_attr).rel.to
 
     def get_parent_queryset(self):
-        return self.get_parent_class()._default_manager.all()  # FIXME MT
+        return self.get_parent_class()._default_manager.all()
 
     def get_parent(self):
         return get_object_or_404(self.get_parent_queryset(),
@@ -28,7 +28,6 @@ class ChildFormView(FormView):
 
     def get_form_kwargs(self, **kwargs):
         kwargs['prefix'] = self.model.__name__.lower()
-        kwargs['request'] = self.request  # FIXME MT
         return super(ChildFormView, self).get_form_kwargs(**kwargs)
 
     def form_valid(self, form):
