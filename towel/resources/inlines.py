@@ -5,11 +5,13 @@ used together with editlive.
 
 import json
 
+from django.core.exceptions import PermissionDenied
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
 from towel.utils import changed_regions
-from .base import DetailView, FormView
+from .base import DetailView, FormView, LiveFormView
 
 
 class ChildFormView(FormView):
@@ -82,4 +84,28 @@ class ChildEditView(ChildFormView):
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
-        return self.form_invalid(self, form)
+        return self.form_invalid(form)
+
+
+class LiveChildFormView(ChildFormView):
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.parent = getattr(self.object, self.parent_attr)
+        if not self.allow_edit(self.object, silent=True):
+            raise PermissionDenied
+
+        form_class = self.get_form_class()
+        data = model_to_dict(self.object,
+            fields=form_class._meta.fields,
+            exclude=form_class._meta.exclude,
+            )
+        for key, value in request.POST.items():
+            data[key] = value
+
+        form = form_class(**self.get_form_kwargs(data=data))
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        # TODO that's actually quite ugly
+        return HttpResponse(unicode(form.errors))
