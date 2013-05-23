@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-06 17:11+0200\n"
+"POT-Creation-Date: 2013-05-23 16:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,11 +65,11 @@ msgstr ""
 "Löschen nicht erlaubt: Es sind %(pretty_classes)s mit diesem Objekt "
 "verbunden."
 
-#: modelview.py:667 resources.py:132
+#: modelview.py:667 resources/base.py:266
 msgid "The search query was invalid."
 msgstr "Die Suchanfrage war ungültig."
 
-#: modelview.py:704 resources.py:160
+#: modelview.py:704 resources/base.py:295
 #, python-format
 msgid ""
 "Processed the following items: <br>\n"
@@ -78,7 +78,7 @@ msgstr ""
 "Die folgenden Elemente wurden bearbeitet: <br>\n"
 " %s"
 
-#: modelview.py:796
+#: modelview.py:796 resources/base.py:452
 #, python-format
 msgid "Add %s"
 msgstr "%s hinzufügen"
@@ -92,7 +92,7 @@ msgstr "%s ändern"
 msgid " and "
 msgstr " und "
 
-#: modelview.py:956
+#: modelview.py:956 resources/base.py:662
 #, python-format
 msgid "Delete %s"
 msgstr "%s löschen"
@@ -105,29 +105,29 @@ msgstr "Heute"
 msgid "Tomorrow"
 msgstr "Morgen"
 
-#: resources.py:79
+#: resources/base.py:194
 #, python-format
 msgid "You are not allowed to delete %(verbose_name_plural)s."
 msgstr "Es ist nicht erlaubt %(verbose_name_plural)s zu löschen."
 
-#: resources.py:82
+#: resources/base.py:197
 #, python-format
 msgid "You are not allowed to delete this %(verbose_name)s."
 msgstr "Es ist nicht erlaubt dieses %(verbose_name)s zu löschen."
 
-#: resources.py:146
+#: resources/base.py:281
 msgid "Action"
 msgstr "Aktion"
 
-#: resources.py:181 resources.py:220
+#: resources/base.py:322 resources/base.py:367
 msgid "Delete selected"
 msgstr "Ausgewählte löschen"
 
-#: resources.py:204
+#: resources/base.py:351
 msgid "You are not allowed to delete any object in the selection."
 msgstr "Es ist nicht erlaubt, Objekte aus dieser Auswahl zu löschen."
 
-#: resources.py:210
+#: resources/base.py:357
 msgid ""
 "Deletion of some objects not allowed. Those have been excluded from the "
 "selection already."
@@ -135,16 +135,26 @@ msgstr ""
 "Löschen einiger Objekte nicht erlaubt. Diese wurden schon aus der Auswahl "
 "entfernt."
 
-#: resources.py:214
+#: resources/base.py:361
 msgid "Deletion successful."
 msgstr "Löschen erfolgreich."
 
-#: resources.py:285
+#: resources/base.py:451
+#, python-format
+msgid "Edit %s"
+msgstr "%s bearbeiten"
+
+#: resources/base.py:495
 #, python-format
 msgid "The %(verbose_name)s has been successfully saved."
 msgstr "%(verbose_name)s wurde erfolgreich aktualisiert."
 
-#: resources.py:414
+#: resources/base.py:613
+#, python-format
+msgid "Select a %s"
+msgstr "%s auswählen"
+
+#: resources/base.py:698
 #, python-format
 msgid "The %(verbose_name)s has been successfully deleted."
 msgstr "%(verbose_name)s wurde erfolgreich gelöscht."
