@@ -10,11 +10,11 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
+from towel.resources.base import DetailView, FormView, LiveFormView, DeleteView
 from towel.utils import changed_regions
-from .base import DetailView, FormView, LiveFormView
 
 
-class ChildFormView(FormView):
+class ChildMixin(object):
     base_template = 'modal.html'
     parent_attr = 'parent'
 
@@ -28,15 +28,7 @@ class ChildFormView(FormView):
         return get_object_or_404(self.get_parent_queryset(),
             pk=self.kwargs[self.parent_attr])
 
-    def get_form_kwargs(self, **kwargs):
-        kwargs['prefix'] = self.model.__name__.lower()
-        return super(ChildFormView, self).get_form_kwargs(**kwargs)
-
-    def form_valid(self, form):
-        setattr(form.instance, self.parent_attr, self.parent)
-
-        self.object = form.save()
-
+    def update_parent(self):
         regions = DetailView.render_regions(self,
             model=self.parent.__class__,
             object=self.parent,
@@ -46,6 +38,17 @@ class ChildFormView(FormView):
                 '%s_set' % self.model.__name__.lower(),
                 ])),
             content_type='application/json')
+
+
+class ChildFormView(ChildMixin, FormView):
+    def get_form_kwargs(self, **kwargs):
+        kwargs['prefix'] = self.model.__name__.lower()
+        return super(ChildMixin, self).get_form_kwargs(**kwargs)
+
+    def form_valid(self, form):
+        setattr(form.instance, self.parent_attr, self.parent)
+        self.object = form.save()
+        return self.update_parent()
 
 
 class ChildAddView(ChildFormView):
@@ -87,7 +90,7 @@ class ChildEditView(ChildFormView):
         return self.form_invalid(form)
 
 
-class LiveChildFormView(ChildFormView):
+class LiveChildFormView(ChildMixin, LiveFormView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.parent = getattr(self.object, self.parent_attr)
@@ -109,3 +112,18 @@ class LiveChildFormView(ChildFormView):
 
         # TODO that's actually quite ugly
         return HttpResponse(unicode(form.errors))
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return self.update_parent()
+
+
+class ChildDeleteView(ChildMixin, DeleteView):
+    def form_valid(self, form):
+        """
+        On successful form validation, the object is deleted and the user is
+        redirected to the list view of the model.
+        """
+        self.parent = self.get_parent()
+        self.object.delete()
+        return self.update_parent()
