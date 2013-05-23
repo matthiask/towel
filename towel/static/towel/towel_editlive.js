@@ -74,7 +74,7 @@
             return;
 
         editLive(action, $this.data('attribute'),
-            $this.attr('checked') ? true : false);
+            $this.prop('checked') ? true : false);
     });
 
     $(document.body).on('click', 'a.editlive, li.editlive', function(event) {
