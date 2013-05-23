@@ -37,7 +37,8 @@ from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import changed_regions, safe_queryset_and, tryreverse
+from towel.utils import (changed_regions, related_classes, safe_queryset_and,
+    tryreverse)
 
 
 class ModelResourceView(TemplateView):
@@ -196,6 +197,27 @@ class ModelResourceView(TemplateView):
             else:
                 messages.error(self.request, _('You are not allowed to'
                     ' delete this %(verbose_name)s.') % opts.__dict__)
+        return False
+
+    def allow_delete_if_only(self, object, related=(), silent=True):
+        """
+        This helper is most useful when used inside ``allow_delete``. It can
+        be used to easily determine whether there are related instances which
+        would be deleted as well.
+
+        Returns ``True`` if the classes only belong to the model itself and
+        to the clsasses mentioned in ``related``.
+        """
+        classes = set(related_classes(object)).difference(
+            (self.model,), related)
+        if not classes:
+            return True
+        if not silent:
+            messages.error(self.request,
+                _('Deletion not allowed because of related objects: %s') %
+                    u', '.join(
+                        unicode(cls._meta.verbose_name_plural)
+                        for cls in classes))
         return False
 
 
