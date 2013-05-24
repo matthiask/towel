@@ -15,7 +15,7 @@ class ModelBackend(_ModelBackend):
 
     This authentication backend serves two purposes:
 
-    1. Allowing e-mail addresses as usernames (``authenticate``)
+    1. Allowing email addresses as usernames (``authenticate``)
     2. Minimizing DB accesses by fetching additional information about the
        current user earlier (``get_user``)
     """

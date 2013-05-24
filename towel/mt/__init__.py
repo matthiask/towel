@@ -34,7 +34,7 @@ Assumptions
   the ``choices`` field at the same time as setting the ``queryset``. If you
   do that you're on your own.
 * The model authentication backend ``towel.mt.auth.ModelBackend`` also allows
-  e-mail addresses as username. It preloads the access and client model and
+  email addresses as username. It preloads the access and client model and
   assigns it to ``request.user`` if possible. This is purely a convenience --
   you are not required to use the backend.
 """
