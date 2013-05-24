@@ -309,7 +309,7 @@ class ListView(ModelResourceView):
             if form.should_process():
                 action = form.cleaned_data.get('action')
                 name, title, fn = [a for a in actions if action == a[0]][0]
-                result = fn(self.request, form.batch_queryset)
+                result = fn(form.batch_queryset)
                 if isinstance(result, HttpResponse):
                     return result
                 elif hasattr(result, '__iter__'):
@@ -359,7 +359,7 @@ class ListView(ModelResourceView):
             u'<input type="hidden" name="%s" value="%s">' % item
             for item in post_values)
 
-    def delete_selected(self, request, queryset):
+    def delete_selected(self, queryset):
         """
         Action which deletes all selected items provided:
 
@@ -370,17 +370,17 @@ class ListView(ModelResourceView):
         queryset = [item for item, perm in zip(queryset, allowed) if perm]
 
         if not queryset:
-            messages.error(request, _('You are not allowed to delete any'
+            messages.error(self.request, _('You are not allowed to delete any'
                 ' object in the selection.'))
             return
 
         elif not all(allowed):
-            messages.warning(request,
+            messages.warning(self.request,
                 _('Deletion of some objects not allowed. Those have been'
                     ' excluded from the selection already.'))
 
-        if 'confirm' in request.POST:
-            messages.success(request, _('Deletion successful.'))
+        if 'confirm' in self.request.POST:
+            messages.success(self.request, _('Deletion successful.'))
             # Call all delete() methods individually
             [item.delete() for item in queryset]
             return
