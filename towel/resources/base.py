@@ -388,11 +388,10 @@ class ListView(ModelResourceView):
         context = super(ListView, self).get_context_data(
             title=_('Delete selected'),
             action_queryset=queryset,
-            action_hidden_fields=self.batch_action_hidden_fields(
-                queryset, [
-                    ('batch-action', 'delete_selected'),
-                    ('confirm', 1),
-                    ]),
+            action_hidden_fields=self.batch_action_hidden_fields(queryset, [
+                ('batch-action', 'delete_selected'),
+                ('confirm', 1),
+                ]),
             )
         self.template_name_suffix = '_action'
         return self.render_to_response(context)
