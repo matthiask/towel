@@ -31,7 +31,7 @@
     };
     if (!window.updateLive) window.updateLive = updateLive;
 
-    var editLive = function(action, attribute, value) {
+    var editLive = function(action, attribute, value, callback) {
         var data = {};
         data[attribute] = value;
 
@@ -39,7 +39,11 @@
             if (typeof(data) == 'string') {
                 alert(data);
             } else {
-                return updateLive(data);
+                updateLive(data);
+            }
+
+            if (callback) {
+                callback();
             }
         });
     }
@@ -99,13 +103,19 @@
         $form.on('submit', false);
         $form.on('change', 'input[type=text], textarea, select',
             function(event) {
+                var source = $(this);
                 // TODO what about form prefixes?
                 // TODO handle original value
-                editLive(action, this.name, this.value);
+                editLive(action, this.name, this.value, function() {
+                    source.trigger('editLive', [source]);
+                });
             });
 
         $form.on('change', 'input[type=checkbox]', function(event) {
-            editLive(action, this.name, this.checked);
+            var source = $(this);
+            editLive(action, this.name, this.checked, function() {
+                source.trigger('editLive', [source]);
+            });
         });
     });
 })(jQuery);
