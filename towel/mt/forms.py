@@ -12,6 +12,7 @@ to all form fields with a ``queryset`` attribute.
 """
 
 from django import forms
+from django.db.models import FieldDoesNotExist
 
 from towel import forms as towel_forms
 from towel.mt import client_model
@@ -45,7 +46,14 @@ class ModelForm(forms.ModelForm):
     def save(self, commit=True):
         Client = client_model()
         attr = Client.__name__.lower()
-        setattr(self.instance, attr, getattr(self.request.access, attr))
+        try:
+            field = self.instance._meta.get_field(attr)
+        except FieldDoesNotExist:
+            field = None
+        if (field and field.rel and field.rel.to
+                and issubclass(field.rel.to, Client)):
+            setattr(self.instance, attr, getattr(self.request.access, attr))
+
         return super(ModelForm, self).save(commit=commit)
 
 
