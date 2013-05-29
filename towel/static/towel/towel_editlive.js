@@ -109,8 +109,6 @@
         $form.on('change', 'input[type=text], textarea, select',
             function(event) {
                 var source = $(this);
-                // TODO what about form prefixes?
-                // TODO handle original value
                 editLive(action, this.name, this.value, function() {
                     source.trigger('editLive', [source]);
                 });
