@@ -57,7 +57,9 @@
         if (!action || this.value == original)
             return;
 
-        editLive(action, $this.data('attribute'), this.value);
+        editLive(action, $this.data('attribute'), this.value, function() {
+            $this.trigger('editLive', [$this]);
+        });
     }
 
     // XXX handle the return key too in inputs?
@@ -78,7 +80,10 @@
             return;
 
         editLive(action, $this.data('attribute'),
-            $this.prop('checked') ? true : false);
+            $this.prop('checked') ? true : false,
+            function() {
+                $this.trigger('editLive', [$this]);
+            });
     });
 
     $(document.body).on('click', 'a.editlive, li.editlive', function(event) {
