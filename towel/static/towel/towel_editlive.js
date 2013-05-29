@@ -62,7 +62,6 @@
         });
     }
 
-    // XXX handle the return key too in inputs?
     $(document.body).on('focusout',
         'input.editlive, textarea.editlive',
         formFieldHandler);
