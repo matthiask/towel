@@ -36,9 +36,12 @@ def model_details(instance, fields=None):
         if isinstance(f, models.ForeignKey):
             fk = getattr(instance, f.name)
             if hasattr(fk, 'get_absolute_url'):
-                value = mark_safe(u'<a href="%s">%s</a>' % (
-                    fk.get_absolute_url(),
-                    fk))
+                try:
+                    value = mark_safe(u'<a href="%s">%s</a>' % (
+                        fk.get_absolute_url(),
+                        fk))
+                except:  # Whatever.
+                    value = unicode(fk)
             else:
                 value = unicode(fk)
 
