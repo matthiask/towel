@@ -28,6 +28,8 @@
 
             elem.trigger('updateLive', [elem]);
         });
+
+        initializeForms();
     };
     if (!window.updateLive) window.updateLive = updateLive;
 
@@ -100,31 +102,35 @@
         editLive(action, $this.data('attribute'), value);
     });
 
-    $('form.editlive').each(function() {
-        var $form = $(this),
-            prefix = $form.data('form-prefix') || '',
-            action = $form.attr('action');
+    var initializeForms = function() {
+        $('form.editlive').not('.initialized').each(function() {
+            var $form = $(this),
+                prefix = $form.data('form-prefix') || '',
+                action = $form.attr('action');
 
-        $form.on('submit', false);
-        $form.on('change', 'input[type=text], textarea, select',
-            function(event) {
+            $form.on('submit', false);
+            $form.addClass('initialized');
+            $form.on('change', 'input[type=text], textarea, select',
+                function(event) {
+                    var source = $(this),
+                        name = this.name;
+                    if (prefix)
+                        name = name.replace(prefix, '');
+                    editLive(action, name, this.value, function() {
+                        source.trigger('editLive', [source]);
+                    });
+                });
+
+            $form.on('change', 'input[type=checkbox]', function(event) {
                 var source = $(this),
                     name = this.name;
                 if (prefix)
                     name = name.replace(prefix, '');
-                editLive(action, name, this.value, function() {
+                editLive(action, name, this.checked, function() {
                     source.trigger('editLive', [source]);
                 });
             });
-
-        $form.on('change', 'input[type=checkbox]', function(event) {
-            var source = $(this),
-                name = this.name;
-            if (prefix)
-                name = name.replace(prefix, '');
-            editLive(action, name, this.checked, function() {
-                source.trigger('editLive', [source]);
-            });
         });
-    });
+    };
+    initializeForms();
 })(jQuery);
