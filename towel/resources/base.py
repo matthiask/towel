@@ -314,8 +314,8 @@ class ListView(ModelResourceView):
                     return result
                 elif hasattr(result, '__iter__'):
                     messages.success(self.request,
-                        _('Processed the following items: <br>\n %s')
-                        % (u'<br>\n '.join(
+                        _('<p>Processed the following items:</p> <ul><li>%s</li></ul>')
+                        % (u'</li><li>'.join(
                             unicode(item) for item in result)))
                 elif result is not None:
                     # Not None, but cannot make sense of it either.
