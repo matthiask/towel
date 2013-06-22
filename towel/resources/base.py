@@ -32,6 +32,7 @@ from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
 
@@ -469,8 +470,8 @@ class FormView(ModelResourceView):
         whether ``self.object`` is set or not.
         """
         if self.object and self.object.pk:
-            return _('Edit %s') % self.object
-        return _('Add %s') % self.model._meta.verbose_name
+            return capfirst(_('Edit %s') % self.object)
+        return capfirst(_('Add %s') % self.model._meta.verbose_name)
 
     def get_form_kwargs(self, **kwargs):
         """
@@ -631,7 +632,7 @@ class PickerView(ModelResourceView):
     template_name_suffix = '_picker'
 
     def get_title(self):
-        return _('Select a %s') % self.model._meta.verbose_name
+        return capfirst(_('Select a %s') % self.model._meta.verbose_name)
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
@@ -680,7 +681,7 @@ class DeleteView(ModelResourceView):
     form_class = forms.Form
 
     def get_title(self):
-        return _('Delete %s') % self.object
+        return capfirst(_('Delete %s') % self.object)
 
     def get_form(self):
         """
