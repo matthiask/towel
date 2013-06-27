@@ -17,4 +17,6 @@ urlpatterns = patterns('',
     url(r'^persons/', include(person_views.urls)),
     url(r'^emailaddresses/', include(emailaddress_views.urls)),
     url(r'^messages/', include(message_views.urls)),
+
+    url(r'^resources/', include('testapp.resources')),
 ) + staticfiles_urlpatterns()

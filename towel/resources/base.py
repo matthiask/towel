@@ -246,7 +246,7 @@ class ListView(ModelResourceView):
         #    return None
         return self.paginate_by
 
-    def get_context_data(self, object_list, **kwargs):
+    def get_context_data(self, object_list=None, **kwargs):
         """
         Adds ``object_list`` to the context, and ``page`` and ``paginator``
         as well if paginating.
@@ -254,24 +254,25 @@ class ListView(ModelResourceView):
         context = super(ListView, self).get_context_data(
             object_list=object_list, **kwargs)
 
-        paginate_by = self.get_paginate_by(object_list)
-        if paginate_by:
-            paginator = Paginator(object_list, paginate_by)
+        if object_list is not None:
+            paginate_by = self.get_paginate_by(object_list)
+            if paginate_by:
+                paginator = Paginator(object_list, paginate_by)
 
-            try:
-                page = int(self.request.GET.get('page'))
-            except (TypeError, ValueError):
-                page = 1
-            try:
-                page = paginator.page(page)
-            except (EmptyPage, InvalidPage):
-                page = paginator.page(paginator.num_pages)
+                try:
+                    page = int(self.request.GET.get('page'))
+                except (TypeError, ValueError):
+                    page = 1
+                try:
+                    page = paginator.page(page)
+                except (EmptyPage, InvalidPage):
+                    page = paginator.page(paginator.num_pages)
 
-            context.update({
-                'object_list': page.object_list,
-                'page': page,
-                'paginator': paginator,
-                })
+                context.update({
+                    'object_list': page.object_list,
+                    'page': page,
+                    'paginator': paginator,
+                    })
 
         return context
 

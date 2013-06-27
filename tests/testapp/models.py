@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from towel import deletion
 from towel.managers import SearchManager
 from towel.modelview import ModelViewURLs
+from towel.resources.urls import model_resource_urls
 
 
 class Group(models.Model):
@@ -78,3 +79,18 @@ class Message(models.Model):
 
     # No get_absolute_url method on purpose; is automatically added by
     # ModelView
+
+
+class ResourceManager(SearchManager):
+    search_fields = ('name',)
+
+
+@model_resource_urls()
+class Resource(models.Model):
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+
+    objects = ResourceManager()
+
+    def __unicode__(self):
+        return self.name
