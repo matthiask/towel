@@ -1,0 +1,53 @@
+{% extends base_template|default:"base.html" %}
+
+{% load i18n modelview_list towel_batch_tags towel_form_tags verbose_name_tags %}
+
+{% block title %}{{ verbose_name_plural|capfirst }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+
+{% if batch_form %}
+<form method="post" action="{{ request.get_full_path }}"
+    enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {% form_errors batch_form %}
+  <input type="hidden" name="batchform" value="1" />
+  {{ batch_form.action }}
+  <a href="#" data-dropdown="action-dropdown" class="button small dropdown">
+    {% trans "Action" %}
+  </a>
+  <ul class="f-dropdown content" id="action-dropdown" data-dropdown-content>
+    {% for action in batch_form.actions %}
+      <li><a href="#" data-batch-action="{{ action.0 }}">{{ action.1 }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% block objects %}
+<table class="{% if batch_form %}has-batchform{% endif %}">
+  {% if batch_form %}
+    <thead>
+      <tr>
+        <td><input class="batch" type="checkbox"></td>
+        <th>{{ verbose_name }}</th>
+      </tr>
+    </thead>
+  {% endif %}
+  <tbody>
+  {% for object in object_list %}
+    <tr>
+      {% if batch_form %}<td>{% batch_checkbox batch_form object.id %}</td>{% endif %}
+      <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% if paginator %}{% pagination page paginator "bottom" %}{% endif %}
+
+{% if batch_form %}
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "modal.html" %}
+
+{% load i18n towel_region %}
+
+{% block title %}
+{% blocktrans %}Select a {{ verbose_name }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+<form method="get" action="{{ request.get_full_path }}">
+  <div class="row collapse">
+    <div class="small-11 columns">
+      <input type="text" value="" name="query">
+    </div>
+    <div class="small-1 columns">
+      <button type="submit" class="button secondary">
+        <i class="foundicon-search"></i></button>
+    </div>
+  </div>
+</form>
+{% region "picker-panel" fields="object_list" class="picker-panel" %}
+  {% block objects %}
+  <table class="table table-striped" data-reveal-class="medium">
+  {% for object in object_list %}
+    <tr data-value="{{ object.pk }}" data-text="{{ object }}">
+      <th>{{ object }}</th>
+    </tr>
+  {% endfor %}
+  </table>
+  {% endblock %}
+{% endregion %}
+<script>
+$('.picker-panel').on('click', 'tr[data-value]', function() {
+  var target = $('#{{ request.GET.field }}'),
+    elm = $(this),
+    value = elm.data('value'),
+    text = elm.data('text');
+
+  if (target.hasClass('chzn-done')) {
+    if (!target.find('option[value=' + value + ']').length) {
+      target[0].options[target[0].options.length] = new Option(text, value);
+    }
+    target.val(value);
+    target.find('option[value="' + value + '"]').prop('selected', 'selected');
+    target.trigger('liszt:updated');
+    target.trigger('change');
+  } else if (target.is('input[type="hidden"]')) {
+    target.val(value);
+    target.trigger('change');
+  }
+
+  $('.reveal-modal').foundation('reveal', 'close');
+});
+</script>
+{% endblock %}

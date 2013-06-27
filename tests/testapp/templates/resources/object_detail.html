@@ -1,0 +1,36 @@
+{% extends base_template|default:"base.html" %}
+
+{% load i18n modelview_detail %}
+
+{% block title %}{{ object }} - {{ block.super }}{% endblock %}
+
+{% block page-header %}
+<h1>{{ object }}</h1>
+{% endblock %}
+
+{% block content %}
+<table>
+{% for title, value in object|model_details %}
+    <tr class="{% cycle "odd" "even" %}">
+        <th>{{ title|capfirst }}</th>
+        <td>{{ value }}</td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+{% block sidebar %}
+<div class="panel">
+  <ul class="side-nav">
+    <li>{{ verbose_name|capfirst }}</li>
+    <li>
+      <a href="{{ object.urls.edit }}">
+        <i class="foundicon-edit"></i> {% trans "Edit" %}</a>
+    </li>
+    <li>
+      <a href="{{ object.urls.delete }}">
+        <i class="foundicon-trash"></i> {% trans "Delete" %}</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
