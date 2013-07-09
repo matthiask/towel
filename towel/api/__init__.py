@@ -1,3 +1,4 @@
+# flake8: noqa
 from .api import (API, APIException, api_reverse, serialize_model_instance)
 from .resources import Resource
 from .serializers import Serializer

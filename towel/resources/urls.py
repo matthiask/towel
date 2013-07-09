@@ -106,7 +106,8 @@ def resource_url_fn(
     global_mixins = mixins
     global_decorators = decorators
 
-    def _fn(name, detail, view, suffix=None, mixins=None, decorators=None, **kw):
+    def _fn(name, detail, view, suffix=None, mixins=None, decorators=None,
+            **kw):
         urlregex = r'^%s%s$' % (
             urlconf_detail_re if detail else r'',
             name + '/' if suffix is None else suffix,

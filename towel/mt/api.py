@@ -9,7 +9,6 @@ subclass which makes sure that data is only ever shown from one tenant.
 from functools import wraps
 import httplib
 
-from django.db.models import ObjectDoesNotExist
 from django.http import HttpResponse
 
 from towel import api

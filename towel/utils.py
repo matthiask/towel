@@ -65,7 +65,7 @@ def safe_queryset_and(head, *tail):
                 select_related.remove(True)
 
             if len(select_related) > 0:
-                # If we have two explicit select_related calls, take any of them
+                # If we have two explicit select_related calls, take any
                 res.query.select_related = select_related[0]
             else:
                 res = res.select_related()

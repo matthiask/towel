@@ -165,3 +165,5 @@ def _filter_blank(i):
     for s in i:
         if s.strip():
             yield s
+
+# flake8: noqa

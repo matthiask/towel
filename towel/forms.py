@@ -535,7 +535,6 @@ class StrippedTextInput(StrippedInputMixin, forms.TextInput):
     pass
 
 
-
 class StrippedTextarea(StrippedInputMixin, forms.Textarea):
     """
     ``Textarea`` form widget subclass returning stripped contents only
@@ -635,11 +634,14 @@ class ModelAutocompleteWidget(forms.TextInput):
         if self.is_required:
             ac = u'<input%s />' % flatatt(final_attrs)
         else:
-            final_attrs['class'] = final_attrs.get('class', '') + ' ac_nullable'
+            final_attrs.setdefault('class', '')
+            final_attrs['class'] += ' ac_nullable'
 
-            ac = (u' <a href="#" id="%(id)s_cl" class="ac_clear"> %(text)s</a>' % {
-                'id': final_attrs['id'][:-3],
-                'text': _('clear'),
+            ac = (
+                u' <a href="#" id="%(id)s_cl" class="ac_clear">'
+                ' %(text)s</a>' % {
+                    'id': final_attrs['id'][:-3],
+                    'text': _('clear'),
                 }) + (u'<input%s />' % flatatt(final_attrs))
 
         js = u'''<script type="text/javascript">
@@ -761,8 +763,11 @@ $(function() {
     });
 });
 </script>
-''' % {'id': final_attrs.get('id', name), 'name': name,
-       'source': self._source()}
+''' % {
+            'id': final_attrs.get('id', name),
+            'name': name,
+            'source': self._source(),
+            }
 
         return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs),
             value) + js)
@@ -773,7 +778,8 @@ $(function() {
             return []
 
         possible = self._possible()
-        values = [s for s in [s.strip() for s in value.lower().split(',')] if s]
+        values = [s for s in
+            [s.strip() for s in value.lower().split(',')] if s]
         return list(set(possible.get(s, InvalidEntry).pk for s in values))
 
     def _source(self):

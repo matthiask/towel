@@ -5,13 +5,7 @@
 As long as you use this class, everything should just work (tm).
 """
 
-from django.contrib.auth.models import User
-from django.db import models
-from django.forms.models import modelform_factory
-from django.http import HttpResponse
-
 from towel import modelview as towel_modelview
-from towel.forms import towel_formfield_callback
 
 import towel.mt
 from towel.mt.forms import ModelForm

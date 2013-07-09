@@ -123,7 +123,8 @@ class API(object):
 
         response = {
             '__str__': self.name,
-            '__uri__': request.build_absolute_uri(reverse('api_%s' % self.name)),
+            '__uri__': request.build_absolute_uri(
+                reverse('api_%s' % self.name)),
             'resources': [],
             }
 

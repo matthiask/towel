@@ -30,7 +30,7 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
@@ -38,8 +38,7 @@ from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import (changed_regions, related_classes, safe_queryset_and,
-    tryreverse)
+from towel.utils import changed_regions, related_classes, safe_queryset_and
 
 
 class ModelResourceView(TemplateView):
@@ -215,10 +214,13 @@ class ModelResourceView(TemplateView):
             return True
         if not silent:
             messages.error(self.request,
-                _('Deletion not allowed because of related objects: %s') %
+                _('Deletion not allowed because of related objects: %s') % (
                     u', '.join(
                         unicode(cls._meta.verbose_name_plural)
-                        for cls in classes))
+                        for cls in classes
+                    ),
+                )
+            )
         return False
 
 
@@ -316,9 +318,13 @@ class ListView(ModelResourceView):
                     return result
                 elif hasattr(result, '__iter__'):
                     messages.success(self.request,
-                        _('<p>Processed the following items:</p> <ul><li>%s</li></ul>')
-                        % (u'</li><li>'.join(
-                            unicode(item) for item in result)))
+                        _('<p>Processed the following items:</p>'
+                            ' <ul><li>%s</li></ul>') % (
+                            u'</li><li>'.join(
+                                unicode(item) for item in result
+                            )
+                        )
+                    )
                 elif result is not None:
                     # Not None, but cannot make sense of it either.
                     raise TypeError('Return value %r of %s invalid.' % (
@@ -497,8 +503,7 @@ class FormView(ModelResourceView):
         """
         return modelform_factory(self.model,
             form=self.form_class,
-            formfield_callback=towel_formfield_callback,
-            )
+            formfield_callback=towel_formfield_callback)
 
     def get_form(self):
         """
@@ -515,8 +520,10 @@ class FormView(ModelResourceView):
         """
         self.object = form.save()
         messages.success(self.request,
-            _('The %(verbose_name)s has been successfully saved.') %
-                self.object._meta.__dict__)
+            _('The %(verbose_name)s has been successfully saved.') % (
+                self.object._meta.__dict__,
+            )
+        )
         return redirect(self.object)
 
     def form_invalid(self, form):
@@ -611,8 +618,8 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
         form_class = self.get_form_class()
         data = model_to_dict(self.object,
             fields=form_class._meta.fields,
-            exclude=form_class._meta.exclude,
-            )
+            exclude=form_class._meta.exclude)
+
         for key, value in request.POST.items():
             data[key] = value
 
@@ -718,8 +725,10 @@ class DeleteView(ModelResourceView):
         """
         self.object.delete()
         messages.success(self.request,
-            _('The %(verbose_name)s has been successfully deleted.') %
-                self.object._meta.__dict__)
+            _('The %(verbose_name)s has been successfully deleted.') % (
+                self.object._meta.__dict__,
+            )
+        )
         return redirect(self.url('list'))
 
     def form_invalid(self, form):

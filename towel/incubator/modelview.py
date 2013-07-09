@@ -21,8 +21,7 @@ class EditLiveModelView(ModelView):
 
         data = model_to_dict(instance,
             fields=self.editlive_form._meta.fields,
-            exclude=self.editlive_form._meta.exclude,
-            )
+            exclude=self.editlive_form._meta.exclude)
 
         for key, value in request.POST.items():
             data[key] = value
@@ -30,7 +29,6 @@ class EditLiveModelView(ModelView):
         form = self.editlive_form(data, instance=instance, request=request)
 
         if form.is_valid():
-            project = form.save()
             return self.response_editlive(request, form.save(), form, {})
 
         # FIXME the content is alert()ed on the other side. That's ugly.

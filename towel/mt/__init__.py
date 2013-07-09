@@ -72,7 +72,6 @@ class AccessDecorator(object):
         """
         from django.contrib.auth.decorators import login_required
         from django.core.exceptions import PermissionDenied
-        from django.db.models import ObjectDoesNotExist
         from django.http import HttpResponse
         from django.utils.functional import wraps
 

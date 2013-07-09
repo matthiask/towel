@@ -1,5 +1,3 @@
-from datetime import date, datetime
-from decimal import Decimal
 import httplib
 import json
 

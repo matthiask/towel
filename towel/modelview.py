@@ -104,7 +104,8 @@ class ModelView(object):
         'deletion_denied': (messages.ERROR,
             _('You are not allowed to delete this object.')),
         'deletion_denied_related': (messages.ERROR,
-            _('Deletion not allowed: There are %(pretty_classes)s related to this object.')),
+            _('Deletion not allowed: There are %(pretty_classes)s related'
+                ' to this object.')),
     }
 
     #: User defined messages
@@ -256,13 +257,15 @@ class ModelView(object):
                 ident = view.__name__
 
             urlpatterns += patterns('',
-                url(urlp % {
+                url(
+                    urlp % {
                         'detail': self.urlconf_detail_re,
                         'ident': ident,
-                        },
+                    },
                     view,
-                    name=('%s_%s_%%s' % info) % ident),
-                )
+                    name=('%s_%s_%%s' % info) % ident
+                ),
+            )
 
         urlpatterns += patterns('',
             url(r'^%s/$' % self.urlconf_detail_re,

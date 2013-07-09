@@ -14,7 +14,7 @@ def normalize_query(query_string,
 
     Example::
 
-        >>> normalize_query('  some random  words "with   quotes  " and   spaces')
+        >>> normalize_query(' some random  words "with   quotes  " and spaces')
         ['some', 'random', 'words', 'with quotes', 'and', 'spaces']
 
     """

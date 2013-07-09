@@ -31,8 +31,8 @@ class ChildMixin(object):
     def update_parent(self):
         regions = DetailView.render_regions(self,
             model=self.parent.__class__,
-            object=self.parent,
-            )
+            object=self.parent)
+
         return HttpResponse(
             json.dumps(changed_regions(regions, [
                 '%s_set' % self.model.__name__.lower(),
@@ -100,8 +100,8 @@ class LiveChildFormView(ChildMixin, LiveFormView):
         form_class = self.get_form_class()
         data = model_to_dict(self.object,
             fields=form_class._meta.fields,
-            exclude=form_class._meta.exclude,
-            )
+            exclude=form_class._meta.exclude)
+
         for key, value in request.POST.items():
             data[key] = value
 
