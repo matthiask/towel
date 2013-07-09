@@ -520,9 +520,8 @@ class FormView(ModelResourceView):
         """
         self.object = form.save()
         messages.success(self.request,
-            _('The %(verbose_name)s has been successfully saved.') % (
-                self.object._meta.__dict__,
-            )
+            _('The %(verbose_name)s has been successfully saved.') %
+            self.object._meta.__dict__,
         )
         return redirect(self.object)
 
@@ -725,9 +724,8 @@ class DeleteView(ModelResourceView):
         """
         self.object.delete()
         messages.success(self.request,
-            _('The %(verbose_name)s has been successfully deleted.') % (
-                self.object._meta.__dict__,
-            )
+            _('The %(verbose_name)s has been successfully deleted.') %
+            self.object._meta.__dict__,
         )
         return redirect(self.url('list'))
 
