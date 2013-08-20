@@ -106,6 +106,7 @@ class FormErrorsNode(template.Node):
                 pass
 
         errors = False
+        has_non_field_errors = False
 
         form_list = []
         formset_list = []
@@ -116,8 +117,10 @@ class FormErrorsNode(template.Node):
             else:
                 formset_list.append(i)
 
-            if (getattr(i, 'errors', None) or
-                    getattr(i, 'non_field_errors', lambda: None)()):
+            if getattr(i, 'non_field_errors', lambda: None)():
+                errors = True
+                has_non_field_errors = True
+            if getattr(i, 'errors', None):
                 errors = True
 
         if not errors:
@@ -126,7 +129,8 @@ class FormErrorsNode(template.Node):
         return render_to_string('towel/_form_errors.html', {
             'forms': form_list,
             'formsets': formset_list,
-            'errors': True,
+            'errors': errors,
+            'has_non_field_errors': has_non_field_errors,
             })
 
 
