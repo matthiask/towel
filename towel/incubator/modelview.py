@@ -31,8 +31,9 @@ class EditLiveModelView(ModelView):
         if form.is_valid():
             return self.response_editlive(request, form.save(), form, {})
 
-        # FIXME the content is alert()ed on the other side. That's ugly.
-        return HttpResponse(unicode(form.errors))
+        return HttpResponse(
+            json.dumps({'!form-errors': dict(form.errors)}),
+            content_type='application/json')
 
     def response_editlive(self, request, new_instance, form, formsets):
         regions = {}
@@ -40,9 +41,9 @@ class EditLiveModelView(ModelView):
             self.template_object_name: new_instance,
             'regions': regions,
             })
-        return HttpResponse(
-            json.dumps(changed_regions(regions, form.changed_data)),
-            content_type='application/json')
+        data = {'!form-errors': {}}
+        data.update(changed_regions(regions, form.changed_data))
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 class ParentModelView(EditLiveModelView):

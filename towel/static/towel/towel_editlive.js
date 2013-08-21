@@ -1,5 +1,7 @@
 ;(function($) {
-    var updateLive = function(data) {
+    var updateLive = function(data, context) {
+        var context = $(context || document.body);
+
         $.each(data, function(key, value) {
             if (key == '!redirect') {
                 window.location.href = value;
@@ -7,6 +9,27 @@
             } else if (key == '!reload') {
                 window.location.reload();
                 return false;
+            } else if (key == '!form-errors') {
+                context.find('small.error').remove();
+                context.find('.error').removeClass('error');
+
+                if (!value)
+                    return;
+
+                $.each(value, function(key, value) {
+                    var error = $('<small class="error"/>'),
+                        field = $('#id_' + key),
+                        container = field.closest('.field-' + key);
+
+                    if (value) {
+                        for (var i=0; i<value.length; ++i)
+                            error.append(value[i] + '<br>');
+                        field.after(error);
+                        container.addClass('error');
+                    }
+                });
+
+                return;
             } else if (key[0] == '!') {
                 // unknown command, skip.
                 return;
@@ -33,7 +56,7 @@
     };
     if (!window.updateLive) window.updateLive = updateLive;
 
-    var editLive = function(action, attribute, value, callback) {
+    var editLive = function(action, attribute, value, callback, context) {
         var data = {};
         data[attribute] = value;
 
@@ -41,7 +64,7 @@
             if (typeof(data) == 'string') {
                 alert(data);
             } else {
-                updateLive(data);
+                updateLive(data, context);
             }
 
             if (callback) {
@@ -118,7 +141,7 @@
                         name = name.replace(prefix, '');
                     editLive(action, name, this.value, function() {
                         source.trigger('editLive', [source]);
-                    });
+                    }, $form);
                 });
 
             $form.on('change', 'input[type=checkbox]', function(event) {
@@ -128,7 +151,7 @@
                     name = name.replace(prefix, '');
                 editLive(action, name, this.checked, function() {
                     source.trigger('editLive', [source]);
-                });
+                }, $form);
             });
         });
     };

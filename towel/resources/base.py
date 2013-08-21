@@ -596,9 +596,9 @@ class LiveUpdateAfterEditMixin(object):
         self.object = form.save()
 
         regions = DetailView.render_regions(self)
-        return HttpResponse(
-            json.dumps(changed_regions(regions, form.changed_data)),
-            content_type='application/json')
+        data = {'!form-errors': {}}
+        data.update(changed.regions(regions, form.changed_data))
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 class LiveFormView(LiveUpdateAfterEditMixin, FormView):
@@ -627,8 +627,9 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
         if form.is_valid():
             return self.form_valid(form)
 
-        # TODO that's actually quite ugly
-        return HttpResponse(unicode(form.errors))
+        return HttpResponse(
+            json.dumps({'!form-errors': dict(form.errors)}),
+            content_type='application/json')
 
 
 class PickerView(ModelResourceView):
