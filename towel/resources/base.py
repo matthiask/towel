@@ -597,7 +597,7 @@ class LiveUpdateAfterEditMixin(object):
 
         regions = DetailView.render_regions(self)
         data = {'!form-errors': {}}
-        data.update(changed.regions(regions, form.changed_data))
+        data.update(changed_regions(regions, form.changed_data))
         return HttpResponse(json.dumps(data), content_type='application/json')
 
 
