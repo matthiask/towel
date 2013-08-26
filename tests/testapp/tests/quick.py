@@ -1,9 +1,7 @@
+from datetime import date, timedelta
 import re
 
-from datetime import date, timedelta
-
 from django.test import TestCase
-from django.utils import timezone
 
 from towel import quick
 

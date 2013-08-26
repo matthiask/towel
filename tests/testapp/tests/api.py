@@ -3,10 +3,9 @@ import json
 from django.core.urlresolvers import NoReverseMatch
 from django.test import TestCase
 
-from towel import deletion
 from towel.api import api_reverse
 
-from testapp.models import Group, Person, EmailAddress, Message
+from testapp.models import Group, Person, Message
 
 
 class APITest(TestCase):
@@ -253,7 +252,6 @@ class APITest(TestCase):
             Person, 'sets', api_name='v1', pks='2;')
 
     def test_serialization(self):
-        from pprint import pprint
         person = Person.objects.order_by('id')[0]
         group = Group.objects.create(
             name='grouup',

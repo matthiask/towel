@@ -1,3 +1,4 @@
+# flake8: noqa
 from .api import APITest
 from .deletion import DeletionTest
 from .forms import FormsTest

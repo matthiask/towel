@@ -5,8 +5,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 
 from towel import quick
-from towel.forms import (BatchForm, SearchForm, WarningsForm,
-    towel_formfield_callback)
+from towel.forms import BatchForm, SearchForm, WarningsForm
 from towel.modelview import ModelView
 
 from .models import Person, EmailAddress, Message

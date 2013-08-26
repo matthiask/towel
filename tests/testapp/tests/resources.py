@@ -1,8 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from towel import deletion
-
 from testapp.models import Resource
 
 

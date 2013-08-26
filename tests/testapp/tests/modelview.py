@@ -1,8 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from towel import deletion
-
 from testapp.models import Person, EmailAddress, Message
 
 
@@ -226,7 +224,9 @@ class ModelViewTest(TestCase):
 
         # Multiple choice it up a bit.
         self.assertContains(
-            self.client.get(list_url + '?person__relationship=married&person__relationship=divorced'),
+            self.client.get(
+                list_url +
+                '?person__relationship=married&person__relationship=divorced'),
             '<span>0 - 0 / 0</span>',
             )
 

@@ -27,6 +27,7 @@ class UtilsTest(TestCase):
     def test_safe_queryset_and(self):
         class AnyException(Exception):
             pass
+
         def _transform_nothing(queryset):
             raise AnyException
 

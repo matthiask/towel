@@ -1,13 +1,6 @@
-import json
-
 from django import forms
 from django.conf.urls import patterns
 from django.contrib import messages
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-from django.utils import timezone
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
 
 from towel import resources
 from towel.forms import SearchForm
