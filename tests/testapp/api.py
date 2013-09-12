@@ -1,7 +1,7 @@
 from functools import partial
-import httplib
 
 from django import forms
+from django.utils.six.moves import http_client
 from django.views.decorators.csrf import csrf_exempt
 
 from towel.api import (API, APIException, Resource, RequestParser, Serializer,
@@ -28,7 +28,7 @@ class MessageResource(Resource):
             build_absolute_uri=request.build_absolute_uri,
             )
         return self.serialize_response(data,
-            status=httplib.CREATED,
+            status=http_client.CREATED,
             headers={'Location': data['__uri__']})
 
 

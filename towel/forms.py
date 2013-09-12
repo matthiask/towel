@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
 from django.http import HttpResponse
+from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
@@ -71,7 +72,7 @@ class BatchForm(forms.Form):
                 elif hasattr(result, '__iter__'):
                     messages.success(request,
                         _('Processed the following items: %s') % (
-                            u', '.join(unicode(item) for item in result)))
+                            u', '.join(force_text(item) for item in result)))
 
                 return HttpResponseRedirect('.')
 
@@ -381,7 +382,8 @@ class SearchForm(forms.Form):
                 continue
 
             value = data.get(field)
-            if hasattr(value, '__iter__') and value:
+            if (value and hasattr(value, '__iter__')
+                    and not isinstance(value, six.string_types)):
                 queryset = queryset.filter(**{'%s__in' % field: value})
             elif value or value is False:
                 queryset = queryset.filter(**{field: value})
@@ -523,7 +525,7 @@ class WarningsForm(forms.BaseForm):
 class StrippedInputMixin(object):
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if isinstance(value, (str, unicode)):
+        if isinstance(value, six.string_types):
             return value.strip()
         return value
 
@@ -579,7 +581,7 @@ def autocompletion_response(queryset, limit=10):
     ``towel.forms.ModelAutocompleteWidget``.
     """
     return HttpResponse(json.dumps([{
-        'label': unicode(instance),
+        'label': force_text(instance),
         'value': instance.pk,
         } for instance in queryset[:limit]]), content_type='application/json')
 
@@ -680,7 +682,7 @@ $(function() {
             return u'\'%s\'' % self.url
         else:
             data = json.dumps([{
-                'label': unicode(o),
+                'label': force_text(o),
                 'value': o.id,
                 } for o in self.queryset.all()])
 
@@ -708,7 +710,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         super(MultipleAutocompletionWidget, self).__init__(attrs)
 
     def _possible(self):
-        return dict((unicode(o).lower(), o) for o in self.queryset._clone())
+        return dict((force_text(o).lower(), o) for o in self.queryset._clone())
 
     def render(self, name, value, attrs=None, choices=()):
         if value is None:
@@ -716,7 +718,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs, name=name, type='text')
 
         if value:
-            value = u', '.join(unicode(o) for o in
+            value = u', '.join(force_text(o) for o in
                 self.queryset.filter(id__in=value))
 
         js = u'''<script type="text/javascript">
@@ -786,5 +788,5 @@ $(function() {
         return u'''function(request, response) {
     response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
     }''' % {
-            'data': json.dumps([unicode(o) for o in self.queryset._clone()]),
+            'data': json.dumps([force_text(o) for o in self.queryset._clone()]),
             }

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
 from towel import deletion
@@ -15,6 +16,7 @@ class PersonManager(SearchManager):
     search_fields = ('family_name', 'given_name')
 
 
+@python_2_unicode_compatible
 class Person(models.Model):
     RELATIONSHIP_CHOICES = (
         ('', 'unspecified'),
@@ -38,7 +40,7 @@ class Person(models.Model):
     class Meta:
         ordering = ['family_name', 'given_name']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s %s' % (self.given_name, self.family_name)
 
     def get_absolute_url(self):
@@ -61,7 +63,7 @@ class EmailAddress(deletion.Model):
         verbose_name = 'email address'
         verbose_name_plural = 'email addresses'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.email
 
     def get_absolute_url(self):
@@ -92,5 +94,5 @@ class Resource(models.Model):
 
     objects = ResourceManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

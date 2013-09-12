@@ -158,7 +158,7 @@ def changed_regions(regions, fields):
     to_update = set(itertools.chain(*[
         dependencies.get(field, []) for field in fields]))
 
-    return dict((key, value) for key, value in regions.iteritems()
+    return dict((key, value) for key, value in regions.items()
         if key in to_update)
 
 

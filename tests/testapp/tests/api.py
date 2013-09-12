@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 
 from django.core.urlresolvers import NoReverseMatch
@@ -25,9 +26,9 @@ class APITest(TestCase):
                 HTTP_ACCEPT='application/json',
                 )
             self.assertEqual(response.status_code, status_code)
-            return json.loads(response.content)
+            return json.loads(response.content.decode('utf-8'))
         except ValueError:
-            print uri, response.status_code, response.content
+            print(uri, response.status_code, response.content)
 
     def test_info(self):
         self.assertEqual(self.client.get('/api/v1/').status_code, 406)
@@ -35,7 +36,7 @@ class APITest(TestCase):
             HTTP_ACCEPT='application/json',
             )
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(data['__str__'], 'v1')
         self.assertEqual(data['__uri__'], 'http://testserver/api/v1/')
@@ -154,7 +155,7 @@ class APITest(TestCase):
 
         response = self.client.post('/api/v1/message/', {
             }, HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['error'], u'Validation failed')
         self.assertEqual(data['form']['message'],
@@ -196,7 +197,7 @@ class APITest(TestCase):
     def test_info_view(self):
         response = self.client.get('/api/v1/info/',
             HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['hello'], 'World!')
         self.assertEqual(data['method'], 'GET')
@@ -204,25 +205,25 @@ class APITest(TestCase):
         response = self.client.post('/api/v1/info/', {
             'bla': 'blaaa',
             }, HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['data']['bla'], 'blaaa')
 
         response = self.client.post('/api/v1/info/', json.dumps({
             'bla': 'blaaa',
             }), 'application/json', HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['data']['bla'], 'blaaa')
 
         response = self.client.put('/api/v1/info/', json.dumps({
             'bla': 'blaaa',
             }), 'application/json', HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['method'], 'PUT')
         self.assertEqual(data['data']['bla'], 'blaaa')
 
         response = self.client.delete('/api/v1/info/',
             HTTP_ACCEPT='application/json')
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['method'], 'DELETE')
 
     def test_api_reverse(self):

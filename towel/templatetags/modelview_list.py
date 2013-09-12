@@ -1,8 +1,11 @@
+from functools import reduce
 import operator
-import urllib
 
 from django import template
 from django.db import models
+from django.utils import six
+from django.utils.encoding import force_text
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 
@@ -43,13 +46,13 @@ def model_row(instance, fields):
                     fk.get_absolute_url(),
                     fk))
             else:
-                value = unicode(fk)
+                value = force_text(fk)
 
         elif f.choices:
             value = getattr(instance, 'get_%s_display' % f.name)()
 
         else:
-            value = unicode(getattr(instance, f.name))
+            value = force_text(getattr(instance, f.name))
 
         yield (f.verbose_name, value)
 
@@ -87,11 +90,11 @@ def querystring(data, exclude='page,all'):
     exclude = exclude.split(',')
 
     items = reduce(operator.add,
-        (list((k, v.encode('utf-8')) for v in values) for k, values
-            in data.iterlists() if k not in exclude),
+        (list((k, v) for v in values) for k, values
+            in six.iterlists(data) if k not in exclude),
         [])
 
-    return urllib.urlencode(items)
+    return urlencode(items)
 
 
 @register.inclusion_tag('towel/_ordering_link.html', takes_context=True)

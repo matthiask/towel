@@ -1,5 +1,7 @@
+from functools import reduce
 import operator
 
+from django.utils.encoding import force_text
 from django.utils.http import urlencode
 
 
@@ -23,10 +25,10 @@ def querystring(data, exclude=(), **kwargs):
     """
     items = reduce(operator.add, (
         list((k, v) for v in values)
-        for k, values in data.iterlists() if k not in exclude
+        for k, values in data.lists() if k not in exclude
         ), [])
 
-    for key, value in kwargs.iteritems():
-        items.append((key, unicode(value)))
+    for key, value in kwargs.items():
+        items.append((key, force_text(value)))
 
     return urlencode(items)

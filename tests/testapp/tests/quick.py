@@ -28,11 +28,11 @@ QUICK_RULES = [
 class QuickTest(TestCase):
     def test_parse_quickadd(self):
         data, rest = quick.parse_quickadd('', QUICK_RULES)
-        self.assertEqual(data.items(), [])
+        self.assertEqual(list(data.items()), [])
         self.assertEqual(rest, [])
 
         data, rest = quick.parse_quickadd('!! do this do that', QUICK_RULES)
-        self.assertEqual(data.items(), [('important', True)])
+        self.assertEqual(list(data.items()), [('important', True)])
         self.assertEqual(u' '.join(rest), 'do this do that')
 
         p_muster = Person.objects.create(family_name='Muster')

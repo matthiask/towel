@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.db import models
 from django.db.models.related import RelatedObject
 from django.http import HttpResponse
+from django.utils.encoding import force_text
 from django.utils.functional import curry
 from django.utils.six.moves import http_client
 from django.views.decorators.csrf import csrf_exempt
@@ -385,7 +386,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
 
     data = {
         '__uri__': build_absolute_uri(uri),
-        '__str__': unicode(instance),
+        '__str__': force_text(instance),
         '__pretty__': {},
         '__pk__': instance.pk,
         }
@@ -473,7 +474,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
             data[f.name] = f.value_from_object(instance)
 
             if f.flatchoices:
-                data['__pretty__'][f.name] = unicode(
+                data['__pretty__'][f.name] = force_text(
                     dict(f.flatchoices).get(data[f.name], '-'))
 
     return data

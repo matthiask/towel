@@ -10,7 +10,8 @@ from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
-from django.utils.encoding import force_unicode
+from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 
@@ -164,7 +165,7 @@ class ModelView(object):
         elif message in self.default_messages:
             message = self.default_messages[message]
 
-        if not isinstance(message, (str, unicode)):
+        if not isinstance(message, six.string_types):
             level = message[0]
             message = message[1]
 
@@ -393,7 +394,7 @@ class ModelView(object):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
-        as it has a 'itervalues()' method.
+        as it has a 'values()' method.
 
         Please note that the instance passed here has not necessarily
         been saved to the database yet.
@@ -444,7 +445,7 @@ class ModelView(object):
         """
         Loop over all formsets, calling ``save_formset`` for each.
         """
-        for formset in formsets.itervalues():
+        for formset in formsets.values():
             self.save_formset(request, form, formset, change)
 
     def save_formset(self, request, form, formset, change):
@@ -706,7 +707,7 @@ class ModelView(object):
                 messages.success(request,
                     _('Processed the following items: <br>\n %s') % (
                         u'<br>\n '.join(
-                            unicode(item) for item in result)))
+                            force_text(item) for item in result)))
 
             elif result is not None:
                 # Not None, but cannot make sense of it either.
@@ -763,7 +764,7 @@ class ModelView(object):
             formsets = self.get_formset_instances(request,
                 instance=new_instance, change=change)
 
-            if all_valid(formsets.itervalues()) and form_validated:
+            if all_valid(formsets.values()) and form_validated:
                 with transaction.commit_on_success():
                     self.save_model(request, new_instance, form, change=change)
                     form.save_m2m()
@@ -796,7 +797,7 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            'title': capfirst(_('Add %s') % force_unicode(opts.verbose_name)),
+            'title': capfirst(_('Add %s') % force_text(opts.verbose_name)),
             'form': form,
             'formsets': formsets,
             }
@@ -829,7 +830,7 @@ class ModelView(object):
 
         context = {
             'title': capfirst(
-                _('Change %s') % force_unicode(opts.verbose_name)),
+                _('Change %s') % force_text(opts.verbose_name)),
             'form': form,
             'formsets': formsets,
             self.template_object_name: instance,
@@ -866,7 +867,7 @@ class ModelView(object):
             related.discard(class_)
 
         if len(related):
-            pretty_classes = [unicode(class_._meta.verbose_name_plural)
+            pretty_classes = [force_text(class_._meta.verbose_name_plural)
                 for class_ in related]
 
             if len(pretty_classes) > 1:
@@ -918,7 +919,7 @@ class ModelView(object):
                 related.discard(class_)
 
             if len(related):
-                pretty_classes = [unicode(class_._meta.verbose_name_plural)
+                pretty_classes = [force_text(class_._meta.verbose_name_plural)
                     for class_ in related]
 
                 if len(pretty_classes) > 1:
@@ -956,7 +957,7 @@ class ModelView(object):
                 in obj._collected_objects.items()]
 
             return self.render_delete_confirmation(request, {
-                'title': capfirst(_('Delete %s') % force_unicode(
+                'title': capfirst(_('Delete %s') % force_text(
                     self.model._meta.verbose_name)),
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,

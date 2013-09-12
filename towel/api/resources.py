@@ -104,7 +104,7 @@ class Resource(generic.View):
             return self.serialize_response(
                 handler(self.request, *self.args, **self.kwargs))
         except Http404 as exc:
-            return self.serialize_response({'error': exc[0]},
+            return self.serialize_response({'error': exc.args[0]},
                 status=http_client.NOT_FOUND)
         except APIException as exc:
             data = {

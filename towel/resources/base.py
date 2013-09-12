@@ -32,6 +32,7 @@ from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import force_text
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
@@ -216,7 +217,7 @@ class ModelResourceView(TemplateView):
             messages.error(self.request,
                 _('Deletion not allowed because of related objects: %s') % (
                     u', '.join(
-                        unicode(cls._meta.verbose_name_plural)
+                        force_text(cls._meta.verbose_name_plural)
                         for cls in classes
                     ),
                 )
@@ -321,7 +322,7 @@ class ListView(ModelResourceView):
                         _('<p>Processed the following items:</p>'
                             ' <ul><li>%s</li></ul>') % (
                             u'</li><li>'.join(
-                                unicode(item) for item in result
+                                force_text(item) for item in result
                             )
                         )
                     )

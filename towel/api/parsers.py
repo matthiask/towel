@@ -81,4 +81,4 @@ class RequestParser(object):
         Unserializes the JSON in the body of the request and saves the result
         as ``request.POST``.
         """
-        request.POST = json.loads(request.body)
+        request.POST = json.loads(request.body.decode('utf-8'))

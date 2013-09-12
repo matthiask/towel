@@ -69,7 +69,7 @@ class Serializer(object):
             status = http_client.NOT_ACCEPTABLE
 
         if headers:
-            for key, value in headers.iteritems():
+            for key, value in headers.items():
                 response[key] = value
 
         patch_vary_headers(response, ('Accept',))

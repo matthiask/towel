@@ -36,7 +36,7 @@ class PersonSearchForm(SearchForm):
             quick.static(is_active=False)),
         (re.compile(r'^active:(?P<bool>\w+)$'),
             quick.bool_mapper('is_active')),
-        (re.compile(r'^year:(?P<year>\d+)$'),
+        (re.compile(r'^year:(?P<year>\d{4})$'),
             lambda values: {'created__year': values['year']}),
         ]
     created__year = forms.IntegerField(required=False)

@@ -39,6 +39,7 @@ from datetime import date, timedelta
 
 from django.utils import dateformat
 from django.utils.datastructures import MultiValueDict
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 
 
@@ -129,7 +130,7 @@ def model_choices_mapper(data, attribute):
             ]
     """
     def _fn(values):
-        reverse = dict((unicode(value), key) for key, value in data)
+        reverse = dict((force_text(value), key) for key, value in data)
         try:
             return {attribute: reverse[values['value']]}
         except KeyError:

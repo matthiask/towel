@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.utils.encoding import force_text
 from django.test import TestCase
 
 from testapp.models import Person, EmailAddress, Message
@@ -74,7 +75,7 @@ class ModelViewTest(TestCase):
             'Blabbba Blub')
 
         # We still only have one person in the database
-        self.assertEqual(unicode(Person.objects.get()), 'Blabbba Blub')
+        self.assertEqual(force_text(Person.objects.get()), 'Blabbba Blub')
 
         # Open the deletion page
         response = self.client.get(person.urls['delete'])
