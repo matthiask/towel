@@ -1,6 +1,7 @@
-import httplib
 import json
 import re
+
+from django.utils.six.moves import http_client
 
 from .serializers import Serializer
 
@@ -60,7 +61,7 @@ class RequestParser(object):
 
         return Serializer().serialize({
             'error': '%r is not supported' % content_type,
-            }, request=request, status=httplib.UNSUPPORTED_MEDIA_TYPE,
+            }, request=request, status=http_client.UNSUPPORTED_MEDIA_TYPE,
             output_format=request.GET.get('format'))
 
     def parse_form(self, request):

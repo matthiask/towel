@@ -1,8 +1,8 @@
 from functools import wraps
-import httplib
 
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
+from django.utils.six.moves import http_client
 from django.views.decorators.vary import vary_on_headers
 
 
@@ -17,7 +17,7 @@ def http_basic_auth(func):
                     auth = auth.strip().decode('base64')
                 except Exception:  # binascii.Error, really.
                     return HttpResponse('Invalid authorization header',
-                        status=httplib.BAD_REQUEST)
+                        status=http_client.BAD_REQUEST)
 
                 username, sep, password = auth.partition(':')
                 user = authenticate(username=username, password=password)

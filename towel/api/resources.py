@@ -1,8 +1,8 @@
 from collections import namedtuple
-import httplib
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.six.moves import http_client
 from django.views import generic
 
 from .api import APIException, api_reverse
@@ -105,7 +105,7 @@ class Resource(generic.View):
                 handler(self.request, *self.args, **self.kwargs))
         except Http404 as exc:
             return self.serialize_response({'error': exc[0]},
-                status=httplib.NOT_FOUND)
+                status=http_client.NOT_FOUND)
         except APIException as exc:
             data = {
                 'error': exc.error_message,
@@ -126,7 +126,8 @@ class Resource(generic.View):
         """
         return RequestParser().parse(self.request)
 
-    def serialize_response(self, response, status=httplib.OK, headers=None):
+    def serialize_response(self, response,
+            status=http_client.OK, headers=None):
         """
         Serializes the response into an appropriate format for the wire such
         as JSON. ``HttpResponse`` instances are returned directly.

@@ -7,9 +7,9 @@ subclass which makes sure that data is only ever shown from one tenant.
 """
 
 from functools import wraps
-import httplib
 
 from django.http import HttpResponse
+from django.utils.six.moves import http_client
 
 from towel import api
 from towel.utils import safe_queryset_and
@@ -24,11 +24,12 @@ def api_access(minimal):
         @wraps(func)
         def _fn(request, *args, **kwargs):
             if not request.access:
-                return HttpResponse('No access', status=httplib.UNAUTHORIZED)
+                return HttpResponse('No access',
+                    status=http_client.UNAUTHORIZED)
 
             if request.access.access < minimal:
                 return HttpResponse('Insufficient access',
-                    status=httplib.UNAUTHORIZED)
+                    status=http_client.UNAUTHORIZED)
 
             return func(request, *args, **kwargs)
         return _fn

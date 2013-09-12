@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
 from django.http import HttpResponse
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -617,7 +617,7 @@ class ModelAutocompleteWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs, type='hidden', name=name)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(self._format_value(value))
+            final_attrs['value'] = force_text(self._format_value(value))
 
         hidden = u'<input%s />' % flatatt(final_attrs)
 
@@ -627,7 +627,7 @@ class ModelAutocompleteWidget(forms.TextInput):
 
         try:
             instance = self.choices.queryset.get(pk=value)
-            final_attrs['value'] = force_unicode(instance)
+            final_attrs['value'] = force_text(instance)
         except (ObjectDoesNotExist, ValueError, TypeError):
             final_attrs['value'] = u''
 

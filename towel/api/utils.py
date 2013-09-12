@@ -1,5 +1,6 @@
 import operator
-from urllib import urlencode
+
+from django.utils.http import urlencode
 
 
 def querystring(data, exclude=(), **kwargs):
@@ -21,11 +22,11 @@ def querystring(data, exclude=(), **kwargs):
             )
     """
     items = reduce(operator.add, (
-        list((k, v.encode('utf-8')) for v in values)
+        list((k, v) for v in values)
         for k, values in data.iterlists() if k not in exclude
         ), [])
 
     for key, value in kwargs.iteritems():
-        items.append((key, unicode(value).encode('utf-8')))
+        items.append((key, unicode(value)))
 
     return urlencode(items)

@@ -1,9 +1,9 @@
-import httplib
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
+from django.utils.six.moves import http_client
 
 from towel.api.mimeparse import best_match
 
@@ -16,7 +16,7 @@ class Serializer(object):
     format isn't overridden.
     """
     def serialize(self, data, output_format=None, request=None,
-            status=httplib.OK, headers=None):
+            status=http_client.OK, headers=None):
         """
         Returns a ``HttpResponse`` containing the serialized response in the
         format specified explicitly in ``output_format`` (either as a MIME
@@ -66,7 +66,7 @@ class Serializer(object):
             # Cannot raise ClientError here because the APIException handler
             # calls into this method too.
             response = HttpResponse('Not acceptable')
-            status = httplib.NOT_ACCEPTABLE
+            status = http_client.NOT_ACCEPTABLE
 
         if headers:
             for key, value in headers.iteritems():

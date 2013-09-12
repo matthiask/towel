@@ -1,11 +1,10 @@
-import httplib
-
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf.urls import patterns, include, url
 from django.db import models
 from django.db.models.related import RelatedObject
 from django.http import HttpResponse
 from django.utils.functional import curry
+from django.utils.six.moves import http_client
 from django.views.decorators.csrf import csrf_exempt
 
 from .serializers import Serializer
@@ -118,7 +117,7 @@ class API(object):
         elif request.method not in ('GET', 'HEAD'):
             return Serializer().serialize({
                 'error': 'Not acceptable',
-                }, request=request, status=httplib.METHOD_NOT_ALLOWED,
+                }, request=request, status=http_client.METHOD_NOT_ALLOWED,
                 output_format=request.GET.get('format'))
 
         response = {
@@ -292,14 +291,14 @@ class APIException(Exception):
     """
 
     #: The default response is '400 Bad request'
-    default_status = httplib.BAD_REQUEST
+    default_status = http_client.BAD_REQUEST
 
     def __init__(self, error_message=None, status=None, data={}):
         super(Exception, self).__init__(error_message)
 
         self.status = self.default_status if status is None else status
         if error_message is None:
-            self.error_message = httplib.responses.get(self.status, '')
+            self.error_message = http_client.responses.get(self.status, '')
         else:
             self.error_message = error_message
 
