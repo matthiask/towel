@@ -1,11 +1,10 @@
 import json
-import pickle
 
 from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -320,12 +319,12 @@ class SearchForm(forms.Form):
             data = self.data.copy()
             if 's' in data:
                 del data['s']
-                request.session[session_key] = pickle.dumps(data)
+                request.session[session_key] = data.urlencode()
 
         elif request.method == 'GET' and 's' not in request.GET:
             # try to get saved search from session
             if session_key in request.session:
-                self.data = pickle.loads(request.session[session_key])
+                self.data = QueryDict(request.session[session_key])
                 self.persistency = True
 
             else:
