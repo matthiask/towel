@@ -1,8 +1,8 @@
 # flake8: noqa
-from .api import APITest
-from .deletion import DeletionTest
-from .forms import FormsTest
-from .modelview import ModelViewTest
-from .quick import QuickTest
-from .resources import ResourceTest
-from .utils import UtilsTest
+from .test_api import APITest
+from .test_deletion import DeletionTest
+from .test_forms import FormsTest
+from .test_modelview import ModelViewTest
+from .test_quick import QuickTest
+from .test_resources import ResourceTest
+from .test_utils import UtilsTest
