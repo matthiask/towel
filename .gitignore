@@ -10,3 +10,4 @@
 /towel.egg-info
 /MANIFEST
 /tests/venv
+/tests/.tox
