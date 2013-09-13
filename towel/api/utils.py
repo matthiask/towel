@@ -31,4 +31,4 @@ def querystring(data, exclude=(), **kwargs):
     for key, value in kwargs.items():
         items.append((key, force_text(value)))
 
-    return urlencode(items)
+    return urlencode(sorted(items))

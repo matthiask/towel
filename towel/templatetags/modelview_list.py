@@ -94,7 +94,7 @@ def querystring(data, exclude='page,all'):
             in six.iterlists(data) if k not in exclude),
         [])
 
-    return urlencode(items)
+    return urlencode(sorted(items))
 
 
 @register.inclusion_tag('towel/_ordering_link.html', takes_context=True)
