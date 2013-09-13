@@ -240,9 +240,11 @@ class APITest(TestCase):
             api_reverse(person, 'detail', api_name='v1', pk=person.pk),
             '/api/v1/person/%s/' % person.pk,
             )
-        self.assertEqual(
-            api_reverse(Person, 'set', api_name='v1', pks='2;3;4'),
-            '/api/v1/person/2;3;4/',
+        self.assertTrue(
+            api_reverse(Person, 'set', api_name='v1', pks='2;3;4') in (
+                '/api/v1/person/2;3;4/',
+                '/api/v1/person/2%3B3%3B4/',  # Django 1.6 upwards does this
+                )
             )
         self.assertEqual(
             api_reverse(Person, 'sets', api_name='v1', pks='2;3;4',
