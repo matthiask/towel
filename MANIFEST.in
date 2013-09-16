@@ -1,6 +1,6 @@
 include LICENSE
 include MANIFEST.in
-include README
+include README.rst
 include setuplib.py
 recursive-include towel/static *
 recursive-include towel/locale *
