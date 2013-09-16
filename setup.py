@@ -10,7 +10,7 @@ setup(name='towel',
     version=__import__('towel').__version__,
     description='Keeping you DRY since 2010',
     long_description=open(
-        os.path.join(os.path.dirname(__file__), 'README')).read(),
+        os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     author='Matthias Kestenholz',
     author_email='mk@feinheit.ch',
     url='http://github.com/matthiask/towel/',
