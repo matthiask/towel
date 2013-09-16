@@ -7,18 +7,14 @@ Installation instructions
 This document describes the steps needed to get Towel up and running.
 
 Towel is based on Django_, so you need a working Django_ installation
-first. Towel is developed using Django_ 1.3 and will not work with any
-earlier version.
+first. Towel is mainly developed using the newest release of Django_, but
+should work with Django_ 1.4 up to the upcoming 1.7 and with Python_ 2.7
+and 3.3. Towel does not currently support Python_ 3.2 but patches adding
+support are welcome.
 
-Despite being used in production for over a year, there is no stable
-release of Towel yet. You should therefore download the code using
-Git_::
+Towel can be installed using the following command::
 
-    $ git clone git://github.com/matthiask/towel.git
-
-Or add the following line to your ``requirements.txt`` file::
-
-    -e git://github.com/matthiask/towel.git#egg=towel
+    $ pip install Towel
 
 Towel has no dependencies apart from Django_.
 
@@ -27,4 +23,4 @@ the bundled templates and template tags. This isn't strictly
 required though.
 
 .. _Django: http://www.djangoproject.com/
-.. _Git: http://git-scm.com/
+.. _Python: http://www.python.org/
