@@ -5,7 +5,7 @@
     {% if page.has_previous %}
         <li><a href="?{{ querystring }}&page={{ page.previous_page_number }}">&laquo;</a></li>
     {% endif %}
-    {% for p in page.page_range %}
+    {% for p in page.page_range|default:paginator.page_range %}
         {% if not p %}<li>&hellip;</li>
         {% else %}
         <li {% if p == page.number and not page.show_all_objects %}class="mark"{% endif %}><a href="?{{ querystring }}&page={{ p }}">{{ p }}</a></li>
