@@ -133,26 +133,27 @@
 
             $form.on('submit', false);
             $form.addClass('initialized');
-            $form.on('change', 'input[type=text], textarea, select',
+            $form.on('change', 'input, textarea, select',
                 function(event) {
                     var source = $(this),
                         name = this.name;
-                    if (prefix)
-                        name = name.replace(prefix, '');
-                    editLive(action, name, this.value, function() {
-                        source.trigger('editLive', [source]);
-                    }, $form);
+                    if (this.tagName.toLowerCase() == 'input'
+                            && source.attr('type') == 'checkbox') {
+                        var source = $(this),
+                            name = this.name;
+                        if (prefix)
+                            name = name.replace(prefix, '');
+                        editLive(action, name, this.checked, function() {
+                            source.trigger('editLive', [source]);
+                        }, $form);
+                    } else {
+                        if (prefix)
+                            name = name.replace(prefix, '');
+                        editLive(action, name, this.value, function() {
+                            source.trigger('editLive', [source]);
+                        }, $form);
+                    }
                 });
-
-            $form.on('change', 'input[type=checkbox]', function(event) {
-                var source = $(this),
-                    name = this.name;
-                if (prefix)
-                    name = name.replace(prefix, '');
-                editLive(action, name, this.checked, function() {
-                    source.trigger('editLive', [source]);
-                }, $form);
-            });
         });
     };
     initializeForms();
