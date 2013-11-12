@@ -30,7 +30,7 @@ from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
@@ -291,7 +291,7 @@ class ListView(ModelResourceView):
             if not form.is_valid():
                 messages.error(self.request,
                     _('The search query was invalid.'))
-                return redirect('?clear=1')
+                return HttpResponseRedirect('?clear=1')
             self.object_list = safe_queryset_and(
                 self.object_list,
                 form.queryset(self.model),
