@@ -787,5 +787,6 @@ $(function() {
         return u'''function(request, response) {
     response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
     }''' % {
-            'data': json.dumps([force_text(o) for o in self.queryset._clone()]),
+            'data': json.dumps(
+                [force_text(o) for o in self.queryset._clone()]),
             }

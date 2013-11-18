@@ -86,18 +86,18 @@ class QuickTest(TestCase):
             )
 
         self.assertEqual(
-                quick.parse_quickadd('relationship:(unspecified)',
-                    QUICK_RULES)[0]['relationship'],
+            quick.parse_quickadd('relationship:(unspecified)',
+                QUICK_RULES)[0]['relationship'],
             '',
             )
         self.assertEqual(
-                quick.parse_quickadd('relationship:(married)',
-                    QUICK_RULES)[0]['relationship'],
+            quick.parse_quickadd('relationship:(married)',
+                QUICK_RULES)[0]['relationship'],
             'married',
             )
         self.assertEqual(
-                quick.parse_quickadd('relationship:(in a relationship)',
-                    QUICK_RULES)[0]['relationship'],
+            quick.parse_quickadd('relationship:(in a relationship)',
+                QUICK_RULES)[0]['relationship'],
             'relation',
             )
         self.assertTrue(
