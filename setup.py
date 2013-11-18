@@ -51,4 +51,5 @@ setup(
         'Topic :: Software Development',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
+    zip_safe=False,
 )
