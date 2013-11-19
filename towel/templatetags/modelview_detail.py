@@ -1,6 +1,5 @@
 from django import template
 from django.db import models
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -42,22 +41,22 @@ def model_details(instance, fields=None):
                         fk.get_absolute_url(),
                         fk))
                 except:  # Whatever.
-                    value = force_text(fk)
+                    value = fk
             else:
-                value = force_text(fk)
+                value = fk
 
         elif f.choices:
             value = getattr(instance, 'get_%s_display' % f.name)()
 
         elif isinstance(f, (models.BooleanField, models.NullBooleanField)):
             value = getattr(instance, f.name)
-            value = force_text({
+            value = {
                 True: _('yes'),
                 False: _('no'),
                 None: _('unknown'),
-                }.get(value, value))
+                }.get(value, value)
 
         else:
-            value = force_text(getattr(instance, f.name))
+            value = getattr(instance, f.name)
 
         yield (f.verbose_name, value)

@@ -1,7 +1,7 @@
 from django import template
 from django.db import models
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from towel.templatetags import towel_resources
 
@@ -40,7 +40,8 @@ def model_row(instance, fields):
             attr = getattr(instance, name)
             if hasattr(attr, '__call__'):
                 yield (name, attr())
-            yield (name, attr)
+            else:
+                yield (name, attr)
             continue
 
         if isinstance(f, models.ForeignKey):
@@ -50,12 +51,20 @@ def model_row(instance, fields):
                     fk.get_absolute_url(),
                     fk))
             else:
-                value = force_text(fk)
+                value = fk
 
         elif f.choices:
             value = getattr(instance, 'get_%s_display' % f.name)()
 
+        elif isinstance(f, (models.BooleanField, models.NullBooleanField)):
+            value = getattr(instance, f.name)
+            value = {
+                True: _('yes'),
+                False: _('no'),
+                None: _('unknown'),
+                }.get(value, value)
+
         else:
-            value = force_text(getattr(instance, f.name))
+            value = getattr(instance, f.name)
 
         yield (f.verbose_name, value)
