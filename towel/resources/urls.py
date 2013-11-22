@@ -28,8 +28,7 @@ class _MRUHelper(object):
 
 def model_resource_urls(
         reverse_kwargs_fn=lambda object: {'pk': object.pk},
-        default='detail',
-        ):
+        default='detail'):
     """
     Usage::
 
@@ -46,7 +45,7 @@ def model_resource_urls(
                 viewname_pattern = '%s_%s_%%s' % (
                     obj._meta.app_label,
                     obj._meta.module_name,
-                    )
+                )
                 kwargs = {'kwargs': reverse_kwargs_fn(obj)}
                 helper = obj.__dict__['urls'] = _MRUHelper(
                     viewname_pattern, kwargs)
@@ -63,8 +62,7 @@ def resource_url_fn(
         urlconf_detail_re=r'(?P<pk>\d+)/',
         mixins=(),
         decorators=(),
-        **kwargs
-        ):
+        **kwargs):
     """
     Returns a helper function most useful to easily create URLconf entries
     for model resources.
@@ -111,13 +109,13 @@ def resource_url_fn(
         urlregex = r'^%s%s$' % (
             urlconf_detail_re if detail else r'',
             name + '/' if suffix is None else suffix,
-            )
+        )
 
         urlname = '%s_%s_%s' % (
             model._meta.app_label,
             model._meta.module_name,
             name,
-            )
+        )
 
         mixins = global_mixins if mixins is None else mixins
         decorators = global_decorators if decorators is None else decorators

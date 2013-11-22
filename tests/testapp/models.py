@@ -24,7 +24,7 @@ class Person(models.Model):
         ('relation', 'in a relationship'),
         ('married', 'married'),
         ('divorced', 'divorced'),
-        )
+    )
 
     created = models.DateTimeField(default=now)
     is_active = models.BooleanField(default=True)

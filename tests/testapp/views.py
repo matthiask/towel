@@ -27,7 +27,7 @@ class PersonSearchForm(SearchForm):
     orderings = {
         'name': ('family_name', 'given_name'),
         'is_active': ('-is_active', 'family_name'),
-        }
+    }
 
     quick_rules = [
         (re.compile(r'^is:active$'),
@@ -38,7 +38,7 @@ class PersonSearchForm(SearchForm):
             quick.bool_mapper('is_active')),
         (re.compile(r'^year:(?P<year>\d{4})$'),
             lambda values: {'created__year': values['year']}),
-        ]
+    ]
     created__year = forms.IntegerField(required=False)
     is_active = forms.NullBooleanField(required=False)
 
@@ -71,7 +71,7 @@ class PersonModelView(ModelView):
     def additional_urls(self):
         return (
             (r'^%(detail)s/message/$', self.message),
-            )
+        )
 
     def deletion_allowed(self, request, instance):
         return self.deletion_allowed_if_only(request, instance, [Person])
@@ -98,7 +98,8 @@ class PersonModelView(ModelView):
             self.get_context(request, {
                 self.template_object_name: instance,
                 'form': form,
-                }))
+            }),
+        )
 
 
 person_views = PersonModelView(Person,
@@ -109,8 +110,8 @@ person_views = PersonModelView(Person,
     paginate_by=5,
     inlineformset_config={
         'emails': {'model': EmailAddress},
-        },
-    )
+    },
+)
 
 
 class EmailAddressSearchForm(SearchForm):
@@ -126,9 +127,9 @@ class EmailAddressSearchForm(SearchForm):
 emailaddress_views = ModelView(EmailAddress,
     paginate_by=5,
     search_form=EmailAddressSearchForm,
-    )
+)
 
 
 message_views = ModelView(Message,
     paginate_by=5,
-    )
+)

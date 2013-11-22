@@ -27,7 +27,7 @@ def _process_fields(form, request):
             field.queryset = safe_queryset_and(
                 field.queryset,
                 model.objects.for_access(request.access),
-                )
+            )
 
 
 class Form(forms.Form):

@@ -15,7 +15,7 @@ class APITest(TestCase):
             person = Person.objects.create(
                 given_name='Given %s' % i,
                 family_name='Family %s' % i,
-                )
+            )
             person.emailaddress_set.create(email='test%s@example.com' % i)
         self.api = self.get_json('/api/v1/')
 
@@ -24,7 +24,7 @@ class APITest(TestCase):
             response = self.client.get(
                 uri,
                 HTTP_ACCEPT='application/json',
-                )
+            )
             self.assertEqual(response.status_code, status_code)
             return json.loads(response.content.decode('utf-8'))
         except ValueError:
@@ -34,7 +34,7 @@ class APITest(TestCase):
         self.assertEqual(self.client.get('/api/v1/').status_code, 406)
         response = self.client.get('/api/v1/',
             HTTP_ACCEPT='application/json',
-            )
+        )
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
 
@@ -63,7 +63,7 @@ class APITest(TestCase):
             u'offset': 0,
             u'previous': None,
             u'total': 100,
-            })
+        })
 
         first = Person.objects.order_by('id')[0]
         first_person = data['objects'][0]
@@ -72,13 +72,13 @@ class APITest(TestCase):
             '__pk__': first.pk,
             '__pretty__': {
                 'relationship': 'unspecified',
-                },
+            },
             '__str__': 'Given 0 Family 0',
             '__uri__': 'http://testserver/api/v1/person/%s/' % first.pk,
             'family_name': 'Family 0',
             'given_name': 'Given 0',
             'relationship': '',
-            }
+        }
 
         for key, value in correct.items():
             self.assertEqual(first_person[key], value)
@@ -87,15 +87,15 @@ class APITest(TestCase):
         self.assertEqual(
             len(self.get_json(person_uri + '?limit=100')['objects']),
             100,
-            )
+        )
         self.assertEqual(
             len(self.get_json(person_uri + '?limit=200')['objects']),
             100,
-            )
+        )
         self.assertEqual(
             len(self.get_json(person_uri + '?limit=100&offset=50')['objects']),
             50,
-            )
+        )
 
         data = self.get_json(first_person['__uri__'] + '?full=1')
         for key, value in correct.items():
@@ -123,11 +123,11 @@ class APITest(TestCase):
         self.assertEqual(
             self.get_json(person_uri + '0;/', status_code=404),
             {u'error': u'Some objects do not exist.'},
-            )
+        )
         self.assertEqual(
             self.get_json(person_uri + '0/', status_code=404),
             {u'error': u'No Person matches the given query.'},
-            )
+        )
 
     def test_http_methods(self):
         response = self.client.options('/api/v1/')
@@ -143,7 +143,7 @@ class APITest(TestCase):
 
         response = self.client.post('/api/v1/person/',
             HTTP_ACCEPT='application/json',
-            )
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_post_message(self):
@@ -154,7 +154,7 @@ class APITest(TestCase):
         self.assertEqual(response.status_code, 406)
 
         response = self.client.post('/api/v1/message/', {
-            }, HTTP_ACCEPT='application/json')
+        }, HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['error'], u'Validation failed')
@@ -166,7 +166,7 @@ class APITest(TestCase):
         response = self.client.post('/api/v1/message/', {
             'message': 'Blabla',
             'sent_to': emailaddress.pk,
-            }, HTTP_ACCEPT='application/json')
+        }, HTTP_ACCEPT='application/json')
         self.assertEqual(response.status_code, 201)
         message = Message.objects.get()
         data = self.get_json(response['Location'])
@@ -175,7 +175,7 @@ class APITest(TestCase):
         response = self.client.post('/api/v1/message/', json.dumps({
             'message': 'Blabla',
             'sent_to': emailaddress.pk,
-            }), 'application/json', HTTP_ACCEPT='application/json')
+        }), 'application/json', HTTP_ACCEPT='application/json')
         self.assertEqual(response.status_code, 201)
         message = Message.objects.latest('pk')
         data = self.get_json(response['Location'])
@@ -185,13 +185,13 @@ class APITest(TestCase):
 
     def test_unsupported_content_type(self):
         response = self.client.post('/api/v1/message/', {
-            })
+        })
 
         response = self.client.post('/api/v1/message/',
             'blabla',
             'application/octet-stream',  # Unsupported
             HTTP_ACCEPT='application/json',
-            )
+        )
         self.assertEqual(response.status_code, 415)
 
     def test_info_view(self):
@@ -204,19 +204,19 @@ class APITest(TestCase):
 
         response = self.client.post('/api/v1/info/', {
             'bla': 'blaaa',
-            }, HTTP_ACCEPT='application/json')
+        }, HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['data']['bla'], 'blaaa')
 
         response = self.client.post('/api/v1/info/', json.dumps({
             'bla': 'blaaa',
-            }), 'application/json', HTTP_ACCEPT='application/json')
+        }), 'application/json', HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['data']['bla'], 'blaaa')
 
         response = self.client.put('/api/v1/info/', json.dumps({
             'bla': 'blaaa',
-            }), 'application/json', HTTP_ACCEPT='application/json')
+        }), 'application/json', HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['method'], 'PUT')
         self.assertEqual(data['data']['bla'], 'blaaa')
@@ -231,26 +231,26 @@ class APITest(TestCase):
         self.assertEqual(
             api_reverse(Person, 'list', api_name='v1'),
             '/api/v1/person/',
-            )
+        )
         self.assertEqual(
             api_reverse(Person, 'detail', api_name='v1', pk=person.pk),
             '/api/v1/person/%s/' % person.pk,
-            )
+        )
         self.assertEqual(
             api_reverse(person, 'detail', api_name='v1', pk=person.pk),
             '/api/v1/person/%s/' % person.pk,
-            )
+        )
         self.assertTrue(
             api_reverse(Person, 'set', api_name='v1', pks='2;3;4') in (
                 '/api/v1/person/2;3;4/',
                 '/api/v1/person/2%3B3%3B4/',  # Django 1.6 upwards does this
-                )
             )
+        )
         self.assertEqual(
             api_reverse(Person, 'sets', api_name='v1', pks='2;3;4',
                 fail_silently=True),
             None,
-            )
+        )
         self.assertRaises(NoReverseMatch, api_reverse,
             Person, 'sets', api_name='v1', pks='2;')
 
@@ -258,7 +258,7 @@ class APITest(TestCase):
         person = Person.objects.order_by('id')[0]
         group = Group.objects.create(
             name='grouup',
-            )
+        )
         person.groups.add(group)
         person.emailaddress_set.create(email='another@example.com')
 

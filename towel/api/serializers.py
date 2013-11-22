@@ -52,10 +52,12 @@ class Serializer(object):
         if output_format is None:
             # Thanks django-tastypie!
             try:
-                output_format = best_match(reversed([
-                    'application/json',
+                output_format = best_match(
+                    reversed([
+                        'application/json',
                     ]),
-                    request.META.get('HTTP_ACCEPT', ''))
+                    request.META.get('HTTP_ACCEPT', ''),
+                )
             except (IndexError, ValueError):
                 pass
 
@@ -80,4 +82,4 @@ class Serializer(object):
         return HttpResponse(
             json.dumps(data, cls=DjangoJSONEncoder),
             content_type='application/json',
-            )
+        )

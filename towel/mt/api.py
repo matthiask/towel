@@ -45,4 +45,4 @@ class Resource(api.Resource):
         return safe_queryset_and(
             super(Resource, self).get_query_set(),
             self.model.objects.for_access(self.request.access),
-            )
+        )

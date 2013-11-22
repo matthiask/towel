@@ -26,7 +26,7 @@ class ResourceViewMixin(object):
     def get_batch_actions(self):
         return super(ResourceViewMixin, self).get_batch_actions() + [
             ('set_active', 'Set active', self.set_active),
-            ]
+        ]
 
     def set_active(self, queryset):
         class SetActiveForm(forms.Form):
@@ -53,22 +53,22 @@ class ResourceViewMixin(object):
             action_hidden_fields=self.batch_action_hidden_fields(queryset, [
                 ('batch-action', 'set_active'),
                 ('confirm', 1),
-                ]),
-            )
+            ]),
+        )
         return self.render_to_response(context)
 
 
 resource_url = resource_url_fn(Resource,
     mixins=(ResourceViewMixin,),
     decorators=(),
-    )
+)
 
 
 urlpatterns = patterns('',
     resource_url('list', False, resources.ListView, suffix='',
         paginate_by=5,
         search_form=ResourceSearchForm,
-        ),
+    ),
     resource_url('detail', True, resources.DetailView, suffix=''),
 
     resource_url('add', False, resources.AddView),

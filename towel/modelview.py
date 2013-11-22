@@ -222,7 +222,7 @@ class ModelView(object):
         return [
             '%s/%s_%s.html' % (opts.app_label, opts.module_name, action),
             'modelview/object_%s.html' % action,
-            ]
+        ]
 
     def get_urls(self):
         """
@@ -248,7 +248,7 @@ class ModelView(object):
             url(r'^%s/delete/$' % self.urlconf_detail_re,
                 self.crud_view_decorator(self.delete_view),
                 name='%s_%s_delete' % info),
-            )
+        )
 
         for spec in self.additional_urls():
             urlp, view = spec[:2]
@@ -272,7 +272,7 @@ class ModelView(object):
             url(r'^%s/$' % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
                 name='%s_%s_detail' % info),
-            )
+        )
 
         return urlpatterns
 
@@ -650,7 +650,7 @@ class ModelView(object):
                 self.template_object_list_name: page.object_list,
                 'page': page,
                 'paginator': paginator,
-                })
+            })
         else:
             ctx[self.template_object_list_name] = queryset
 
@@ -714,12 +714,12 @@ class ModelView(object):
                 raise TypeError(u'Return value %r of %s.process() invalid.' % (
                     result,
                     form.__class__.__name__,
-                    ))
+                ))
 
             info = (
                 self.model._meta.app_label,
                 self.model._meta.module_name,
-                )
+            )
             url = tryreverse('%s_%s_list' % info)
             return HttpResponseRedirect(url if url else '.')
 
@@ -732,7 +732,7 @@ class ModelView(object):
         return self.render_detail(request, {
             self.template_object_name: instance,
             'editing_allowed': self.editing_allowed(request, instance),
-            })
+        })
 
     def adding_allowed(self, request):
         """
@@ -800,7 +800,7 @@ class ModelView(object):
             'title': capfirst(_('Add %s') % force_text(opts.verbose_name)),
             'form': form,
             'formsets': formsets,
-            }
+        }
 
         return self.render_form(request, context, change=False)
 
@@ -834,7 +834,7 @@ class ModelView(object):
             'form': form,
             'formsets': formsets,
             self.template_object_name: instance,
-            }
+        }
 
         return self.render_form(request, context, change=True)
 
@@ -874,14 +874,15 @@ class ModelView(object):
                 pretty_classes = u''.join((
                     u', '.join(pretty_classes[:-1]),
                     _(' and '),
-                    pretty_classes[-1]))
+                    pretty_classes[-1],
+                ))
             else:
                 pretty_classes = pretty_classes[-1]
 
             self.add_message(request, 'deletion_denied_related',
                 {'pretty_classes': pretty_classes},
                 ignore=('deletion_denied',),
-                )
+            )
 
         return not len(related)
 
@@ -926,7 +927,8 @@ class ModelView(object):
                     pretty_classes = u''.join((
                         u', '.join(pretty_classes[:-1]),
                         _(' and '),
-                        pretty_classes[-1]))
+                        pretty_classes[-1],
+                    ))
                 else:
                     pretty_classes = pretty_classes[-1]
 
@@ -962,7 +964,7 @@ class ModelView(object):
                 self.template_object_name: obj,
                 'collected_objects': collected_objects,
                 'form': form,
-                })
+            })
 
 
 class _MVUHelper(object):
@@ -1030,7 +1032,7 @@ class ModelViewURLs(object):
             viewname_pattern = '%s_%s_%%s' % (
                 obj._meta.app_label,
                 obj._meta.module_name,
-                )
+            )
 
             obj._modelviewurls_cache = _MVUHelper(viewname_pattern, kwargs)
         return obj._modelviewurls_cache

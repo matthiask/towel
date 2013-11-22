@@ -184,7 +184,7 @@ def substitute_with(to_delete, instance):
     for related_object in to_delete._meta.get_all_related_objects():
         queryset = related_object.model._base_manager.complex_filter({
             related_object.field.name: to_delete.pk,
-            })
+        })
 
         queryset.update(**{related_object.field.name: instance.pk})
     to_delete.delete()

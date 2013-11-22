@@ -46,14 +46,14 @@ class Resource(generic.View):
     urls = [
         (r'^$', 'list', {
             'request_type': 'list',
-            }),
+        }),
         (r'^(?P<pk>\d+)/$', 'detail', {
             'request_type': 'detail',
-            }),
+        }),
         (r'^(?P<pks>(?:\d+;)*\d+);?/$', 'set', {
             'request_type': 'set',
-            }),
-        ]
+        }),
+    ]
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -109,7 +109,7 @@ class Resource(generic.View):
         except APIException as exc:
             data = {
                 'error': exc.error_message,
-                }
+            }
             data.update(exc.data)
             return self.serialize_response(data, status=exc.status)
 
@@ -220,8 +220,9 @@ class Resource(generic.View):
                 self.api.serialize_instance(
                     instance,
                     build_absolute_uri=request.build_absolute_uri,
-                    ) for instance in self.set_objects_or_404()],
-            }
+                ) for instance in self.set_objects_or_404()
+            ],
+        }
 
     def get_list(self, request, *args, **kwargs):
         page = self.page_objects_or_404()
@@ -234,34 +235,38 @@ class Resource(generic.View):
             'total': page.full_queryset.count(),
             'previous': None,
             'next': None,
-            }
+        }
 
         if page.offset > 0:
-            meta['previous'] = request.build_absolute_uri(
-                u'%s?%s' % (list_url, querystring(
+            meta['previous'] = request.build_absolute_uri(u'%s?%s' % (
+                list_url,
+                querystring(
                     self.request.GET,
                     exclude=('offset', 'limit'),
                     offset=max(0, page.offset - page.limit),
                     limit=page.limit,
-                    )))
+                ),
+            ))
 
         if page.offset + page.limit < meta['total']:
-            meta['next'] = request.build_absolute_uri(
-                u'%s?%s' % (list_url, querystring(
+            meta['next'] = request.build_absolute_uri(u'%s?%s' % (
+                list_url,
+                querystring(
                     self.request.GET,
                     exclude=('offset', 'limit'),
                     offset=page.offset + page.limit,
                     limit=page.limit,
-                    )))
+                ),
+            ))
 
         return {
             'objects': [
                 self.api.serialize_instance(
                     instance,
                     build_absolute_uri=request.build_absolute_uri,
-                    ) for instance in page.queryset],
+                ) for instance in page.queryset],
             'meta': meta,
-            }
+        }
 
     def options(self, request, *args, **kwargs):
         # XXX This will be removed as soon as we switch to Django 1.5 only
@@ -274,7 +279,7 @@ class Resource(generic.View):
         methods = set(m.upper() for m in self.http_method_names if (
             hasattr(self, m)
             or hasattr(self, '%s_%s' % (m, self.request_type))
-            ))
+        ))
         if 'GET' in methods:
             methods.add('HEAD')
         return sorted(methods)

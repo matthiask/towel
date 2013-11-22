@@ -28,7 +28,7 @@ def pagination(context, page, paginator, where=None):
         'page': page,
         'paginator': paginator,
         'where': where,
-        }
+    }
 
 
 @register.filter
@@ -41,7 +41,8 @@ def querystring(data, exclude='page,all'):
 
     exclude = exclude.split(',')
 
-    items = reduce(operator.add,
+    items = reduce(
+        operator.add,
         (list((k, v) for v in values) for k, values
             in six.iterlists(data) if k not in exclude),
         [])
@@ -93,6 +94,6 @@ def ordering_link(context, field, request, title='', base_url='', **kwargs):
         'descending': current == field,
         'title': title,
         'base_url': base_url,
-        }
+    }
     ctx.update(kwargs)
     return ctx

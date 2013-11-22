@@ -1,7 +1,7 @@
 """
 ``ModelView``
 =============
-
+==
 As long as you use this class, everything should just work (tm).
 """
 
@@ -50,6 +50,6 @@ class ModelView(towel_modelview.ModelView):
         kwargs.update({
             'instance': instance,
             'request': request,  # towel.mt.forms needs that
-            })
+        })
 
         return form_class(*args, **kwargs)

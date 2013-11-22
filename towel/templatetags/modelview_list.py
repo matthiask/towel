@@ -62,7 +62,7 @@ def model_row(instance, fields):
                 True: _('yes'),
                 False: _('no'),
                 None: _('unknown'),
-                }.get(value, value)
+            }.get(value, value)
 
         else:
             value = getattr(instance, f.name)

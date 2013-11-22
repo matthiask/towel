@@ -26,7 +26,7 @@ def querystring(data, exclude=(), **kwargs):
     items = reduce(operator.add, (
         list((k, v) for v in values)
         for k, values in data.lists() if k not in exclude
-        ), [])
+    ), [])
 
     for key, value in kwargs.items():
         items.append((key, force_text(value)))

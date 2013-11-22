@@ -27,7 +27,7 @@ class ModelBackend(_ModelBackend):
             access = Access.objects.select_related(
                 'user',
                 Client.__name__.lower(),
-                ).get(user=user_id)
+            ).get(user=user_id)
 
             # Ensure reverse accesses do not needlessly query the DB again.
             # Maybe Django already does that for us already... whatever.

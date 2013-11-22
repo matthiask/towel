@@ -24,4 +24,4 @@ class TestNode(template.Node):
         return u'ARGS: %s\nKWARGS: %s\n' % (
             u','.join(str(arg) for arg in args),
             u','.join(u'%s=%s' % (k, v) for k, v in sorted(kwargs.items())),
-            )
+        )

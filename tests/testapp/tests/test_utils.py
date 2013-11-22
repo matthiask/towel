@@ -13,16 +13,16 @@ class UtilsTest(TestCase):
         person = Person.objects.create(
             family_name='Muster',
             given_name='Hans',
-            )
+        )
         EmailAddress.objects.create(
             person=person,
             email='hans@example.com',
-            )
+        )
 
         self.assertEqual(
             set(related_classes(person)),
             set((Person, EmailAddress)),
-            )
+        )
 
     def test_safe_queryset_and(self):
         class AnyException(Exception):
@@ -49,7 +49,7 @@ class UtilsTest(TestCase):
         qs = safe_queryset_and(
             EmailAddress.objects.select_related(),
             EmailAddress.objects.select_related(),
-            )
+        )
 
         self.assertTrue(qs.query.select_related)
         self.assertFalse(qs.query.distinct)
@@ -57,7 +57,7 @@ class UtilsTest(TestCase):
         qs = safe_queryset_and(
             EmailAddress.objects.all(),
             EmailAddress.objects.select_related(),
-            )
+        )
 
         self.assertTrue(qs.query.select_related)
 
@@ -98,7 +98,7 @@ class UtilsTest(TestCase):
                 'ARGS: KWARGS: bla=blub,blo=blob'),
             ('{% testtag bla=blub blo="blob" %}',
                 'ARGS: KWARGS: bla=blubber,blo=blob'),
-            ]
+        ]
 
         for test, result in testcases:
             t = Template(u'{% load testapp_tags %}' + test)
@@ -106,4 +106,4 @@ class UtilsTest(TestCase):
                 'abcd': 'yay',
                 'bla': 'blaaa',
                 'blub': 'blubber',
-                })), result)
+            })), result)

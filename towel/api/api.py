@@ -92,7 +92,7 @@ class API(object):
 
         urlpatterns = [
             url(r'^$', view, name='api_%s' % self.name),
-            ]
+        ]
 
         for view in self.views:
             urlpatterns.append(url(view['prefix'], view['view']))
@@ -101,7 +101,7 @@ class API(object):
             urlpatterns.append(url(
                 resource['prefix'],
                 include(resource['urlpatterns']),
-                ))
+            ))
 
         return patterns('', *urlpatterns)
 
@@ -116,17 +116,21 @@ class API(object):
             return response
 
         elif request.method not in ('GET', 'HEAD'):
-            return Serializer().serialize({
-                'error': 'Not acceptable',
-                }, request=request, status=http_client.METHOD_NOT_ALLOWED,
-                output_format=request.GET.get('format'))
+            return Serializer().serialize(
+                {
+                    'error': 'Not acceptable',
+                },
+                request=request,
+                status=http_client.METHOD_NOT_ALLOWED,
+                output_format=request.GET.get('format'),
+            )
 
         response = {
             '__str__': self.name,
             '__uri__': request.build_absolute_uri(
                 reverse('api_%s' % self.name)),
             'resources': [],
-            }
+        }
 
         for view in self.views:
             response.setdefault('views', []).append({
@@ -134,7 +138,7 @@ class API(object):
                 '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
                     view['prefix'].strip('^')))),
-                })
+            })
 
         for resource in self.resources:
             r = {
@@ -142,7 +146,7 @@ class API(object):
                 '__uri__': request.build_absolute_uri(u''.join((
                     response['__uri__'],
                     resource['prefix'].strip('^')))),
-                }
+            }
 
             response['resources'].append(r)
             if resource['canonical']:
@@ -215,8 +219,8 @@ class API(object):
             'urlpatterns': patterns('', *[
                 url(regex, view, data, name=name(suffix))
                 for regex, suffix, data in view_class.urls
-                ]),
-            })
+            ]),
+        })
 
         if serializer:
             self.serializers[model] = serializer
@@ -263,7 +267,7 @@ class API(object):
         self.views.append({
             'prefix': prefix,
             'view': view,
-            })
+        })
 
 
 class APIException(Exception):
@@ -389,7 +393,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
         '__str__': force_text(instance),
         '__pretty__': {},
         '__pk__': instance.pk,
-        }
+    }
     opts = instance._meta
 
     for f_name in opts.get_all_field_names():
@@ -420,14 +424,14 @@ def serialize_model_instance(instance, api, inline_depth=0,
                         inline_depth=inline_depth - 1,
                         build_absolute_uri=build_absolute_uri,
                         only_registered=only_registered,
-                        ) if obj else None
+                    ) if obj else None
                 else:
                     related = [api.serialize_instance(
                         obj,
                         inline_depth=inline_depth - 1,
                         build_absolute_uri=build_absolute_uri,
                         only_registered=only_registered,
-                        ) for obj in getattr(instance, name).all()]
+                    ) for obj in getattr(instance, name).all()]
                     if any(related):
                         data[name] = related
 
@@ -460,7 +464,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
                         inline_depth=inline_depth - 1,
                         build_absolute_uri=build_absolute_uri,
                         only_registered=only_registered,
-                        )
+                    )
 
         elif isinstance(f, models.FileField):
             # XXX add additional informations to the seralization?

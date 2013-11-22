@@ -59,10 +59,14 @@ class RequestParser(object):
             if re.match(pattern, content_type):
                 return handler(request)
 
-        return Serializer().serialize({
-            'error': '%r is not supported' % content_type,
-            }, request=request, status=http_client.UNSUPPORTED_MEDIA_TYPE,
-            output_format=request.GET.get('format'))
+        return Serializer().serialize(
+            {
+                'error': '%r is not supported' % content_type,
+            },
+            request=request,
+            status=http_client.UNSUPPORTED_MEDIA_TYPE,
+            output_format=request.GET.get('format'),
+        )
 
     def parse_form(self, request):
         """

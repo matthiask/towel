@@ -97,7 +97,7 @@ def model_mapper(queryset, attribute):
             return {
                 attribute: instance.pk,
                 attribute + '_': instance,
-                }
+            }
         except (queryset.model.DoesNotExist, KeyError, TypeError, ValueError):
             return {}
     return _fn

@@ -40,7 +40,7 @@ class EditLiveModelView(ModelView):
         self.render_detail(request, {
             self.template_object_name: new_instance,
             'regions': regions,
-            })
+        })
         data = {'!form-errors': {}}
         data.update(changed_regions(regions, form.changed_data))
         return HttpResponse(json.dumps(data), content_type='application/json')
@@ -83,16 +83,20 @@ class InlineModelView(EditLiveModelView):
     def response_add(self, request, instance, *args, **kwargs):
         regions = {}
         opts = self.parent_class._meta
-        render(request,
-            '%s/%s_detail.html' % (opts.app_label, opts.module_name), {
+        render(
+            request,
+            '%s/%s_detail.html' % (opts.app_label, opts.module_name),
+            {
                 'object': getattr(instance, self.parent_attr),
                 'regions': regions,
-                })
+            },
+        )
         return HttpResponse(
             json.dumps(changed_regions(regions, [
                 '%s_set' % self.model.__name__.lower(),
-                ])),
-            content_type='application/json')
+            ])),
+            content_type='application/json',
+        )
 
     response_delete = response_editlive = response_edit = response_add
     # TODO what about response_adding_denied, response_editing_denied and

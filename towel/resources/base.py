@@ -115,7 +115,7 @@ class ModelResourceView(TemplateView):
 
             'add_url': self.url('add', fail_silently=True),
             'list_url': self.url('list', fail_silently=True),
-            }
+        }
         title = self.get_title()
         if title:
             context['title'] = title
@@ -135,7 +135,7 @@ class ModelResourceView(TemplateView):
             '{}/{}{}.html'.format(opts.app_label, opts.module_name,
                 self.template_name_suffix),
             'resources/object{}.html'.format(self.template_name_suffix),
-            ]
+        ]
         if self.template_name:
             names.insert(0, self.template_name)
         return names
@@ -275,7 +275,7 @@ class ListView(ModelResourceView):
                     'object_list': page.object_list,
                     'page': page,
                     'paginator': paginator,
-                    })
+                })
 
         return context
 
@@ -295,7 +295,7 @@ class ListView(ModelResourceView):
             self.object_list = safe_queryset_and(
                 self.object_list,
                 form.queryset(self.model),
-                )
+            )
             context['search_form'] = form
 
         context.update(self.get_context_data(object_list=self.object_list))
@@ -308,7 +308,7 @@ class ListView(ModelResourceView):
                 label=_('Action'),
                 choices=[('', '---------')] + [row[:2] for row in actions],
                 widget=forms.HiddenInput,
-                )
+            )
             context['batch_form'] = form
 
             if form.should_process():
@@ -351,7 +351,7 @@ class ListView(ModelResourceView):
         """
         return [
             ('delete_selected', _('Delete selected'), self.delete_selected),
-            ]
+        ]
 
     def batch_action_hidden_fields(self, queryset, additional=[]):
         """
@@ -400,8 +400,8 @@ class ListView(ModelResourceView):
             action_hidden_fields=self.batch_action_hidden_fields(queryset, [
                 ('batch-action', 'delete_selected'),
                 ('confirm', 1),
-                ]),
-            )
+            ]),
+        )
         self.template_name_suffix = '_action'
         return self.render_to_response(context)
 
@@ -494,7 +494,7 @@ class FormView(ModelResourceView):
             kw.update({
                 'data': self.request.POST,
                 'files': self.request.FILES,
-                })
+            })
         kw.update(kwargs)
         return kw
 

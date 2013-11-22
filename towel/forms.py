@@ -124,8 +124,9 @@ class BatchForm(forms.Form):
         data = super(BatchForm, self).clean()
 
         post_data = self.request.POST
-        self.ids = [pk for pk in self.queryset.values_list('id', flat=True)
-               if post_data.get('batch_%s' % pk)]
+        self.ids = [
+            pk for pk in self.queryset.values_list('id', flat=True)
+            if post_data.get('batch_%s' % pk)]
 
         if not self.ids:
             raise forms.ValidationError(_('No items selected'))
@@ -168,8 +169,9 @@ class BatchForm(forms.Form):
                 ' Switch to using the new \'process\' method now!' % (
                     self.__class__.__module__,
                     self.__class__.__name__,
-                    ),
-                DeprecationWarning)
+                ),
+                DeprecationWarning,
+            )
 
             ctx = self._context(self.batch_queryset)
             if 'response' in ctx:
@@ -579,10 +581,15 @@ def autocompletion_response(queryset, limit=10):
     suitable for consumption by jQuery UI Autocomplete, respectively
     ``towel.forms.ModelAutocompleteWidget``.
     """
-    return HttpResponse(json.dumps([{
-        'label': force_text(instance),
-        'value': instance.pk,
-        } for instance in queryset[:limit]]), content_type='application/json')
+    return HttpResponse(
+        json.dumps([
+            {
+                'label': force_text(instance),
+                'value': instance.pk,
+            } for instance in queryset[:limit]
+        ]),
+        content_type='application/json',
+    )
 
 
 class ModelAutocompleteWidget(forms.TextInput):
@@ -643,7 +650,8 @@ class ModelAutocompleteWidget(forms.TextInput):
                 ' %(text)s</a>' % {
                     'id': final_attrs['id'][:-3],
                     'text': _('clear'),
-                }) + (u'<input%s />' % flatatt(final_attrs))
+                }
+            ) + (u'<input%s />' % flatatt(final_attrs))
 
         js = u'''<script type="text/javascript">
 $(function() {
@@ -680,10 +688,12 @@ $(function() {
                 return u'\'%s\'' % self.url()
             return u'\'%s\'' % self.url
         else:
-            data = json.dumps([{
-                'label': force_text(o),
-                'value': o.id,
-                } for o in self.queryset.all()])
+            data = json.dumps([
+                {
+                    'label': force_text(o),
+                    'value': o.id,
+                } for o in self.queryset.all()
+            ])
 
             return u'''function (request, response) {
     var data = %(data)s, ret = [], term = request.term.toLowerCase();
@@ -768,7 +778,7 @@ $(function() {
             'id': final_attrs.get('id', name),
             'name': name,
             'source': self._source(),
-            }
+        }
 
         return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs),
             value) + js)
@@ -789,4 +799,4 @@ $(function() {
     }''' % {
             'data': json.dumps(
                 [force_text(o) for o in self.queryset._clone()]),
-            }
+        }

@@ -29,18 +29,20 @@ class ResourceTest(TestCase):
 
     def test_crud(self):
         self.assertContains(self.client.get('/resources/add/'), '<form', 1)
-        self.assertEqual(self.client.post('/resources/add/', {
-            'name': '',
+        self.assertEqual(
+            self.client.post('/resources/add/', {
+                'name': '',
             }).status_code,
             200)
-        self.assertEqual(self.client.post('/resources/add/', {
-            # Should not validate because of StrippedTextInput
-            'name': ' ',
+        self.assertEqual(
+            self.client.post('/resources/add/', {
+                # Should not validate because of StrippedTextInput
+                'name': ' ',
             }).status_code,
             200)
         response = self.client.post('/resources/add/', {
             'name': 'Blub',
-            })
+        })
         resource = Resource.objects.get()
         self.assertRedirects(response, resource.get_absolute_url())
         self.assertContains(self.client.get(resource.get_absolute_url()),
@@ -50,7 +52,7 @@ class ResourceTest(TestCase):
             '<form', 1)
         response = self.client.post(resource.urls['edit'], {
             'name': 'Blabbba',
-            })
+        })
         self.assertRedirects(response, resource.get_absolute_url())
         self.assertContains(self.client.get(resource.get_absolute_url()),
             'Blabbba')
@@ -82,20 +84,20 @@ class ResourceTest(TestCase):
         self.assertEqual(
             reverse('testapp_resource_detail', kwargs={'pk': resource.pk}),
             resource.get_absolute_url(),
-            )
+        )
 
     def test_batchform(self):
         for i in range(20):
             Resource.objects.create(
                 name='Resource %s' % i,
-                )
+            )
 
         self.assertContains(self.client.get('/resources/'),
             '<span>1 - 5 / 20</span>')
 
         response = self.client.post('/resources/', {
             'batchform': 1,
-            })
+        })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response,
             '<ul class="errorlist"><li>No items selected</li></ul>')
@@ -104,7 +106,7 @@ class ResourceTest(TestCase):
         data = {
             'batchform': 1,
             'batch-action': 'set_active',
-            }
+        }
         for pk in Resource.objects.values_list('id', flat=True)[:3]:
             data['batch_%s' % pk] = pk
         response = self.client.post('/resources/', data)

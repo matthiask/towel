@@ -54,7 +54,7 @@ def model_details(instance, fields=None):
                 True: _('yes'),
                 False: _('no'),
                 None: _('unknown'),
-                }.get(value, value)
+            }.get(value, value)
 
         else:
             value = getattr(instance, f.name)

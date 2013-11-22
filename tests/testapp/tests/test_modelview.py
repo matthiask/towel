@@ -32,21 +32,23 @@ class ModelViewTest(TestCase):
 
     def test_crud(self):
         self.assertContains(self.client.get('/persons/add/'), '<form', 1)
-        self.assertEqual(self.client.post('/persons/add/', {
-            'family_name': '',
-            'given_name': '',
-            'emails-TOTAL_FORMS': 0,
-            'emails-INITIAL_FORMS': 0,
-            'emails-MAX_NUM_FORMS': 10,
+        self.assertEqual(
+            self.client.post('/persons/add/', {
+                'family_name': '',
+                'given_name': '',
+                'emails-TOTAL_FORMS': 0,
+                'emails-INITIAL_FORMS': 0,
+                'emails-MAX_NUM_FORMS': 10,
             }).status_code,
             200)
-        self.assertEqual(self.client.post('/persons/add/', {
-            # Should not validate because of StrippedTextInput
-            'family_name': ' ',
-            'given_name': ' ',
-            'emails-TOTAL_FORMS': 0,
-            'emails-INITIAL_FORMS': 0,
-            'emails-MAX_NUM_FORMS': 10,
+        self.assertEqual(
+            self.client.post('/persons/add/', {
+                # Should not validate because of StrippedTextInput
+                'family_name': ' ',
+                'given_name': ' ',
+                'emails-TOTAL_FORMS': 0,
+                'emails-INITIAL_FORMS': 0,
+                'emails-MAX_NUM_FORMS': 10,
             }).status_code,
             200)
         response = self.client.post('/persons/add/', {
@@ -55,7 +57,7 @@ class ModelViewTest(TestCase):
             'emails-TOTAL_FORMS': 0,
             'emails-INITIAL_FORMS': 0,
             'emails-MAX_NUM_FORMS': 10,
-            })
+        })
         person = Person.objects.get()
         self.assertRedirects(response, person.get_absolute_url())
         self.assertContains(self.client.get(person.get_absolute_url()),
@@ -69,7 +71,7 @@ class ModelViewTest(TestCase):
             'emails-TOTAL_FORMS': 0,
             'emails-INITIAL_FORMS': 0,
             'emails-MAX_NUM_FORMS': 10,
-            })
+        })
         self.assertRedirects(response, person.get_absolute_url())
         self.assertContains(self.client.get(person.get_absolute_url()),
             'Blabbba Blub')
@@ -93,7 +95,7 @@ class ModelViewTest(TestCase):
             'emails-INITIAL_FORMS': 0,
             'emails-MAX_NUM_FORMS': 10,
             'emails-0-email': 'test@example.com',
-            })
+        })
         person = Person.objects.get()
         emailaddress = person.emailaddress_set.get()
         self.assertEqual(emailaddress.email, 'test@example.com')
@@ -110,45 +112,51 @@ class ModelViewTest(TestCase):
                 ' to this object.') in str(response.cookies))
 
         # Add another email address
-        self.assertRedirects(self.client.post(person.urls['edit'], {
-            'family_name': 'Blub',
-            'given_name': 'Blab',
-            'emails-TOTAL_FORMS': 2,
-            'emails-INITIAL_FORMS': 1,
-            'emails-MAX_NUM_FORMS': 10,
-            'emails-0-email': 'test1@example.com',
-            'emails-0-id': emailaddress.id,
-            'emails-1-email': 'test2@example.com',
-            }), person.urls['detail'])
+        self.assertRedirects(
+            self.client.post(person.urls['edit'], {
+                'family_name': 'Blub',
+                'given_name': 'Blab',
+                'emails-TOTAL_FORMS': 2,
+                'emails-INITIAL_FORMS': 1,
+                'emails-MAX_NUM_FORMS': 10,
+                'emails-0-email': 'test1@example.com',
+                'emails-0-id': emailaddress.id,
+                'emails-1-email': 'test2@example.com',
+            }),
+            person.urls['detail'],
+        )
 
         self.assertEqual(
             sorted(person.emailaddress_set.values_list('email', flat=True)),
             ['test1@example.com', 'test2@example.com'],
-            )
+        )
 
         emailaddresses = list(person.emailaddress_set.order_by('id'))
         emailaddresses[0].message_set.create(message='Save me')
 
         # Try deleting both email addresses; deleting the first should fail
         # because of bound message instances.
-        self.assertRedirects(self.client.post(person.urls['edit'], {
-            'family_name': 'Blubbber',
-            'given_name': 'Blab',
-            'emails-TOTAL_FORMS': 2,
-            'emails-INITIAL_FORMS': 2,
-            'emails-MAX_NUM_FORMS': 10,
-            'emails-0-email': 'test1@example.com',
-            'emails-0-id': emailaddresses[0].id,
-            'emails-0-DELETE': 1,
-            'emails-1-email': 'test2@example.com',
-            'emails-1-id': emailaddresses[1].id,
-            'emails-1-DELETE': 1,
-            }), person.urls['detail'])
+        self.assertRedirects(
+            self.client.post(person.urls['edit'], {
+                'family_name': 'Blubbber',
+                'given_name': 'Blab',
+                'emails-TOTAL_FORMS': 2,
+                'emails-INITIAL_FORMS': 2,
+                'emails-MAX_NUM_FORMS': 10,
+                'emails-0-email': 'test1@example.com',
+                'emails-0-id': emailaddresses[0].id,
+                'emails-0-DELETE': 1,
+                'emails-1-email': 'test2@example.com',
+                'emails-1-id': emailaddresses[1].id,
+                'emails-1-DELETE': 1,
+            }),
+            person.urls['detail'],
+        )
 
         self.assertEqual(
             sorted(person.emailaddress_set.values_list('email', flat=True)),
             ['test1@example.com'],
-            )
+        )
         # However, editing the person instance should have succeeded
         self.assertContains(self.client.get(person.urls['detail']),
             'Blab Blubbber')
@@ -169,25 +177,27 @@ class ModelViewTest(TestCase):
         self.assertEqual(
             reverse('testapp_person_detail', kwargs={'pk': person.pk}),
             person.get_absolute_url(),
-            )
+        )
 
     def test_emailaddress_views(self):
         emailaddress = EmailAddress.objects.create(
             person=Person.objects.create(
                 given_name='Testa',
                 family_name='Testi',
-                ),
+            ),
             email='test@example.com',
-            )
+        )
 
         response = self.client.get(emailaddress.get_absolute_url())
         self.assertContains(response, 'Testa Testi')
         # <title>, <h2>, <table>
         self.assertContains(response, 'test@example.com', 3)
-        self.assertContains(response,
+        self.assertContains(
+            response,
             reverse('testapp_person_detail', kwargs={
                 'pk': emailaddress.person_id,
-                }))
+            }),
+        )
 
         list_url = reverse('testapp_emailaddress_list')
 
@@ -204,46 +214,47 @@ class ModelViewTest(TestCase):
                     given_name='Testa',
                     family_name='Testi',
                     is_active=bool(i % 2),
-                    ),
+                ),
                 email='test%s@example.com' % i,
-                )
+            )
 
         # The EmailAddressSearchForm defaults to only showing email addresses
         # of active persons.
         self.assertContains(
             self.client.get(list_url),
             '<span>1 - 5 / 6</span>',
-            )
+        )
         self.assertContains(
             self.client.get(list_url + '?person__is_active=1'),
             '<span>1 - 5 / 11</span>',
-            )
+        )
         self.assertContains(
             self.client.get(list_url + '?person__is_active=3'),
             '<span>1 - 5 / 5</span>',
-            )
+        )
 
         # Multiple choice it up a bit.
         self.assertContains(
             self.client.get(
                 list_url +
-                '?person__relationship=married&person__relationship=divorced'),
+                '?person__relationship=married&person__relationship=divorced',
+            ),
             '<span>0 - 0 / 0</span>',
-            )
+        )
 
     def test_batchform(self):
         for i in range(20):
             Person.objects.create(
                 given_name='Given %s' % i,
                 family_name='Family %s' % i,
-                )
+            )
 
         self.assertContains(self.client.get('/persons/'),
             '<span>1 - 5 / 20</span>')
 
         response = self.client.post('/persons/', {
             'batchform': 1,
-            })
+        })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response,
             '<ul class="errorlist"><li>No items selected</li></ul>')
@@ -252,7 +263,7 @@ class ModelViewTest(TestCase):
         data = {
             'batchform': 1,
             'batch-is_active': 3,
-            }
+        }
         for pk in Person.objects.values_list('id', flat=True)[:3]:
             data['batch_%s' % pk] = pk
         response = self.client.post('/persons/', data)
@@ -270,8 +281,8 @@ class ModelViewTest(TestCase):
         message = Message.objects.create(
             sent_to=EmailAddress.objects.create(
                 person=Person.objects.create()
-                )
-            )
+            ),
+        )
 
         self.assertEqual(message.get_absolute_url(),
             '/messages/%s/' % message.pk)

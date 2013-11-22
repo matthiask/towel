@@ -86,4 +86,4 @@ class RegionNode(template.Node):
             attrs=flatatt(kwargs),
             output=output,
             tag=tag,
-            ))
+        ))

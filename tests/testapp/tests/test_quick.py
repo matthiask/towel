@@ -22,7 +22,7 @@ QUICK_RULES = [
     (re.compile(r'relationship:\((?P<value>[^\)]*)\)'),
         quick.model_choices_mapper(Person.RELATIONSHIP_CHOICES,
             'relationship')),
-    ]
+]
 
 
 class QuickTest(TestCase):
@@ -52,19 +52,19 @@ class QuickTest(TestCase):
         self.assertEqual(
             quick.parse_quickadd('^+3', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=3),
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('^+42', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=42),
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('^Today', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=0),
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('^Tomorrow', QUICK_RULES)[0]['due'],
             date.today() + timedelta(days=1),
-            )
+        )
         for name in (
                 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,'
                 'Sunday'.split(',')):
@@ -75,31 +75,31 @@ class QuickTest(TestCase):
         self.assertEqual(
             quick.parse_quickadd('=0.3h', QUICK_RULES)[0]['estimated_hours'],
             '0.3',
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('=10.3h', QUICK_RULES)[0]['estimated_hours'],
             '10.3',
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('=37h', QUICK_RULES)[0]['estimated_hours'],
             '37',
-            )
+        )
 
         self.assertEqual(
             quick.parse_quickadd('relationship:(unspecified)',
                 QUICK_RULES)[0]['relationship'],
             '',
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('relationship:(married)',
                 QUICK_RULES)[0]['relationship'],
             'married',
-            )
+        )
         self.assertEqual(
             quick.parse_quickadd('relationship:(in a relationship)',
                 QUICK_RULES)[0]['relationship'],
             'relation',
-            )
+        )
         self.assertTrue(
             'relation' not in quick.parse_quickadd(
                 'relationship:(stupidity)', QUICK_RULES)[0])

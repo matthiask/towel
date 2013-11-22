@@ -51,7 +51,7 @@ class FrankenResource(Resource):
         if not is_valid:
             raise APIException(data={
                 'validation': form.errors,
-                })
+            })
 
         instance = self.modelview.save_form(request, form, change=False)
         self.modelview.save_model(request, instance, form, change=False)
@@ -90,7 +90,7 @@ class FrankenResource(Resource):
         if not form.is_valid():
             raise APIException(data={
                 'validation': form.errors,
-                })
+            })
 
         instance = self.modelview.save_form(request, form, change=True)
         self.modelview.save_model(request, instance, form, change=True)
@@ -135,8 +135,8 @@ class FrankenResource(Resource):
                 'messages': [{
                     'message': unicode(msg),
                     'tags': msg.tags,
-                    } for msg in get_messages(request)],
-                })
+                } for msg in get_messages(request)],
+            })
 
         instance.delete()
         return self.serialize_response({}, status=httplib.NO_CONTENT)

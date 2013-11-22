@@ -31,7 +31,7 @@ def form_items(form):
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
-        }) for field in form if field.name != 'ignore_warnings')
+    }) for field in form if field.name != 'ignore_warnings')
 
 
 @register.inclusion_tag('towel/_form_item.html')
@@ -51,7 +51,7 @@ def form_item(item, additional_classes=None):
         'additional_classes': additional_classes,
         'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
         'type_class': _type_class(item),
-        }
+    }
 
 
 @register.inclusion_tag('towel/_form_item_plain.html')
@@ -68,7 +68,7 @@ def form_item_plain(item, additional_classes=None):
         'additional_classes': additional_classes,
         'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
         'type_class': _type_class(item),
-        }
+    }
 
 
 @register.tag
@@ -131,7 +131,7 @@ class FormErrorsNode(template.Node):
             'formsets': formset_list,
             'errors': errors,
             'has_non_field_errors': has_non_field_errors,
-            })
+        })
 
 
 @register.tag
@@ -190,7 +190,7 @@ class FormWarningsNode(template.Node):
             'forms': form_list,
             'formsets': formset_list,
             'warnings': True,
-            })
+        })
 
 
 @register.tag
@@ -227,7 +227,7 @@ class DynamicFormsetNode(template.Node):
             'empty': True,
             'form_id': '%s-empty' % slug,
             'form': formset.empty_form,
-            })
+        })
         result.append('<script type="text/template" id="%s-empty">' % slug)
         result.append(self.nodelist.render(context))
         result.append('</script>')
@@ -238,7 +238,7 @@ class DynamicFormsetNode(template.Node):
                 'empty': False,
                 'form_id': '%s-%s' % (slug, idx),
                 'form': form,
-                })
+            })
             result.append(self.nodelist.render(context))
             context.pop()
 
