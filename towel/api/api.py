@@ -400,7 +400,6 @@ def serialize_model_instance(instance, api, inline_depth=0,
                     )
 
         elif isinstance(f, models.FileField):
-            # XXX add additional informations to the seralization?
             try:
                 value = f.value_from_object(instance)
                 data[f.name] = build_absolute_uri(value.url)
