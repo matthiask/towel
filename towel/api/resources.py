@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.six.moves import http_client
 from django.views import generic
 
-from .api import APIException, api_reverse
+from .base import APIException, api_reverse
 from .parsers import RequestParser
 from .serializers import Serializer
 from .utils import querystring
