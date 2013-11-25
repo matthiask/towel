@@ -1,6 +1,6 @@
 *.pyc
 *~
-.*.swp
+.*.sw?
 \#*#
 /docs/_build
 /django

@@ -65,7 +65,8 @@ resource_url = resource_url_fn(Resource,
 
 
 urlpatterns = patterns('',
-    resource_url('list', False, resources.ListView, suffix='',
+    resource_url(
+        'list', False, resources.ListView, suffix='',
         paginate_by=5,
         search_form=ResourceSearchForm,
     ),

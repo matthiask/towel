@@ -124,12 +124,14 @@ class EmailAddressSearchForm(SearchForm):
         choices=Person.RELATIONSHIP_CHOICES)
 
 
-emailaddress_views = ModelView(EmailAddress,
+emailaddress_views = ModelView(
+    EmailAddress,
     paginate_by=5,
     search_form=EmailAddressSearchForm,
 )
 
 
-message_views = ModelView(Message,
+message_views = ModelView(
+    Message,
     paginate_by=5,
 )

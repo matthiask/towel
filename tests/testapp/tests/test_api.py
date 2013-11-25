@@ -32,7 +32,8 @@ class APITest(TestCase):
 
     def test_info(self):
         self.assertEqual(self.client.get('/api/v1/').status_code, 406)
-        response = self.client.get('/api/v1/',
+        response = self.client.get(
+            '/api/v1/',
             HTTP_ACCEPT='application/json',
         )
         self.assertEqual(response.status_code, 200)
@@ -141,7 +142,8 @@ class APITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Allow'], 'GET, HEAD, OPTIONS')
 
-        response = self.client.post('/api/v1/person/',
+        response = self.client.post(
+            '/api/v1/person/',
             HTTP_ACCEPT='application/json',
         )
         self.assertEqual(response.status_code, 405)
@@ -187,7 +189,8 @@ class APITest(TestCase):
         response = self.client.post('/api/v1/message/', {
         })
 
-        response = self.client.post('/api/v1/message/',
+        response = self.client.post(
+            '/api/v1/message/',
             'blabla',
             'application/octet-stream',  # Unsupported
             HTTP_ACCEPT='application/json',

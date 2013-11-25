@@ -24,7 +24,8 @@ class MessageResource(Resource):
             })
 
         message = form.save()
-        data = self.api.serialize_instance(message,
+        data = self.api.serialize_instance(
+            message,
             build_absolute_uri=request.build_absolute_uri,
         )
         return self.serialize_response(data,
@@ -54,11 +55,13 @@ api_v1 = API('v1', decorators=[
 ])
 
 api_v1.register(Group)
-api_v1.register(Person,
+api_v1.register(
+    Person,
     serializer=partial(serialize_model_instance, exclude=('is_active',)),
 )
 api_v1.register(EmailAddress)
-api_v1.register(Message,
+api_v1.register(
+    Message,
     view_class=MessageResource,
 )
 
