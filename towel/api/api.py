@@ -8,6 +8,7 @@ from django.utils.functional import curry
 from django.utils.six.moves import http_client
 from django.views.decorators.csrf import csrf_exempt
 
+from towel.utils import app_model_label
 from .base import api_reverse
 from .resources import Resource
 from .serializers import Serializer
@@ -201,9 +202,8 @@ class API(object):
 
         name = lambda ident: None
         if canonical:
-            opts = model._meta
-            name = lambda ident: '_'.join((
-                self.name, opts.app_label, opts.module_name, ident))
+            name = lambda ident: '_'.join(
+                (self.name,) + app_model_label(model) + (ident,))
 
         if decorators is None:
             decorators = self.decorators

@@ -17,7 +17,8 @@ from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
-from towel.utils import related_classes, safe_queryset_and, tryreverse
+from towel.utils import (app_model_label, related_classes, safe_queryset_and,
+    tryreverse)
 
 
 class ModelView(object):
@@ -191,9 +192,11 @@ class ModelView(object):
         if not hasattr(self.model, 'get_absolute_url'):
             # Add a simple primary key based URL to the model if it does not
             # have one yet
-            info = self.model._meta.app_label, self.model._meta.module_name
-            self.model.get_absolute_url = models.permalink(lambda self: (
-                '%s_%s_detail' % info, (self.pk,), {}))
+            self.model.get_absolute_url = models.permalink(
+                lambda self: (
+                    '%s_%s_detail' % app_model_label(self.model),
+                    (self.pk,),
+                    {}))
 
     def get_query_set(self, request, *args, **kwargs):
         """
@@ -218,9 +221,8 @@ class ModelView(object):
                 'modelview/object_list.html',
             ]
         """
-        opts = self.model._meta
         return [
-            '%s/%s_%s.html' % (opts.app_label, opts.module_name, action),
+            '%s/%s_%s.html' % (app_model_label(self.model) + (action,)),
             'modelview/object_%s.html' % action,
         ]
 
@@ -233,7 +235,7 @@ class ModelView(object):
         ``additional_urls`` instead.
         """
         from django.conf.urls import patterns, url
-        info = self.model._meta.app_label, self.model._meta.module_name
+        info = app_model_label(self.model)
 
         urlpatterns = patterns('',
             url(r'^$',
@@ -285,7 +287,7 @@ class ModelView(object):
 
         The following example will add three views; %(detail)s is replaced with
         the regular expression ``urlconf_detail_re``. The URL pattern name is
-        determined by ``<app_label>_<module_name>_<ident>``, where ``ident`` is
+        determined by ``<app_label>_<model_name>_<ident>``, where ``ident`` is
         either the third argument in the URL specification or the function name
         of the passed view::
 
@@ -476,7 +478,7 @@ class ModelView(object):
         * ``adding_allowed``
         * ``search_form`` (if ``search_form_everywhere = True``)
         """
-        info = self.model._meta.app_label, self.model._meta.module_name
+        info = app_model_label(self.model)
 
         return {
             'verbose_name': self.model._meta.verbose_name,
@@ -554,8 +556,7 @@ class ModelView(object):
         Return the response when adding instances is denied
         """
         self.add_message(request, 'adding_denied')
-        info = self.model._meta.app_label, self.model._meta.module_name
-        url = tryreverse('%s_%s_list' % info)
+        url = tryreverse('%s_%s_list' % app_model_label(self.model))
         return HttpResponseRedirect(url if url else '../../')
 
     def response_edit(self, request, instance, form, formsets):
@@ -581,8 +582,7 @@ class ModelView(object):
         Return the response when an object has been successfully deleted
         """
         self.add_message(request, 'object_deleted')
-        info = self.model._meta.app_label, self.model._meta.module_name
-        url = tryreverse('%s_%s_list' % info)
+        url = tryreverse('%s_%s_list' % app_model_label(self.model))
         return HttpResponseRedirect(url if url else '../../')
 
     def response_deletion_denied(self, request, instance):
@@ -716,11 +716,7 @@ class ModelView(object):
                     form.__class__.__name__,
                 ))
 
-            info = (
-                self.model._meta.app_label,
-                self.model._meta.module_name,
-            )
-            url = tryreverse('%s_%s_list' % info)
+            url = tryreverse('%s_%s_list' % app_model_label(self.model))
             return HttpResponseRedirect(url if url else '.')
 
     def detail_view(self, request, *args, **kwargs):
@@ -1029,10 +1025,7 @@ class ModelViewURLs(object):
             else:
                 kwargs['args'] = data
 
-            viewname_pattern = '%s_%s_%%s' % (
-                obj._meta.app_label,
-                obj._meta.module_name,
-            )
+            viewname_pattern = '%s_%s_%%s' % app_model_label(obj)
 
             obj._modelviewurls_cache = _MVUHelper(viewname_pattern, kwargs)
         return obj._modelviewurls_cache

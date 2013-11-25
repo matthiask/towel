@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from towel.modelview import ModelView
-from towel.utils import changed_regions
+from towel.utils import app_model_label, changed_regions
 
 
 class EditLiveModelView(ModelView):
@@ -82,10 +82,9 @@ class InlineModelView(EditLiveModelView):
 
     def response_add(self, request, instance, *args, **kwargs):
         regions = {}
-        opts = self.parent_class._meta
         render(
             request,
-            '%s/%s_detail.html' % (opts.app_label, opts.module_name),
+            '%s/%s_detail.html' % app_model_label(self.parent_class),
             {
                 'object': getattr(instance, self.parent_attr),
                 'regions': regions,

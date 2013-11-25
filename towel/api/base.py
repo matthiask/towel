@@ -1,6 +1,8 @@
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.utils.six.moves import http_client
 
+from towel.utils import app_model_label
+
 
 class APIException(Exception):
     """
@@ -61,7 +63,8 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
     opts = model._meta
     try:
         return reverse(
-            '_'.join((api_name, opts.app_label, opts.module_name, ident)),
+            '_'.join(
+                (api_name,) + app_model_label(model) + (ident,)),
             kwargs=kwargs)
     except NoReverseMatch:
         if fail_silently:

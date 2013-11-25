@@ -39,7 +39,8 @@ from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import changed_regions, related_classes, safe_queryset_and
+from towel.utils import (app_model_label, changed_regions, related_classes,
+    safe_queryset_and)
 
 
 class ModelResourceView(TemplateView):
@@ -130,10 +131,9 @@ class ModelResourceView(TemplateView):
         - ``<app_label>/<model_name><template_name_suffix>.html
         - ``resources/object<template_name_suffix>.html
         """
-        opts = self.model._meta
         names = [
-            '{}/{}{}.html'.format(opts.app_label, opts.module_name,
-                self.template_name_suffix),
+            '{}/{}{}.html'.format(
+                *(app_model_label(self.model) + (self.template_name_suffix,))),
             'resources/object{}.html'.format(self.template_name_suffix),
         ]
         if self.template_name:

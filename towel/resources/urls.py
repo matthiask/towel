@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from django.core.urlresolvers import NoReverseMatch, reverse
 
+from towel.utils import app_model_label
+
 
 class _MRUHelper(object):
     def __init__(self, viewname_pattern, kwargs):
@@ -42,10 +44,7 @@ def model_resource_urls(
     def _dec(cls):
         class _descriptor(object):
             def __get__(self, obj, objtype=None):
-                viewname_pattern = '%s_%s_%%s' % (
-                    obj._meta.app_label,
-                    obj._meta.module_name,
-                )
+                viewname_pattern = '%s_%s_%%s' % app_model_label(obj)
                 kwargs = {'kwargs': reverse_kwargs_fn(obj)}
                 helper = obj.__dict__['urls'] = _MRUHelper(
                     viewname_pattern, kwargs)
@@ -111,11 +110,7 @@ def resource_url_fn(
             name + '/' if suffix is None else suffix,
         )
 
-        urlname = '%s_%s_%s' % (
-            model._meta.app_label,
-            model._meta.module_name,
-            name,
-        )
+        urlname = '%s_%s_%s' % (app_model_label(model) + (name,))
 
         mixins = global_mixins if mixins is None else mixins
         decorators = global_decorators if decorators is None else decorators
