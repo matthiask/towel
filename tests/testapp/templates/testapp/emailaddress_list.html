@@ -14,7 +14,7 @@
     </thead>
     <tbody>
     {% for object in object_list %}
-        <tr class="{% cycle 'odd' 'even' %}">
+        <tr>
             {% if batch_form %}<td>{% batch_checkbox batch_form object.id %}</td>{% endif %}
             <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
             {% for verbose_name, field in object|model_row:"person" %}
