@@ -194,7 +194,7 @@ class ModelView(object):
             # have one yet
             self.model.get_absolute_url = models.permalink(
                 lambda self: (
-                    '%s_%s_detail' % app_model_label(self.model),
+                    '%s_%s_detail' % app_model_label(self),
                     (self.pk,),
                     {}))
 
