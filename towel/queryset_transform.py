@@ -114,6 +114,9 @@ if hasattr(models.Manager, 'from_queryset'):
 
 else:
     class TransformManager(models.Manager):
+        def get_queryset(self):
+            return TransformQuerySet(self.model, using=self._db)
+
         def get_query_set(self):
             return TransformQuerySet(self.model, using=self._db)
 
