@@ -109,11 +109,13 @@ class TransformQuerySet(models.query.QuerySet):
         return result_iter
 
 
-class TransformManager(models.Manager):
-    def get_queryset(self):
-        return TransformQuerySet(self.model, using=self._db)
+if hasattr(models.Manager, 'from_queryset'):
+    TransformManager = models.Manager.from_queryset(TransformQuerySet)
 
-    get_query_set = get_queryset
+else:
+    class TransformManager(models.Manager):
+        def get_query_set(self):
+            return TransformQuerySet(self.model, using=self._db)
 
-    def transform(self, *fn):
-        return self.get_query_set().transform(*fn)
+        def transform(self, *fn):
+            return self.get_query_set().transform(*fn)
