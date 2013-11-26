@@ -1,6 +1,7 @@
-from django.conf.urls import url
+from django.conf.urls import url as _url
 from django.core.urlresolvers import NoReverseMatch, reverse
 
+from towel import resources
 from towel.utils import app_model_label
 
 
@@ -58,7 +59,7 @@ def model_resource_urls(
 
 def resource_url_fn(
         model,
-        urlconf_detail_re=r'(?P<pk>\d+)/',
+        urlconf_detail_re=r'(?P<pk>\d+)',
         mixins=(),
         decorators=(),
         **kwargs):
@@ -72,18 +73,18 @@ def resource_url_fn(
 
     Usage::
 
-        project_url = resource_url_fn(Project,
+        project_url = resource_url_fn(
+            Project,
             mixins=(ProjectViewMixin,),
             decorators=(login_required,),
             )
-        urlpatterns = patterns('',
-            # list and detail  both have suffix='' added so that their URLs
-            # do not end with /list/ and /detail/ respectively.
-            project_url('list', False, ListView, suffix=''),
-            project_url('detail', True, DetailView, suffix=''),
-            project_url('add', False, AddView),
-            project_url('edit', True, EditView),
-            project_url('delete', True, EditView),
+        urlpatterns = patterns(
+            '',
+            project_url('list', url=r'^$', paginate_by=50),
+            project_url('detail', url=r'^(?P<pk>\d+)/$'),
+            project_url('add', url=r^add/$'),
+            project_url('edit'),
+            project_url('delete'),
         )
 
         # the project URLs will be:
@@ -103,11 +104,29 @@ def resource_url_fn(
     global_mixins = mixins
     global_decorators = decorators
 
-    def _fn(name, detail, view, suffix=None, mixins=None, decorators=None,
+    default_view_classes = {
+        'list': resources.ListView,
+        'detail': resources.DetailView,
+        'add': resources.AddView,
+        'edit': resources.EditView,
+        'delete': resources.DeleteView,
+    }
+
+    def _fn(
+            name,
+            _sentinel=None,
+            view=None,
+            url=None,
+            mixins=None,
+            decorators=None,
             **kw):
-        urlregex = r'^%s%s$' % (
-            urlconf_detail_re if detail else r'',
-            name + '/' if suffix is None else suffix,
+
+        if _sentinel is not None:
+            raise TypeError('name is the only non-keyword')
+
+        urlregex = (
+            r'^%s/%s/$' % (urlconf_detail_re, name)
+            if url is None else url
         )
 
         urlname = '%s_%s_%s' % (app_model_label(model) + (name,))
@@ -118,11 +137,13 @@ def resource_url_fn(
         kws = kwargs.copy()
         kws.update(kw)
 
+        view = default_view_classes[name] if view is None else view
         view = type(view.__name__, mixins + (view,), {})
         view = view.as_view(model=model, **kws)
 
         for dec in reversed(decorators):
             view = dec(view)
 
-        return url(urlregex, view, name=urlname)
+        return _url(urlregex, view, name=urlname)
+
     return _fn

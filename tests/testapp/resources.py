@@ -2,7 +2,6 @@ from django import forms
 from django.conf.urls import patterns
 from django.contrib import messages
 
-from towel import resources
 from towel.forms import SearchForm
 from towel.resources.urls import resource_url_fn
 
@@ -58,21 +57,23 @@ class ResourceViewMixin(object):
         return self.render_to_response(context)
 
 
-resource_url = resource_url_fn(Resource,
+resource_url = resource_url_fn(
+    Resource,
     mixins=(ResourceViewMixin,),
     decorators=(),
 )
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     resource_url(
-        'list', False, resources.ListView, suffix='',
+        'list',
+        url=r'^$',
         paginate_by=5,
         search_form=ResourceSearchForm,
     ),
-    resource_url('detail', True, resources.DetailView, suffix=''),
-
-    resource_url('add', False, resources.AddView),
-    resource_url('edit', True, resources.EditView),
-    resource_url('delete', True, resources.DeleteView),
+    resource_url('detail', url=r'^(?P<pk>\d+)/$'),
+    resource_url('add', url=r'^add/$'),
+    resource_url('edit'),
+    resource_url('delete'),
 )
