@@ -61,7 +61,8 @@ class SearchManager(queryset_transform.TransformManager):
 
     def _search(self, query, fields=None, queryset=None):
         if queryset is None:
-            queryset = self.get_query_set()
+            queryset = self.all()
+
         if fields is None:
             fields = self.search_fields
 
