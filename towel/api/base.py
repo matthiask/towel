@@ -60,7 +60,6 @@ def api_reverse(model, ident, api_name='api', fail_silently=False, **kwargs):
 
         api_reverse(instance, 'detail', pk=instance.pk)
     """
-    opts = model._meta
     try:
         return reverse(
             '_'.join(
