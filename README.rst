@@ -2,6 +2,9 @@
 Towel - Keeping you DRY since 2010
 ==================================
 
+.. image:: https://travis-ci.org/matthiask/towel.png?branch=master
+   :target: https://travis-ci.org/matthiask/towel
+
 Towel is a collection of tools which make your life easier if you
 are building a web application using Django. It contains helpers and
 templates for creating paginated, searchable object lists, CRUD
