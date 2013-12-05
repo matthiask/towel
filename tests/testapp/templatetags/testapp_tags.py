@@ -8,8 +8,8 @@ register = template.Library()
 
 @register.tag
 def testtag(parser, token):
-    return TestNode(*parse_args_and_kwargs(parser,
-        token.split_contents()[1:]))
+    return TestNode(
+        *parse_args_and_kwargs(parser, token.split_contents()[1:]))
 
 
 class TestNode(template.Node):
@@ -18,8 +18,7 @@ class TestNode(template.Node):
         self.kwargs = kwargs
 
     def render(self, context):
-        args, kwargs = resolve_args_and_kwargs(context,
-            self.args, self.kwargs)
+        args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
 
         return u'ARGS: %s\nKWARGS: %s\n' % (
             u','.join(str(arg) for arg in args),

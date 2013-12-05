@@ -36,8 +36,8 @@ class ResourceViewMixin(object):
             if form.is_valid():
                 is_active = form.cleaned_data['is_active']
                 updated = queryset.update(is_active=is_active)
-                messages.success(self.request,
-                    '%s have been updated.' % updated)
+                messages.success(
+                    self.request, '%s have been updated.' % updated)
                 return queryset
 
         else:

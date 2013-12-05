@@ -11,8 +11,8 @@ from testapp.models import Person
 QUICK_RULES = [
     (re.compile(r'!!'), quick.static(important=True)),
     (re.compile(r'@(?P<family_name>\w+)'),
-        quick.model_mapper(Person.objects.filter(is_active=True),
-            'assigned_to')),
+        quick.model_mapper(
+            Person.objects.filter(is_active=True), 'assigned_to')),
     (re.compile(r'\^\+(?P<due>\d+)'),
         lambda v: {'due': date.today() + timedelta(days=int(v['due']))}),
     (re.compile(r'\^(?P<due>[^\s]+)'),
@@ -20,8 +20,8 @@ QUICK_RULES = [
     (re.compile(r'=(?P<estimated_hours>[\d\.]+)h'),
         quick.identity()),
     (re.compile(r'relationship:\((?P<value>[^\)]*)\)'),
-        quick.model_choices_mapper(Person.RELATIONSHIP_CHOICES,
-            'relationship')),
+        quick.model_choices_mapper(
+            Person.RELATIONSHIP_CHOICES, 'relationship')),
 ]
 
 
@@ -86,17 +86,20 @@ class QuickTest(TestCase):
         )
 
         self.assertEqual(
-            quick.parse_quickadd('relationship:(unspecified)',
+            quick.parse_quickadd(
+                'relationship:(unspecified)',
                 QUICK_RULES)[0]['relationship'],
             '',
         )
         self.assertEqual(
-            quick.parse_quickadd('relationship:(married)',
+            quick.parse_quickadd(
+                'relationship:(married)',
                 QUICK_RULES)[0]['relationship'],
             'married',
         )
         self.assertEqual(
-            quick.parse_quickadd('relationship:(in a relationship)',
+            quick.parse_quickadd(
+                'relationship:(in a relationship)',
                 QUICK_RULES)[0]['relationship'],
             'relation',
         )

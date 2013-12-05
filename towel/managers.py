@@ -79,11 +79,13 @@ class SearchManager(queryset_transform.TransformManager):
                     keyword = keyword[1:]
 
             if negate:
-                q = reduce(lambda p, q: p & q,
+                q = reduce(
+                    lambda p, q: p & q,
                     (~Q(**{'%s__icontains' % f: keyword}) for f in fields),
                     Q())
             else:
-                q = reduce(lambda p, q: p | q,
+                q = reduce(
+                    lambda p, q: p | q,
                     (Q(**{'%s__icontains' % f: keyword}) for f in fields),
                     Q())
 

@@ -231,8 +231,9 @@ class Resource(generic.View):
     def get_list(self, request, *args, **kwargs):
         page = self.page_objects_or_404()
 
-        list_url = api_reverse(page.full_queryset.model, 'list',
-            api_name=self.api.name)
+        list_url = api_reverse(
+            page.full_queryset.model, 'list', api_name=self.api.name)
+
         meta = {
             'offset': page.offset,
             'limit': page.limit,

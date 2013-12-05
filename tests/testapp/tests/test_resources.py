@@ -11,18 +11,23 @@ class ResourceTest(TestCase):
             r = Resource.objects.create(name='Resource {}'.format(i))
 
         # paginate_by=5
-        self.assertContains(self.client.get('/resources/'),
+        self.assertContains(
+            self.client.get('/resources/'),
             'name="batch_', 5)
-        self.assertContains(self.client.get('/resources/?page=2'),
+        self.assertContains(
+            self.client.get('/resources/?page=2'),
             'name="batch_', 2)
         # Invalid page number -> first page
-        self.assertContains(self.client.get('/resources/?page=abc'),
+        self.assertContains(
+            self.client.get('/resources/?page=abc'),
             'name="batch_', 5)
         # Empty page -> last page
-        self.assertContains(self.client.get('/resources/?page=42'),
+        self.assertContains(
+            self.client.get('/resources/?page=42'),
             'name="batch_', 2)
 
-        self.assertContains(self.client.get(r.get_absolute_url()),
+        self.assertContains(
+            self.client.get(r.get_absolute_url()),
             'Resource 6')
         self.assertEqual(self.client.get('/resources/0/').status_code, 404)
         self.assertEqual(self.client.get('/resources/a/').status_code, 404)
@@ -45,16 +50,19 @@ class ResourceTest(TestCase):
         })
         resource = Resource.objects.get()
         self.assertRedirects(response, resource.get_absolute_url())
-        self.assertContains(self.client.get(resource.get_absolute_url()),
+        self.assertContains(
+            self.client.get(resource.get_absolute_url()),
             'Blub')
 
-        self.assertContains(self.client.get(resource.urls['edit']),
+        self.assertContains(
+            self.client.get(resource.urls['edit']),
             '<form', 1)
         response = self.client.post(resource.urls['edit'], {
             'name': 'Blabbba',
         })
         self.assertRedirects(response, resource.get_absolute_url())
-        self.assertContains(self.client.get(resource.get_absolute_url()),
+        self.assertContains(
+            self.client.get(resource.get_absolute_url()),
             'Blabbba')
 
         # We still only have one resource in the database
@@ -64,20 +72,25 @@ class ResourceTest(TestCase):
         response = self.client.get(resource.urls['delete'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Resource.objects.count(), 1)
-        self.assertRedirects(self.client.post(resource.urls['delete']),
+        self.assertRedirects(
+            self.client.post(resource.urls['delete']),
             '/resources/')
         self.assertEqual(Resource.objects.count(), 0)
 
     def test_modelviewurls(self):
         resource = Resource.objects.create()
 
-        self.assertEqual(resource.urls['detail'],
+        self.assertEqual(
+            resource.urls['detail'],
             '/resources/%s/' % resource.pk)
-        self.assertEqual(resource.urls['edit'],
+        self.assertEqual(
+            resource.urls['edit'],
             '/resources/%s/edit/' % resource.pk)
-        self.assertEqual(resource.urls['delete'],
+        self.assertEqual(
+            resource.urls['delete'],
             '/resources/%s/delete/' % resource.pk)
-        self.assertEqual(resource.urls['list'],
+        self.assertEqual(
+            resource.urls['list'],
             '/resources/')
 
         self.assertEqual(reverse('testapp_resource_list'), '/resources/')
@@ -92,14 +105,16 @@ class ResourceTest(TestCase):
                 name='Resource %s' % i,
             )
 
-        self.assertContains(self.client.get('/resources/'),
+        self.assertContains(
+            self.client.get('/resources/'),
             '<span>1 - 5 / 20</span>')
 
         response = self.client.post('/resources/', {
             'batchform': 1,
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<ul class="errorlist"><li>No items selected</li></ul>')
 
         self.assertEqual(Resource.objects.filter(is_active=False).count(), 0)
@@ -111,7 +126,8 @@ class ResourceTest(TestCase):
             data['batch_%s' % pk] = pk
         response = self.client.post('/resources/', data)
         self.assertContains(response, 'Set active')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<option value="1" selected="selected">Unknown</option>')
         data['confirm'] = 1
         data['is_active'] = 3

@@ -4,7 +4,8 @@ from django import forms
 from django.utils.six.moves import http_client
 from django.views.decorators.csrf import csrf_exempt
 
-from towel.api import (API, APIException, Resource, RequestParser, Serializer,
+from towel.api import (
+    API, APIException, Resource, RequestParser, Serializer,
     serialize_model_instance)
 
 from .models import Group, Person, EmailAddress, Message
@@ -28,7 +29,8 @@ class MessageResource(Resource):
             message,
             build_absolute_uri=request.build_absolute_uri,
         )
-        return self.serialize_response(data,
+        return self.serialize_response(
+            data,
             status=http_client.CREATED,
             headers={'Location': data['__uri__']})
 

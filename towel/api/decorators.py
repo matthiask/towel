@@ -16,7 +16,8 @@ def http_basic_auth(func):
                 try:
                     auth = auth.strip().decode('base64')
                 except Exception:  # binascii.Error, really.
-                    return HttpResponse('Invalid authorization header',
+                    return HttpResponse(
+                        'Invalid authorization header',
                         status=http_client.BAD_REQUEST)
 
                 username, sep, password = auth.partition(':')

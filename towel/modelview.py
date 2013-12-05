@@ -17,8 +17,8 @@ from django.utils.translation import ugettext as _
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
-from towel.utils import (app_model_label, related_classes, safe_queryset_and,
-    tryreverse)
+from towel.utils import (
+    app_model_label, related_classes, safe_queryset_and, tryreverse)
 
 
 class ModelView(object):
@@ -93,19 +93,26 @@ class ModelView(object):
 
     #: Messages dictionary to centrally control all possible messages
     default_messages = {
-        'object_created': (messages.SUCCESS,
+        'object_created': (
+            messages.SUCCESS,
             _('The new object has been successfully created.')),
-        'adding_denied': (messages.ERROR,
+        'adding_denied': (
+            messages.ERROR,
             _('You are not allowed to add objects.')),
-        'object_updated': (messages.SUCCESS,
+        'object_updated': (
+            messages.SUCCESS,
             _('The object has been successfully updated.')),
-        'editing_denied': (messages.ERROR,
+        'editing_denied': (
+            messages.ERROR,
             _('You are not allowed to edit this object.')),
-        'object_deleted': (messages.SUCCESS,
+        'object_deleted': (
+            messages.SUCCESS,
             _('The object has been successfully deleted.')),
-        'deletion_denied': (messages.ERROR,
+        'deletion_denied': (
+            messages.ERROR,
             _('You are not allowed to delete this object.')),
-        'deletion_denied_related': (messages.ERROR,
+        'deletion_denied_related': (
+            messages.ERROR,
             _('Deletion not allowed: There are %(pretty_classes)s related'
                 ' to this object.')),
     }
@@ -114,7 +121,7 @@ class ModelView(object):
     custom_messages = {}
 
     def add_message(self, request, message, variables=None, level=None,
-            ignore=None, **kwargs):
+                    ignore=None, **kwargs):
         """
         This helper function is used to easily add messages for the current
         user.
@@ -237,7 +244,8 @@ class ModelView(object):
         from django.conf.urls import patterns, url
         info = app_model_label(self.model)
 
-        urlpatterns = patterns('',
+        urlpatterns = patterns(
+            '',
             url(r'^$',
                 self.view_decorator(self.list_view),
                 name='%s_%s_list' % info),
@@ -259,7 +267,8 @@ class ModelView(object):
             else:
                 ident = view.__name__
 
-            urlpatterns += patterns('',
+            urlpatterns += patterns(
+                '',
                 url(
                     urlp % {
                         'detail': self.urlconf_detail_re,
@@ -270,7 +279,8 @@ class ModelView(object):
                 ),
             )
 
-        urlpatterns += patterns('',
+        urlpatterns += patterns(
+            '',
             url(r'^%s/$' % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
                 name='%s_%s_detail' % info),
@@ -359,8 +369,8 @@ class ModelView(object):
         for creating and editing objects.
         """
 
-        kwargs.setdefault('formfield_callback',
-            self.get_formfield_callback(request))
+        kwargs.setdefault(
+            'formfield_callback', self.get_formfield_callback(request))
         kwargs.setdefault('form', self.form_class or forms.ModelForm)
 
         return modelform_factory(self.model, **kwargs)
@@ -380,7 +390,7 @@ class ModelView(object):
         return args
 
     def get_form_instance(self, request, form_class, instance=None,
-            change=None, **kwargs):
+                          change=None, **kwargs):
         """
         Returns the form instance
 
@@ -392,7 +402,7 @@ class ModelView(object):
         return form_class(*args, **kwargs)
 
     def get_formset_instances(self, request, instance=None, change=None,
-            **kwargs):
+                              **kwargs):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
@@ -489,7 +499,8 @@ class ModelView(object):
 
             'adding_allowed': self.adding_allowed(request),
 
-            'search_form': (self.search_form(request.GET, request=request)
+            'search_form': (
+                self.search_form(request.GET, request=request)
                 if self.search_form_everywhere else None),
         }
 
@@ -512,7 +523,8 @@ class ModelView(object):
         """
         Render the list view
         """
-        return self.render(request,
+        return self.render(
+            request,
             self.get_template(request, 'list'),
             self.get_context(request, context))
 
@@ -520,7 +532,8 @@ class ModelView(object):
         """
         Render the detail view
         """
-        return self.render(request,
+        return self.render(
+            request,
             self.get_template(request, 'detail'),
             self.get_context(request, context))
 
@@ -528,7 +541,8 @@ class ModelView(object):
         """
         Render the add and edit views
         """
-        return self.render(request,
+        return self.render(
+            request,
             self.get_template(request, 'form'),
             self.get_context(request, context))
 
@@ -536,7 +550,8 @@ class ModelView(object):
         """
         Render the deletion confirmation page
         """
-        return self.render(request,
+        return self.render(
+            request,
             self.get_template(request, 'delete_confirmation'),
             self.get_context(request, context))
 
@@ -643,8 +658,8 @@ class ModelView(object):
         ctx['full_%s' % self.template_object_list_name] = queryset
 
         if self.paginate_by:
-            page, paginator = self.paginate_object_list(request, queryset,
-                self.paginate_by)
+            page, paginator = self.paginate_object_list(
+                request, queryset, self.paginate_by)
 
             ctx.update({
                 self.template_object_list_name: page.object_list,
@@ -668,7 +683,9 @@ class ModelView(object):
         if self.search_form:
             form = self.search_form(request.GET, request=request)
             if not form.is_valid():
-                self.add_message(request, _('The search query was invalid.'),
+                self.add_message(
+                    request,
+                    _('The search query was invalid.'),
                     level=messages.ERROR)
 
                 if request.get_full_path().endswith('?clear=1'):
@@ -704,7 +721,8 @@ class ModelView(object):
                 return result
 
             elif hasattr(result, '__iter__'):
-                messages.success(request,
+                messages.success(
+                    request,
                     _('Processed the following items: <br>\n %s') % (
                         u'<br>\n '.join(
                             force_text(item) for item in result)))
@@ -747,8 +765,8 @@ class ModelView(object):
         ModelForm = self.get_form(request, instance, change=change)
 
         if request.method == 'POST':
-            form = self.get_form_instance(request, ModelForm,
-                instance=instance, change=change)
+            form = self.get_form_instance(
+                request, ModelForm, instance=instance, change=change)
 
             if form.is_valid():
                 new_instance = self.save_form(request, form, change=change)
@@ -757,23 +775,23 @@ class ModelView(object):
                 new_instance = self.model() if instance is None else instance
                 form_validated = False
 
-            formsets = self.get_formset_instances(request,
-                instance=new_instance, change=change)
+            formsets = self.get_formset_instances(
+                request, instance=new_instance, change=change)
 
             if all_valid(formsets.values()) and form_validated:
                 with transaction.commit_on_success():
                     self.save_model(request, new_instance, form, change=change)
                     form.save_m2m()
                     self.save_formsets(request, form, formsets, change=change)
-                    self.post_save(request, new_instance, form, formsets,
-                        change=change)
+                    self.post_save(
+                        request, new_instance, form, formsets, change=change)
 
                 valid = True
         else:
-            form = self.get_form_instance(request, ModelForm,
-                instance=instance, change=change,)
-            formsets = self.get_formset_instances(request, instance=instance,
-                change=change)
+            form = self.get_form_instance(
+                request, ModelForm, instance=instance, change=change)
+            formsets = self.get_formset_instances(
+                request, instance=instance, change=change)
 
         return form, formsets, new_instance, valid
 
@@ -784,8 +802,8 @@ class ModelView(object):
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
-        form, formsets, new_instance, valid = self.process_form(request,
-            change=False)
+        form, formsets, new_instance, valid = self.process_form(
+            request, change=False)
 
         if valid:
             return self.response_add(request, new_instance, form, formsets)
@@ -816,8 +834,8 @@ class ModelView(object):
         if not self.editing_allowed(request, instance):
             return self.response_editing_denied(request, instance)
 
-        form, formsets, new_instance, valid = self.process_form(request,
-            instance=instance, change=True)
+        form, formsets, new_instance, valid = self.process_form(
+            request, instance=instance, change=True)
 
         if valid:
             return self.response_edit(request, new_instance, form, formsets)
@@ -863,7 +881,8 @@ class ModelView(object):
             related.discard(class_)
 
         if len(related):
-            pretty_classes = [force_text(class_._meta.verbose_name_plural)
+            pretty_classes = [
+                force_text(class_._meta.verbose_name_plural)
                 for class_ in related]
 
             if len(pretty_classes) > 1:
@@ -875,7 +894,9 @@ class ModelView(object):
             else:
                 pretty_classes = pretty_classes[-1]
 
-            self.add_message(request, 'deletion_denied_related',
+            self.add_message(
+                request,
+                'deletion_denied_related',
                 {'pretty_classes': pretty_classes},
                 ignore=('deletion_denied',),
             )
@@ -883,7 +904,7 @@ class ModelView(object):
         return not len(related)
 
     def save_formset_deletion_allowed_if_only(self, request, form, formset,
-            change, classes):
+                                              change, classes):
         """
         Helper which has is most useful when used inside ``save_formsets``
 
@@ -916,7 +937,8 @@ class ModelView(object):
                 related.discard(class_)
 
             if len(related):
-                pretty_classes = [force_text(class_._meta.verbose_name_plural)
+                pretty_classes = [
+                    force_text(class_._meta.verbose_name_plural)
                     for class_ in related]
 
                 if len(pretty_classes) > 1:
@@ -951,8 +973,9 @@ class ModelView(object):
             if not hasattr(obj, '_collected_objects'):
                 related_classes(obj)
 
-            collected_objects = [(key._meta, len(value)) for key, value
-                in obj._collected_objects.items()]
+            collected_objects = [
+                (key._meta, len(value))
+                for key, value in obj._collected_objects.items()]
 
             return self.render_delete_confirmation(request, {
                 'title': capfirst(_('Delete %s') % force_text(

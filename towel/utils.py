@@ -133,8 +133,10 @@ def resolve_args_and_kwargs(context, args, kwargs):
 
     See ``parse_args_and_kwargs`` for usage instructions.
     """
-    return [v.resolve(context) for v in args], dict((k, v.resolve(context))
-        for k, v in kwargs.items())
+    return (
+        [v.resolve(context) for v in args],
+        dict((k, v.resolve(context)) for k, v in kwargs.items()),
+    )
 
 
 def changed_regions(regions, fields):
@@ -158,8 +160,8 @@ def changed_regions(regions, fields):
     to_update = set(itertools.chain(*[
         dependencies.get(field, []) for field in fields]))
 
-    return dict((key, value) for key, value in regions.items()
-        if key in to_update)
+    return dict(
+        (key, value) for key, value in regions.items() if key in to_update)
 
 
 def tryreverse(*args, **kwargs):

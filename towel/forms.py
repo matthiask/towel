@@ -111,8 +111,8 @@ class BatchForm(forms.Form):
 
         if request.method == 'POST' and 'batchform' in request.POST:
             self._process = True
-            super(BatchForm, self).__init__(request.POST, request.FILES,
-                *args, **kwargs)
+            super(BatchForm, self).__init__(
+                request.POST, request.FILES, *args, **kwargs)
         else:
             super(BatchForm, self).__init__(*args, **kwargs)
 
@@ -258,7 +258,9 @@ class SearchForm(forms.Form):
     o = forms.CharField(required=False, widget=forms.HiddenInput())
 
     #: Full text search query
-    query = forms.CharField(required=False, label=_('Query'),
+    query = forms.CharField(
+        label=_('Query'),
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': _('Query')}))
 
     def __init__(self, data, *args, **kwargs):
@@ -269,7 +271,8 @@ class SearchForm(forms.Form):
 
         request = kwargs.pop('request')
         self.original_data = data
-        super(SearchForm, self).__init__(self.prepare_data(data, request),
+        super(SearchForm, self).__init__(
+            self.prepare_data(data, request),
             *args, **kwargs)
         self.persist(request)
         self.post_init(request)
@@ -451,7 +454,8 @@ class SearchForm(forms.Form):
             data = self.safe_cleaned_data
 
             if self.quick_rules:
-                data, query = quick.parse_quickadd(data.get('query'),
+                data, query = quick.parse_quickadd(
+                    data.get('query'),
                     self.quick_rules)
                 query = u' '.join(query)
 
@@ -516,8 +520,8 @@ class WarningsForm(forms.BaseForm):
         if not super(WarningsForm, self).is_valid():
             return False
 
-        if self.warnings and not (ignore_warnings or
-                self.cleaned_data.get('ignore_warnings')):
+        if self.warnings and not (
+                ignore_warnings or self.cleaned_data.get('ignore_warnings')):
             return False
 
         return True
@@ -612,8 +616,8 @@ class ModelAutocompleteWidget(forms.TextInput):
     """
 
     def __init__(self, attrs=None, url=None, queryset=None):
-        assert (url is None) != (queryset is None), ('Provide either url'
-            ' or queryset')
+        assert (url is None) != (queryset is None), (
+            'Provide either url or queryset')
 
         self.url = url
         self.queryset = queryset
@@ -727,8 +731,8 @@ class MultipleAutocompletionWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs, name=name, type='text')
 
         if value:
-            value = u', '.join(force_text(o) for o in
-                self.queryset.filter(id__in=value))
+            value = u', '.join(
+                force_text(o) for o in self.queryset.filter(id__in=value))
 
         js = u'''<script type="text/javascript">
 $(function() {
@@ -780,8 +784,12 @@ $(function() {
             'source': self._source(),
         }
 
-        return mark_safe(u'<textarea%s>%s</textarea>' % (flatatt(final_attrs),
-            value) + js)
+        return mark_safe(
+            u'<textarea%s>%s</textarea>' % (
+                flatatt(final_attrs),
+                value,
+            ) + js
+        )
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
@@ -789,8 +797,10 @@ $(function() {
             return []
 
         possible = self._possible()
-        values = [s for s in
-            [s.strip() for s in value.lower().split(',')] if s]
+        values = [
+            s for s in
+            [s.strip() for s in value.lower().split(',')]
+            if s]
         return list(set(possible.get(s, InvalidEntry).pk for s in values))
 
     def _source(self):

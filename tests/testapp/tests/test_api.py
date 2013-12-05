@@ -42,13 +42,17 @@ class APITest(TestCase):
         self.assertEqual(data['__str__'], 'v1')
         self.assertEqual(data['__uri__'], 'http://testserver/api/v1/')
         self.assertEqual(len(data['resources']), 4)
-        self.assertEqual(data['person']['__uri__'],
+        self.assertEqual(
+            data['person']['__uri__'],
             'http://testserver/api/v1/person/')
-        self.assertEqual(data['emailaddress']['__uri__'],
+        self.assertEqual(
+            data['emailaddress']['__uri__'],
             'http://testserver/api/v1/emailaddress/')
-        self.assertEqual(data['message']['__uri__'],
+        self.assertEqual(
+            data['message']['__uri__'],
             'http://testserver/api/v1/message/')
-        self.assertEqual(data['group']['__uri__'],
+        self.assertEqual(
+            data['group']['__uri__'],
             'http://testserver/api/v1/group/')
 
         self.assertEqual(len(data['views']), 1)
@@ -114,8 +118,8 @@ class APITest(TestCase):
         self.assertEqual(data['person'], first_person)
 
         # Sets
-        persons = ';'.join(str(person.pk) for person
-            in Person.objects.all()[:5])
+        persons = ';'.join(
+            str(person.pk) for person in Person.objects.all()[:5])
         data = self.get_json(person_uri + '%s/' % persons)
 
         self.assertFalse('meta' in data)
@@ -160,9 +164,11 @@ class APITest(TestCase):
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['error'], u'Validation failed')
-        self.assertEqual(data['form']['message'],
+        self.assertEqual(
+            data['form']['message'],
             [u'This field is required.'])
-        self.assertEqual(data['form']['sent_to'],
+        self.assertEqual(
+            data['form']['sent_to'],
             [u'This field is required.'])
 
         response = self.client.post('/api/v1/message/', {
@@ -198,7 +204,8 @@ class APITest(TestCase):
         self.assertEqual(response.status_code, 415)
 
     def test_info_view(self):
-        response = self.client.get('/api/v1/info/',
+        response = self.client.get(
+            '/api/v1/info/',
             HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
@@ -224,7 +231,8 @@ class APITest(TestCase):
         self.assertEqual(data['method'], 'PUT')
         self.assertEqual(data['data']['bla'], 'blaaa')
 
-        response = self.client.delete('/api/v1/info/',
+        response = self.client.delete(
+            '/api/v1/info/',
             HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['method'], 'DELETE')
@@ -250,12 +258,14 @@ class APITest(TestCase):
             )
         )
         self.assertEqual(
-            api_reverse(Person, 'sets', api_name='v1', pks='2;3;4',
+            api_reverse(
+                Person, 'sets', api_name='v1', pks='2;3;4',
                 fail_silently=True),
             None,
         )
-        self.assertRaises(NoReverseMatch, api_reverse,
-            Person, 'sets', api_name='v1', pks='2;')
+        self.assertRaises(
+            NoReverseMatch,
+            api_reverse, Person, 'sets', api_name='v1', pks='2;')
 
     def test_serialization(self):
         person = Person.objects.order_by('id')[0]
@@ -265,8 +275,8 @@ class APITest(TestCase):
         person.groups.add(group)
         person.emailaddress_set.create(email='another@example.com')
 
-        person_uri = api_reverse(person, 'detail', api_name='v1',
-            pk=person.id)
+        person_uri = api_reverse(
+            person, 'detail', api_name='v1', pk=person.id)
 
         self.assertEqual(person.groups.count(), 1)
         self.assertEqual(person.emailaddress_set.count(), 2)

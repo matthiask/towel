@@ -1,8 +1,8 @@
 from django.template import Template, Context
 from django.test import TestCase
 
-from towel.utils import (related_classes, safe_queryset_and, tryreverse,
-    substitute_with)
+from towel.utils import (
+    related_classes, safe_queryset_and, tryreverse, substitute_with)
 
 from testapp.models import Person, EmailAddress
 

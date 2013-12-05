@@ -30,7 +30,8 @@ class Person(models.Model):
     is_active = models.BooleanField(default=True)
     family_name = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
-    relationship = models.CharField(max_length=20, blank=True,
+    relationship = models.CharField(
+        max_length=20, blank=True,
         choices=RELATIONSHIP_CHOICES)
     groups = models.ManyToManyField(Group, related_name='members')
 

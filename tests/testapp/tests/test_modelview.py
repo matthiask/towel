@@ -11,21 +11,27 @@ class ModelViewTest(TestCase):
             p = Person.objects.create(family_name='Family %r' % i)
 
         # paginate_by=5
-        self.assertContains(self.client.get('/persons/'),
+        self.assertContains(
+            self.client.get('/persons/'),
             'name="batch_', 5)
-        self.assertContains(self.client.get('/persons/?page=2'),
+        self.assertContains(
+            self.client.get('/persons/?page=2'),
             'name="batch_', 2)
         # Invalid page number -> first page
-        self.assertContains(self.client.get('/persons/?page=abc'),
+        self.assertContains(
+            self.client.get('/persons/?page=abc'),
             'name="batch_', 5)
         # Empty page -> last page
-        self.assertContains(self.client.get('/persons/?page=42'),
+        self.assertContains(
+            self.client.get('/persons/?page=42'),
             'name="batch_', 2)
         # Everything
-        self.assertContains(self.client.get('/persons/?all=1'),
+        self.assertContains(
+            self.client.get('/persons/?all=1'),
             'name="batch_', 7)
 
-        self.assertContains(self.client.get(p.get_absolute_url()),
+        self.assertContains(
+            self.client.get(p.get_absolute_url()),
             'Family 6')
         self.assertEqual(self.client.get('/persons/0/').status_code, 404)
         self.assertEqual(self.client.get('/persons/a/').status_code, 404)
@@ -60,10 +66,12 @@ class ModelViewTest(TestCase):
         })
         person = Person.objects.get()
         self.assertRedirects(response, person.get_absolute_url())
-        self.assertContains(self.client.get(person.get_absolute_url()),
+        self.assertContains(
+            self.client.get(person.get_absolute_url()),
             'Blab Blub')
 
-        self.assertContains(self.client.get(person.urls['edit']),
+        self.assertContains(
+            self.client.get(person.urls['edit']),
             '<form', 1)
         response = self.client.post(person.urls['edit'], {
             'family_name': 'Blub',
@@ -73,7 +81,8 @@ class ModelViewTest(TestCase):
             'emails-MAX_NUM_FORMS': 10,
         })
         self.assertRedirects(response, person.get_absolute_url())
-        self.assertContains(self.client.get(person.get_absolute_url()),
+        self.assertContains(
+            self.client.get(person.get_absolute_url()),
             'Blabbba Blub')
 
         # We still only have one person in the database
@@ -83,7 +92,8 @@ class ModelViewTest(TestCase):
         response = self.client.get(person.urls['delete'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Person.objects.count(), 1)
-        self.assertRedirects(self.client.post(person.urls['delete']),
+        self.assertRedirects(
+            self.client.post(person.urls['delete']),
             '/persons/')
         self.assertEqual(Person.objects.count(), 0)
 
@@ -101,7 +111,8 @@ class ModelViewTest(TestCase):
         self.assertEqual(emailaddress.email, 'test@example.com')
 
         # Deleting the person should not work because of the email addresses
-        self.assertRedirects(self.client.get(person.urls['delete']),
+        self.assertRedirects(
+            self.client.get(person.urls['delete']),
             person.urls['detail'])
         response = self.client.post(person.urls['delete'])
         self.assertRedirects(response, person.urls['detail'])
@@ -158,19 +169,24 @@ class ModelViewTest(TestCase):
             ['test1@example.com'],
         )
         # However, editing the person instance should have succeeded
-        self.assertContains(self.client.get(person.urls['detail']),
+        self.assertContains(
+            self.client.get(person.urls['detail']),
             'Blab Blubbber')
 
     def test_modelviewurls(self):
         person = Person.objects.create()
 
-        self.assertEqual(person.urls['detail'],
+        self.assertEqual(
+            person.urls['detail'],
             '/persons/%s/' % person.pk)
-        self.assertEqual(person.urls['edit'],
+        self.assertEqual(
+            person.urls['edit'],
             '/persons/%s/edit/' % person.pk)
-        self.assertEqual(person.urls['delete'],
+        self.assertEqual(
+            person.urls['delete'],
             '/persons/%s/delete/' % person.pk)
-        self.assertEqual(person.urls['list'],
+        self.assertEqual(
+            person.urls['list'],
             '/persons/')
 
         self.assertEqual(reverse('testapp_person_list'), '/persons/')
@@ -202,10 +218,12 @@ class ModelViewTest(TestCase):
         list_url = reverse('testapp_emailaddress_list')
 
         response = self.client.get(list_url)
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a href="/emailaddresses/%s/">test@example.com</a>' % (
                 emailaddress.pk))
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a href="/persons/%s/">Testa Testi</a>' % emailaddress.person_id)
 
         for i in range(10):
@@ -249,14 +267,16 @@ class ModelViewTest(TestCase):
                 family_name='Family %s' % i,
             )
 
-        self.assertContains(self.client.get('/persons/'),
+        self.assertContains(
+            self.client.get('/persons/'),
             '<span>1 - 5 / 20</span>')
 
         response = self.client.post('/persons/', {
             'batchform': 1,
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<ul class="errorlist"><li>No items selected</li></ul>')
 
         self.assertEqual(Person.objects.filter(is_active=False).count(), 0)
@@ -284,5 +304,6 @@ class ModelViewTest(TestCase):
             ),
         )
 
-        self.assertEqual(message.get_absolute_url(),
+        self.assertEqual(
+            message.get_absolute_url(),
             '/messages/%s/' % message.pk)

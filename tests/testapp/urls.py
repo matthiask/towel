@@ -9,7 +9,8 @@ from .views import person_views, emailaddress_views, message_views
 admin.autodiscover()
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/v1/', include(api_v1.urls)),
     url(r'^persons/', include(person_views.urls)),

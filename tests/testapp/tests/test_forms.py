@@ -12,9 +12,11 @@ class FormsTest(TestCase):
         person = Person.objects.create()
         emailaddress = person.emailaddress_set.create()
 
-        self.assertEqual(self.client.get(person.urls['message']).status_code,
+        self.assertEqual(
+            self.client.get(person.urls['message']).status_code,
             200)
-        self.assertEqual(self.client.post(person.urls['message']).status_code,
+        self.assertEqual(
+            self.client.post(person.urls['message']).status_code,
             200)
 
         response = self.client.post(person.urls['message'], {
@@ -141,23 +143,29 @@ class FormsTest(TestCase):
         )
         response = self.client.get(list_url + '?o=name')
         self.assertContains(response, 'Given 12 Family 12')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering desc" href="?&o=-name"> name</a>')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering " href="?&o=is_active"> is active</a>')
 
         response = self.client.get(list_url + '?o=-name')
         self.assertContains(response, 'Given 99 Family 99')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering asc" href="?&o=name"> name</a>')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering " href="?&o=is_active"> is active</a>')
         response = self.client.get(list_url + '?o=is_active')
         self.assertContains(response, 'Given 14 Family 14')
         self.assertNotContains(response, 'Given 12 Family 12')  # inactive
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering " href="?&o=name"> name</a>')
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="ordering desc" href="?&o=-is_active"> is active</a>')
 
         # TODO multiple choice fields

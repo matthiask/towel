@@ -77,8 +77,8 @@ class PersonModelView(ModelView):
         return self.deletion_allowed_if_only(request, instance, [Person])
 
     def save_formsets(self, request, form, formsets, change):
-        self.save_formset_deletion_allowed_if_only(request, form,
-            formsets['emails'], change, [EmailAddress])
+        self.save_formset_deletion_allowed_if_only(
+            request, form, formsets['emails'], change, [EmailAddress])
 
     def message(self, request, *args, **kwargs):
         instance = self.get_object_or_404(request, *args, **kwargs)
@@ -93,7 +93,8 @@ class PersonModelView(ModelView):
         else:
             form = MessageForm(person=instance)
 
-        return self.render(request,
+        return self.render(
+            request,
             self.get_template(request, 'form'),
             self.get_context(request, {
                 self.template_object_name: instance,
@@ -102,7 +103,8 @@ class PersonModelView(ModelView):
         )
 
 
-person_views = PersonModelView(Person,
+person_views = PersonModelView(
+    Person,
     search_form=PersonSearchForm,
     search_form_everywhere=True,
     batch_form=PersonBatchForm,
@@ -120,8 +122,8 @@ class EmailAddressSearchForm(SearchForm):
         'person__relationship': ('', 'single'),
     }
     person__is_active = forms.NullBooleanField(required=False)
-    person__relationship = forms.MultipleChoiceField(required=False,
-        choices=Person.RELATIONSHIP_CHOICES)
+    person__relationship = forms.MultipleChoiceField(
+        required=False, choices=Person.RELATIONSHIP_CHOICES)
 
 
 emailaddress_views = ModelView(

@@ -46,8 +46,8 @@ class RequestParser(object):
             # method == 'POST' anyway, that is, not now.
             return
 
-        content_type = request.META.get('CONTENT_TYPE',
-            'application/x-www-form-urlencoded')
+        content_type = request.META.get(
+            'CONTENT_TYPE', 'application/x-www-form-urlencoded')
 
         handlers = {
             r'^application/x-www-form-urlencoded': self.parse_form,

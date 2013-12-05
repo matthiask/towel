@@ -155,12 +155,14 @@ class API(object):
             if resource['canonical']:
                 response[resource['model'].__name__.lower()] = r
 
-        return Serializer().serialize(response, request=request,
+        return Serializer().serialize(
+            response,
+            request=request,
             output_format=request.GET.get('format'))
 
     def register(self, model, view_class=None, canonical=True,
-            decorators=None, prefix=None, view_init=None,
-            serializer=None):
+                 decorators=None, prefix=None, view_init=None,
+                 serializer=None):
         """
         Registers another resource on this API. The sole required argument is
         the Django model which should be exposed. The other arguments are:
@@ -240,7 +242,8 @@ class API(object):
         about custom serializers specified when registering resources with
         this API.
         """
-        serializer = self.serializers.get(instance.__class__,
+        serializer = self.serializers.get(
+            instance.__class__,
             self.default_serializer)
         return serializer(instance, api=self, **kwargs)
 
@@ -271,9 +274,9 @@ class API(object):
 
 
 def serialize_model_instance(instance, api, inline_depth=0,
-        fields=(), exclude=(),
-        only_registered=True, build_absolute_uri=lambda uri: uri,
-        **kwargs):
+                             fields=(), exclude=(), only_registered=True,
+                             build_absolute_uri=lambda uri: uri,
+                             **kwargs):
     """
     Serializes a single model instance.
 
@@ -315,8 +318,9 @@ def serialize_model_instance(instance, api, inline_depth=0,
     # statement will disappear in the future.
     assert not kwargs, 'Unknown keyword arguments to serialize_model_instance'
 
-    uri = api_reverse(instance, 'detail', api_name=api.name,
-        pk=instance.pk, fail_silently=True)
+    uri = api_reverse(
+        instance, 'detail', api_name=api.name, pk=instance.pk,
+        fail_silently=True)
 
     if uri is None and only_registered:
         return None
