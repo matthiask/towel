@@ -16,7 +16,7 @@ class Serializer(object):
     format isn't overridden.
     """
     def serialize(self, data, output_format=None, request=None,
-            status=http_client.OK, headers=None):
+                  status=http_client.OK, headers=None):
         """
         Returns a ``HttpResponse`` containing the serialized response in the
         format specified explicitly in ``output_format`` (either as a MIME

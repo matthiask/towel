@@ -25,11 +25,13 @@ class ChildMixin(object):
         return self.get_parent_class()._default_manager.all()
 
     def get_parent(self):
-        return get_object_or_404(self.get_parent_queryset(),
+        return get_object_or_404(
+            self.get_parent_queryset(),
             pk=self.kwargs[self.parent_attr])
 
     def update_parent(self):
-        regions = DetailView.render_regions(self,
+        regions = DetailView.render_regions(
+            self,
             model=self.parent.__class__,
             object=self.parent)
 
@@ -98,7 +100,8 @@ class LiveChildFormView(ChildMixin, LiveFormView):
             raise PermissionDenied
 
         form_class = self.get_form_class()
-        data = model_to_dict(self.object,
+        data = model_to_dict(
+            self.object,
             fields=form_class._meta.fields,
             exclude=form_class._meta.exclude)
 

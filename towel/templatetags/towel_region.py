@@ -18,8 +18,9 @@ def flatatt(attrs):
     XML-escaped.  If the passed dictionary is empty, then return an empty
     string.
     """
-    return u''.join([u' %s="%s"' % (k, conditional_escape(v)) for k, v
-        in attrs.items()])
+    return u''.join([
+        u' %s="%s"' % (k, conditional_escape(v))
+        for k, v in attrs.items()])
 
 
 @register.tag
@@ -53,8 +54,8 @@ def region(parser, token):
     nodelist = parser.parse(('endregion',))
     parser.delete_first_token()
 
-    return RegionNode(nodelist,
-        *parse_args_and_kwargs(parser, token.split_contents()[1:]))
+    return RegionNode(
+        nodelist, *parse_args_and_kwargs(parser, token.split_contents()[1:]))
 
 
 class RegionNode(template.Node):

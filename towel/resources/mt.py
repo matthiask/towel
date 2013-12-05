@@ -6,15 +6,17 @@ from towel.utils import safe_queryset_and
 class MultitenancyMixin(object):
     def get_queryset(self):
         if self.queryset is not None:
-            return safe_queryset_and(self.queryset,
+            return safe_queryset_and(
+                self.queryset,
                 self.queryset.model._default_manager.for_access(
                     self.request.access))
         elif self.model is not None:
             return self.model._default_manager.for_access(
                 self.request.access)
         else:
-            raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
-                                       % self.__class__.__name__)
+            raise ImproperlyConfigured(
+                "'%s' must define 'queryset' or 'model'"
+                % self.__class__.__name__)
 
     def get_parent_queryset(self):
         # towel.resources.inlines.ChildFormView

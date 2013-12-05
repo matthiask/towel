@@ -12,8 +12,9 @@ def _type_class(item):
         return 'date'
     elif isinstance(item.field.widget, forms.HiddenInput):
         return 'hidden'
-    elif isinstance(item.field.widget, (forms.RadioSelect,
-            forms.CheckboxSelectMultiple)):
+    elif isinstance(
+            item.field.widget,
+            (forms.RadioSelect, forms.CheckboxSelectMultiple)):
         return 'list'
     elif isinstance(item.field.widget, forms.Select):
         return 'choice'

@@ -24,11 +24,13 @@ def api_access(minimal):
         @wraps(func)
         def _fn(request, *args, **kwargs):
             if not request.access:
-                return HttpResponse('No access',
+                return HttpResponse(
+                    'No access',
                     status=http_client.UNAUTHORIZED)
 
             if request.access.access < minimal:
-                return HttpResponse('Insufficient access',
+                return HttpResponse(
+                    'Insufficient access',
                     status=http_client.UNAUTHORIZED)
 
             return func(request, *args, **kwargs)

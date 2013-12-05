@@ -39,8 +39,8 @@ from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
-from towel.utils import (app_model_label, changed_regions, related_classes,
-    safe_queryset_and)
+from towel.utils import (
+    app_model_label, changed_regions, related_classes, safe_queryset_and)
 
 
 class ModelResourceView(TemplateView):
@@ -193,11 +193,15 @@ class ModelResourceView(TemplateView):
         if not silent:
             opts = self.model._meta
             if object is None:
-                messages.error(self.request, _('You are not allowed to'
-                    ' delete %(verbose_name_plural)s.') % opts.__dict__)
+                messages.error(self.request, _(
+                    'You are not allowed to'
+                    ' delete %(verbose_name_plural)s.'
+                ) % opts.__dict__)
             else:
-                messages.error(self.request, _('You are not allowed to'
-                    ' delete this %(verbose_name)s.') % opts.__dict__)
+                messages.error(self.request, _(
+                    'You are not allowed to'
+                    ' delete this %(verbose_name)s.'
+                ) % opts.__dict__)
         return False
 
     def allow_delete_if_only(self, object, related=(), silent=True):
@@ -214,7 +218,8 @@ class ModelResourceView(TemplateView):
         if not classes:
             return True
         if not silent:
-            messages.error(self.request,
+            messages.error(
+                self.request,
                 _('Deletion not allowed because of related objects: %s') % (
                     u', '.join(
                         force_text(cls._meta.verbose_name_plural)
@@ -289,8 +294,8 @@ class ListView(ModelResourceView):
         if self.search_form:
             form = self.search_form(self.request.GET, request=self.request)
             if not form.is_valid():
-                messages.error(self.request,
-                    _('The search query was invalid.'))
+                messages.error(
+                    self.request, _('The search query was invalid.'))
                 return HttpResponseRedirect('?clear=1')
             self.object_list = safe_queryset_and(
                 self.object_list,
@@ -318,9 +323,12 @@ class ListView(ModelResourceView):
                 if isinstance(result, HttpResponse):
                     return result
                 elif hasattr(result, '__iter__'):
-                    messages.success(self.request,
-                        _('<p>Processed the following items:</p>'
-                            ' <ul><li>%s</li></ul>') % (
+                    messages.success(
+                        self.request,
+                        _(
+                            '<p>Processed the following items:</p>'
+                            ' <ul><li>%s</li></ul>'
+                        ) % (
                             u'</li><li>'.join(
                                 force_text(item) for item in result
                             )
@@ -379,14 +387,15 @@ class ListView(ModelResourceView):
         queryset = [item for item, perm in zip(queryset, allowed) if perm]
 
         if not queryset:
-            messages.error(self.request, _('You are not allowed to delete any'
+            messages.error(self.request, _(
+                'You are not allowed to delete any'
                 ' object in the selection.'))
             return
 
         elif not all(allowed):
-            messages.warning(self.request,
-                _('Deletion of some objects not allowed. Those have been'
-                    ' excluded from the selection already.'))
+            messages.warning(self.request, _(
+                'Deletion of some objects not allowed. Those have been'
+                ' excluded from the selection already.'))
 
         if 'confirm' in self.request.POST:
             messages.success(self.request, _('Deletion successful.'))
@@ -502,7 +511,8 @@ class FormView(ModelResourceView):
         """
         Returns the form class used in the view.
         """
-        return modelform_factory(self.model,
+        return modelform_factory(
+            self.model,
             form=self.form_class,
             formfield_callback=towel_formfield_callback)
 
@@ -520,7 +530,8 @@ class FormView(ModelResourceView):
         the detail URL of the returned instance.
         """
         self.object = form.save()
-        messages.success(self.request,
+        messages.success(
+            self.request,
             _('The %(verbose_name)s has been successfully saved.') %
             self.object._meta.__dict__,
         )
@@ -616,7 +627,8 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
             raise PermissionDenied
 
         form_class = self.get_form_class()
-        data = model_to_dict(self.object,
+        data = model_to_dict(
+            self.object,
             fields=form_class._meta.fields,
             exclude=form_class._meta.exclude)
 
@@ -649,11 +661,13 @@ class PickerView(ModelResourceView):
         query = request.GET.get('query')
 
         if query is not None:
-            self.object_list = safe_queryset_and(self.object_list,
+            self.object_list = safe_queryset_and(
+                self.object_list,
                 self.model.objects._search(query))
             regions = {}
 
-        context = self.get_context_data(object_list=self.object_list,
+        context = self.get_context_data(
+            object_list=self.object_list,
             regions=regions)
         response = self.render_to_response(context)
 
@@ -661,7 +675,8 @@ class PickerView(ModelResourceView):
             response.render()
             data = changed_regions(regions, ['object_list'])
             data['!keep'] = True  # Keep modal open
-            return HttpResponse(json.dumps(data),
+            return HttpResponse(
+                json.dumps(data),
                 content_type='application/json')
 
         return response
@@ -725,7 +740,8 @@ class DeleteView(ModelResourceView):
         redirected to the list view of the model.
         """
         self.object.delete()
-        messages.success(self.request,
+        messages.success(
+            self.request,
             _('The %(verbose_name)s has been successfully deleted.') %
             self.object._meta.__dict__,
         )

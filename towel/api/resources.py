@@ -37,8 +37,8 @@ class Resource(generic.View):
 
     #: Almost the same as ``django.views.generic.View.http_method_names`` but
     #: not quite, we allow ``patch`` as well.
-    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'patch',
-        'options', 'trace']
+    http_method_names = [
+        'get', 'post', 'put', 'delete', 'head', 'patch', 'options', 'trace']
 
     #: A list of URL patterns which will be used by ``API.register`` to build
     #: the URLconf entries. The format is a list of tuples containing
@@ -104,7 +104,8 @@ class Resource(generic.View):
             return self.serialize_response(
                 handler(self.request, *self.args, **self.kwargs))
         except Http404 as exc:
-            return self.serialize_response({'error': exc.args[0]},
+            return self.serialize_response(
+                {'error': exc.args[0]},
                 status=http_client.NOT_FOUND)
         except APIException as exc:
             data = {
@@ -126,8 +127,8 @@ class Resource(generic.View):
         """
         return RequestParser().parse(self.request)
 
-    def serialize_response(self, response,
-            status=http_client.OK, headers=None):
+    def serialize_response(self, response, status=http_client.OK,
+                           headers=None):
         """
         Serializes the response into an appropriate format for the wire such
         as JSON. ``HttpResponse`` instances are returned directly.
@@ -135,8 +136,11 @@ class Resource(generic.View):
         if isinstance(response, HttpResponse):
             return response
 
-        return Serializer().serialize(response, request=self.request,
-            status=status, output_format=self.request.GET.get('format'),
+        return Serializer().serialize(
+            response,
+            request=self.request,
+            status=status,
+            output_format=self.request.GET.get('format'),
             headers=headers)
 
     def get_query_set(self):

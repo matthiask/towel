@@ -45,7 +45,7 @@ class ModelView(towel_modelview.ModelView):
         return self.model.objects.for_access(request.access)
 
     def get_form_instance(self, request, form_class, instance=None,
-            change=None, **kwargs):
+                          change=None, **kwargs):
         args = self.extend_args_if_post(request, [])
         kwargs.update({
             'instance': instance,

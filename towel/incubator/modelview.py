@@ -19,7 +19,8 @@ class EditLiveModelView(ModelView):
 
         instance = self.get_object_or_404(request, *args, **kwargs)
 
-        data = model_to_dict(instance,
+        data = model_to_dict(
+            instance,
             fields=self.editlive_form._meta.fields,
             exclude=self.editlive_form._meta.exclude)
 
@@ -53,8 +54,8 @@ class ParentModelView(EditLiveModelView):
     def render_form(self, request, context, change):
         if change:
             context.setdefault('base_template', 'modal.html')
-        return super(ParentModelView, self).render_form(request, context,
-            change=change)
+        return super(ParentModelView, self).render_form(
+            request, context, change=change)
 
 
 class InlineModelView(EditLiveModelView):
@@ -77,8 +78,8 @@ class InlineModelView(EditLiveModelView):
     def save_model(self, request, instance, form, change):
         if hasattr(request, '_parent'):
             setattr(instance, self.parent_attr, request._parent)
-        super(InlineModelView, self).save_model(request, instance,
-            form=form, change=change)
+        super(InlineModelView, self).save_model(
+            request, instance, form=form, change=change)
 
     def response_add(self, request, instance, *args, **kwargs):
         regions = {}
