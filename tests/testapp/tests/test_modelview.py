@@ -297,7 +297,6 @@ class ModelViewTest(TestCase):
         self.assertEqual(Person.objects.filter(is_active=False).count(), 3)
 
     def test_automatic_get_absolute_url(self):
-        self.assertTrue(hasattr(Message, 'get_absolute_url'))
         message = Message.objects.create(
             sent_to=EmailAddress.objects.create(
                 person=Person.objects.create()
@@ -307,3 +306,5 @@ class ModelViewTest(TestCase):
         self.assertEqual(
             message.get_absolute_url(),
             '/messages/%s/' % message.pk)
+
+        self.assertTrue(hasattr(Message, 'get_absolute_url'))
