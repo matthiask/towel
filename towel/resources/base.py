@@ -132,9 +132,9 @@ class ModelResourceView(TemplateView):
         - ``resources/object<template_name_suffix>.html
         """
         names = [
-            '{}/{}{}.html'.format(
+            '{0}/{1}{2}.html'.format(
                 *(app_model_label(self.model) + (self.template_name_suffix,))),
-            'resources/object{}.html'.format(self.template_name_suffix),
+            'resources/object{0}.html'.format(self.template_name_suffix),
         ]
         if self.template_name:
             names.insert(0, self.template_name)

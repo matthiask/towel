@@ -8,7 +8,7 @@ from testapp.models import Resource
 class ResourceTest(TestCase):
     def test_list_view(self):
         for i in range(7):
-            r = Resource.objects.create(name='Resource {}'.format(i))
+            r = Resource.objects.create(name='Resource {0}'.format(i))
 
         # paginate_by=5
         self.assertContains(
