@@ -122,7 +122,7 @@ class LiveChildFormView(ChildMixin, LiveFormView):
 
 
 class ChildDeleteView(ChildMixin, DeleteView):
-    def form_valid(self, form):
+    def deletion_form_valid(self, form):
         """
         On successful form validation, the object is deleted and the user is
         redirected to the list view of the model.
