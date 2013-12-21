@@ -702,26 +702,26 @@ class DeleteView(ModelResourceView):
     template_name_suffix = '_delete_confirmation'
 
     #: The form class used for deletions.
-    form_class = forms.Form
+    deletion_form_class = forms.Form
 
     def get_title(self):
         return capfirst(_('Delete %s') % self.object)
 
-    def get_form(self):
+    def get_deletion_form(self):
         """
         Returns the form instance. Customize this method if you need custom
         form initialization; ``get_form_class`` and ``get_form_kwargs`` are
         not available for deletions for simplicity.
         """
         if self.request.method == 'POST':
-            return self.form_class(self.request.POST)
-        return self.form_class()
+            return self.deletion_form_class(self.request.POST)
+        return self.deletion_form_class()
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.allow_delete(self.object, silent=False):
             return redirect(self.object)
-        form = self.get_form()
+        form = self.get_deletion_form()
         context = self.get_context_data(object=self.object, form=form)
         return self.render_to_response(context)
 
@@ -729,12 +729,12 @@ class DeleteView(ModelResourceView):
         self.object = self.get_object()
         if not self.allow_delete(self.object, silent=False):
             return redirect(self.object)
-        form = self.get_form()
+        form = self.get_deletion_form()
         if form.is_valid():
-            return self.form_valid(form)
-        return self.form_invalid(form)
+            return self.deletion_form_valid(form)
+        return self.deletion_form_invalid(form)
 
-    def form_valid(self, form):
+    def deletion_form_valid(self, form):
         """
         On successful form validation, the object is deleted and the user is
         redirected to the list view of the model.
@@ -747,6 +747,6 @@ class DeleteView(ModelResourceView):
         )
         return redirect(self.url('list'))
 
-    def form_invalid(self, form):
+    def deletion_form_invalid(self, form):
         context = self.get_context_data(object=self.object, form=form)
         return self.render_to_response(context)
