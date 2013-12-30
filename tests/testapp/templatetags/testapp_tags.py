@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django import template
 
 from towel.utils import parse_args_and_kwargs, resolve_args_and_kwargs
@@ -20,7 +22,7 @@ class TestNode(template.Node):
     def render(self, context):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
 
-        return u'ARGS: %s\nKWARGS: %s\n' % (
-            u','.join(str(arg) for arg in args),
-            u','.join(u'%s=%s' % (k, v) for k, v in sorted(kwargs.items())),
+        return 'ARGS: %s\nKWARGS: %s\n' % (
+            ','.join(str(arg) for arg in args),
+            ','.join('%s=%s' % (k, v) for k, v in sorted(kwargs.items())),
         )

@@ -6,6 +6,8 @@ All you need is a view decorator handling the permissions and a resource
 subclass which makes sure that data is only ever shown from one tenant.
 """
 
+from __future__ import absolute_import, unicode_literals
+
 from functools import wraps
 
 from django.http import HttpResponse

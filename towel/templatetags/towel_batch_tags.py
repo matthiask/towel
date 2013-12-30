@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django import template
 
 
@@ -21,9 +23,9 @@ def batch_checkbox(form, id):
     """
 
     if not form or not hasattr(form, 'ids'):
-        return u''
+        return ''
 
-    cb = u'<input type="checkbox" name="batch_%s" value="%s" class="batch" %s>'
+    cb = '<input type="checkbox" name="batch_%s" value="%s" class="batch" %s>'
 
     if id in form.ids:
         return cb % (id, id, 'checked="checked" ')

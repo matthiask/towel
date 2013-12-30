@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
@@ -42,7 +44,7 @@ class Person(models.Model):
         ordering = ['family_name', 'given_name']
 
     def __str__(self):
-        return u'%s %s' % (self.given_name, self.family_name)
+        return '%s %s' % (self.given_name, self.family_name)
 
     def get_absolute_url(self):
         return self.urls['detail']

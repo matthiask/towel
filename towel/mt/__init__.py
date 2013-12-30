@@ -39,6 +39,8 @@ Assumptions
   you are not required to use the backend.
 """
 
+from __future__ import absolute_import, unicode_literals
+
 
 def client_model():
     from django.conf import settings

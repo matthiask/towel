@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function, unicode_literals
+
 import json
 
 from django.core.urlresolvers import NoReverseMatch
@@ -63,11 +64,11 @@ class APITest(TestCase):
 
         self.assertEqual(len(data['objects']), 20)
         self.assertEqual(data['meta'], {
-            u'limit': 20,
-            u'next': u'http://testserver/api/v1/person/?limit=20&offset=20',
-            u'offset': 0,
-            u'previous': None,
-            u'total': 100,
+            'limit': 20,
+            'next': 'http://testserver/api/v1/person/?limit=20&offset=20',
+            'offset': 0,
+            'previous': None,
+            'total': 100,
         })
 
         first = Person.objects.order_by('id')[0]
@@ -127,11 +128,11 @@ class APITest(TestCase):
 
         self.assertEqual(
             self.get_json(person_uri + '0;/', status_code=404),
-            {u'error': u'Some objects do not exist.'},
+            {'error': 'Some objects do not exist.'},
         )
         self.assertEqual(
             self.get_json(person_uri + '0/', status_code=404),
-            {u'error': u'No Person matches the given query.'},
+            {'error': 'No Person matches the given query.'},
         )
 
     def test_http_methods(self):
@@ -163,13 +164,13 @@ class APITest(TestCase):
         }, HTTP_ACCEPT='application/json')
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(data['error'], u'Validation failed')
+        self.assertEqual(data['error'], 'Validation failed')
         self.assertEqual(
             data['form']['message'],
-            [u'This field is required.'])
+            ['This field is required.'])
         self.assertEqual(
             data['form']['sent_to'],
-            [u'This field is required.'])
+            ['This field is required.'])
 
         response = self.client.post('/api/v1/message/', {
             'message': 'Blabla',

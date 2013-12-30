@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.utils.six.moves import http_client
 

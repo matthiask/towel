@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django import forms, template
 from django.template.loader import render_to_string
 
@@ -28,7 +30,7 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return u''.join(render_to_string('towel/_form_item.html', {
+    return ''.join(render_to_string('towel/_form_item.html', {
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
@@ -125,7 +127,7 @@ class FormErrorsNode(template.Node):
                 errors = True
 
         if not errors:
-            return u''
+            return ''
 
         return render_to_string('towel/_form_errors.html', {
             'forms': form_list,
@@ -185,7 +187,7 @@ class FormWarningsNode(template.Node):
                     warnings = True
 
         if not warnings:
-            return u''
+            return ''
 
         return render_to_string('towel/_form_warnings.html', {
             'forms': form_list,
@@ -243,4 +245,4 @@ class DynamicFormsetNode(template.Node):
             result.append(self.nodelist.render(context))
             context.pop()
 
-        return u''.join(result)
+        return ''.join(result)

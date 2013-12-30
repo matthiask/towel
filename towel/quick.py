@@ -22,10 +22,10 @@ Usage example::
         ]
 
     data, rest = quick.parse_quickadd(
-        request.POST.get('quick', u''),
+        request.POST.get('quick', ''),
         QUICK_RULES)
 
-    data['notes'] = u' '.join(rest) # Everything which could not be parsed
+    data['notes'] = ' '.join(rest)  # Everything which could not be parsed
                                     # is added to the ``notes`` field.
     form = TicketForm(data)
 
@@ -34,6 +34,8 @@ Usage example::
    The mappers always get the regex matches ``dict`` and return a
    ``dict``.
 """
+
+from __future__ import absolute_import, unicode_literals
 
 from datetime import date, timedelta
 

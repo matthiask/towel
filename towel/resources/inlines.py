@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 """
 This is mostly equivalent with Django's inline formsets mechanism, but
 used together with editlive.

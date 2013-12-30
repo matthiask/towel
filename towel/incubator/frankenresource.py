@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 import httplib
 
 from django.contrib.messages.api import get_messages

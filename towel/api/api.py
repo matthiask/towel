@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf.urls import patterns, include, url
 from django.db import models
@@ -138,7 +140,7 @@ class API(object):
         for view in self.views:
             response.setdefault('views', []).append({
                 '__str__': view['prefix'].strip('^').strip('/'),
-                '__uri__': request.build_absolute_uri(u''.join((
+                '__uri__': request.build_absolute_uri(''.join((
                     response['__uri__'],
                     view['prefix'].strip('^')))),
             })
@@ -146,7 +148,7 @@ class API(object):
         for resource in self.resources:
             r = {
                 '__str__': resource['model'].__name__.lower(),
-                '__uri__': request.build_absolute_uri(u''.join((
+                '__uri__': request.build_absolute_uri(''.join((
                     response['__uri__'],
                     resource['prefix'].strip('^')))),
             }

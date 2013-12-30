@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from functools import wraps
 
 from django.contrib.auth import authenticate

@@ -59,3 +59,5 @@ Other views::
         # ...
 """
 # Intentionally left empty.
+
+from __future__ import absolute_import, unicode_literals

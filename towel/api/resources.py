@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from collections import namedtuple
 
 from django.http import Http404, HttpResponse
@@ -243,7 +245,7 @@ class Resource(generic.View):
         }
 
         if page.offset > 0:
-            meta['previous'] = request.build_absolute_uri(u'%s?%s' % (
+            meta['previous'] = request.build_absolute_uri('%s?%s' % (
                 list_url,
                 querystring(
                     self.request.GET,
@@ -254,7 +256,7 @@ class Resource(generic.View):
             ))
 
         if page.offset + page.limit < meta['total']:
-            meta['next'] = request.build_absolute_uri(u'%s?%s' % (
+            meta['next'] = request.build_absolute_uri('%s?%s' % (
                 list_url,
                 querystring(
                     self.request.GET,

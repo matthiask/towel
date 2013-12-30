@@ -3,6 +3,8 @@ Authentication backend which preloads access and client models
 ==============================================================
 """
 
+from __future__ import absolute_import, unicode_literals
+
 from django.contrib.auth.models import User
 
 from towel.auth import ModelBackend as _ModelBackend

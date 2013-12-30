@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 import json
 
 from django import forms
@@ -71,7 +73,7 @@ class BatchForm(forms.Form):
                 elif hasattr(result, '__iter__'):
                     messages.success(request,
                         _('Processed the following items: %s') % (
-                            u', '.join(force_text(item) for item in result)))
+                            ', '.join(force_text(item) for item in result)))
 
                 return HttpResponseRedirect('.')
 
@@ -457,7 +459,7 @@ class SearchForm(forms.Form):
                 data, query = quick.parse_quickadd(
                     data.get('query'),
                     self.quick_rules)
-                query = u' '.join(query)
+                query = ' '.join(query)
 
                 # Data in form fields overrides any quick specifications
                 for k, v in self.safe_cleaned_data.items():
@@ -631,7 +633,7 @@ class ModelAutocompleteWidget(forms.TextInput):
             # Only add the 'value' attribute if a value is non-empty.
             final_attrs['value'] = force_text(self._format_value(value))
 
-        hidden = u'<input%s />' % flatatt(final_attrs)
+        hidden = '<input%s />' % flatatt(final_attrs)
 
         final_attrs['type'] = 'text'
         final_attrs['id'] += '_ac'
@@ -641,23 +643,23 @@ class ModelAutocompleteWidget(forms.TextInput):
             instance = self.choices.queryset.get(pk=value)
             final_attrs['value'] = force_text(instance)
         except (ObjectDoesNotExist, ValueError, TypeError):
-            final_attrs['value'] = u''
+            final_attrs['value'] = ''
 
         if self.is_required:
-            ac = u'<input%s />' % flatatt(final_attrs)
+            ac = '<input%s />' % flatatt(final_attrs)
         else:
             final_attrs.setdefault('class', '')
             final_attrs['class'] += ' ac_nullable'
 
             ac = (
-                u' <a href="#" id="%(id)s_cl" class="ac_clear">'
+                ' <a href="#" id="%(id)s_cl" class="ac_clear">'
                 ' %(text)s</a>' % {
                     'id': final_attrs['id'][:-3],
                     'text': _('clear'),
                 }
-            ) + (u'<input%s />' % flatatt(final_attrs))
+            ) + ('<input%s />' % flatatt(final_attrs))
 
-        js = u'''<script type="text/javascript">
+        js = '''<script type="text/javascript">
 $(function() {
     $('#%(id)s_ac').autocomplete({
         source: %(source)s,
@@ -689,8 +691,8 @@ $(function() {
     def _source(self):
         if self.url:
             if hasattr(self.url, '__call__'):
-                return u'\'%s\'' % self.url()
-            return u'\'%s\'' % self.url
+                return '\'%s\'' % self.url()
+            return '\'%s\'' % self.url
         else:
             data = json.dumps([
                 {
@@ -699,7 +701,7 @@ $(function() {
                 } for o in self.queryset.all()
             ])
 
-            return u'''function (request, response) {
+            return '''function (request, response) {
     var data = %(data)s, ret = [], term = request.term.toLowerCase();
     for (var i=0; i<data.length; ++i) {
         if (data[i].label.toLowerCase().indexOf(term) != -1)
@@ -731,10 +733,10 @@ class MultipleAutocompletionWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs, name=name, type='text')
 
         if value:
-            value = u', '.join(
+            value = ', '.join(
                 force_text(o) for o in self.queryset.filter(id__in=value))
 
-        js = u'''<script type="text/javascript">
+        js = '''<script type="text/javascript">
 $(function() {
     function split( val ) {
         return val.split( /,\s*/ );
@@ -785,7 +787,7 @@ $(function() {
         }
 
         return mark_safe(
-            u'<textarea%s>%s</textarea>' % (
+            '<textarea%s>%s</textarea>' % (
                 flatatt(final_attrs),
                 value,
             ) + js
@@ -804,7 +806,7 @@ $(function() {
         return list(set(possible.get(s, InvalidEntry).pk for s in values))
 
     def _source(self):
-        return u'''function(request, response) {
+        return '''function(request, response) {
     response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
     }''' % {
             'data': json.dumps(

@@ -23,6 +23,8 @@ understand and follow.
 At least that's one of our goals here.
 """
 
+from __future__ import absolute_import, unicode_literals
+
 import json
 
 from django import forms
@@ -221,7 +223,7 @@ class ModelResourceView(TemplateView):
             messages.error(
                 self.request,
                 _('Deletion not allowed because of related objects: %s') % (
-                    u', '.join(
+                    ', '.join(
                         force_text(cls._meta.verbose_name_plural)
                         for cls in classes
                     ),
@@ -329,7 +331,7 @@ class ListView(ModelResourceView):
                             '<p>Processed the following items:</p>'
                             ' <ul><li>%s</li></ul>'
                         ) % (
-                            u'</li><li>'.join(
+                            '</li><li>'.join(
                                 force_text(item) for item in result
                             )
                         )
@@ -372,8 +374,8 @@ class ListView(ModelResourceView):
         post_values = [('batchform', 1)] + additional + [
             ('batch_%s' % item.pk, '1') for item in queryset]
 
-        return u'\n'.join(
-            u'<input type="hidden" name="%s" value="%s">' % item
+        return '\n'.join(
+            '<input type="hidden" name="%s" value="%s">' % item
             for item in post_values)
 
     def delete_selected(self, queryset):

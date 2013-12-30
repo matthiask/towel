@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 import re
 
 from django import template
@@ -18,8 +20,8 @@ def flatatt(attrs):
     XML-escaped.  If the passed dictionary is empty, then return an empty
     string.
     """
-    return u''.join([
-        u' %s="%s"' % (k, conditional_escape(v))
+    return ''.join([
+        ' %s="%s"' % (k, conditional_escape(v))
         for k, v in attrs.items()])
 
 
@@ -68,10 +70,10 @@ class RegionNode(template.Node):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
         return self._render(context, *args, **kwargs)
 
-    def _render(self, context, identifier, fields=u'', tag='div', **kwargs):
+    def _render(self, context, identifier, fields='', tag='div', **kwargs):
         regions = context.get('regions')
 
-        region_id = u'twrg-%s' % identifier
+        region_id = 'twrg-%s' % identifier
         output = self.nodelist.render(context)
 
         if regions is not None:
@@ -83,7 +85,7 @@ class RegionNode(template.Node):
 
         kwargs['id'] = region_id
 
-        return mark_safe(u'<{tag} {attrs}>{output}</{tag}>'.format(
+        return mark_safe('<{tag} {attrs}>{output}</{tag}>'.format(
             attrs=flatatt(kwargs),
             output=output,
             tag=tag,

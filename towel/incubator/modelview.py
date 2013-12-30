@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 import json
 
 from django.forms.models import model_to_dict

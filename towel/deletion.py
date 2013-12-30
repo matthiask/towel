@@ -31,6 +31,8 @@ deletion method for some reason too, you have to ensure that the threadlocal
 state is respected too.
 """
 
+from __future__ import absolute_import, unicode_literals
+
 from contextlib import contextmanager
 from threading import local
 

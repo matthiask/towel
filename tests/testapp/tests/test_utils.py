@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django.template import Template, Context
 from django.test import TestCase
 
@@ -101,7 +103,7 @@ class UtilsTest(TestCase):
         ]
 
         for test, result in testcases:
-            t = Template(u'{% load testapp_tags %}' + test)
+            t = Template('{% load testapp_tags %}' + test)
             self.assertHTMLEqual(t.render(Context({
                 'abcd': 'yay',
                 'bla': 'blaaa',

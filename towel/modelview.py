@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, unicode_literals
 
 from django import forms
 from django.contrib import messages
@@ -341,7 +341,7 @@ class ModelView(object):
         try:
             return queryset.get(*args, **kwargs)
         except (ValueError, ValidationError):
-            raise self.model.DoesNotExist(u'No %s matches the given query.' % (
+            raise self.model.DoesNotExist('No %s matches the given query.' % (
                 self.model._meta.object_name))
 
     def get_object_or_404(self, request, *args, **kwargs):
@@ -351,7 +351,7 @@ class ModelView(object):
         try:
             return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
-            raise Http404(u'No %s matches the given query.' % (
+            raise Http404('No %s matches the given query.' % (
                 self.model._meta.object_name))
 
     def get_formfield_callback(self, request):
@@ -724,12 +724,12 @@ class ModelView(object):
                 messages.success(
                     request,
                     _('Processed the following items: <br>\n %s') % (
-                        u'<br>\n '.join(
+                        '<br>\n '.join(
                             force_text(item) for item in result)))
 
             elif result is not None:
                 # Not None, but cannot make sense of it either.
-                raise TypeError(u'Return value %r of %s.process() invalid.' % (
+                raise TypeError('Return value %r of %s.process() invalid.' % (
                     result,
                     form.__class__.__name__,
                 ))
@@ -886,8 +886,8 @@ class ModelView(object):
                 for class_ in related]
 
             if len(pretty_classes) > 1:
-                pretty_classes = u''.join((
-                    u', '.join(pretty_classes[:-1]),
+                pretty_classes = ''.join((
+                    ', '.join(pretty_classes[:-1]),
                     _(' and '),
                     pretty_classes[-1],
                 ))
@@ -942,8 +942,8 @@ class ModelView(object):
                     for class_ in related]
 
                 if len(pretty_classes) > 1:
-                    pretty_classes = u''.join((
-                        u', '.join(pretty_classes[:-1]),
+                    pretty_classes = ''.join((
+                        ', '.join(pretty_classes[:-1]),
                         _(' and '),
                         pretty_classes[-1],
                     ))

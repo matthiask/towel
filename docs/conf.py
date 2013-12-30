@@ -11,6 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from __future__ import absolute_import, unicode_literals
+
 import os
 import sys
 
@@ -43,8 +45,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Towel'
-copyright = u'2010-2012, Feinheit GmbH and contributors'
+project = 'Towel'
+copyright = '2010-2012, Feinheit GmbH and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +185,8 @@ latex_font_size = '10pt'
 # Grouping the document tree into LaTeX files. List of tuples (source start
 # file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'Towel.tex', u'Towel Documentation',
-    u'Feinheit GmbH and contributors', 'manual'),
+    ('index', 'Towel.tex', 'Towel Documentation',
+    'Feinheit GmbH and contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django import template
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -47,7 +49,7 @@ def model_row(instance, fields):
         if isinstance(f, models.ForeignKey):
             fk = getattr(instance, f.name)
             if hasattr(fk, 'get_absolute_url'):
-                value = mark_safe(u'<a href="%s">%s</a>' % (
+                value = mark_safe('<a href="%s">%s</a>' % (
                     fk.get_absolute_url(),
                     fk))
             else:

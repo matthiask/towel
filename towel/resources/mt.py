@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from django.core.exceptions import ImproperlyConfigured
 
 from towel.utils import safe_queryset_and

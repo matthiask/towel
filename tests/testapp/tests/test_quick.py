@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from datetime import date, timedelta
 import re
 
@@ -33,7 +35,7 @@ class QuickTest(TestCase):
 
         data, rest = quick.parse_quickadd('!! do this do that', QUICK_RULES)
         self.assertEqual(list(data.items()), [('important', True)])
-        self.assertEqual(u' '.join(rest), 'do this do that')
+        self.assertEqual(' '.join(rest), 'do this do that')
 
         p_muster = Person.objects.create(family_name='Muster')
         Person.objects.create(family_name='Blaa')
