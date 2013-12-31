@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
@@ -161,6 +161,8 @@ class ModelView(object):
             # Fail loudly, please, if messages aren't enabled
             self.add_message(request, 'editing_denied', fail_silently=False)
         """
+
+        message = force_text(message)
 
         ignorable = getattr(request, '_towel_add_message_ignore', [])
         if message in ignorable:
