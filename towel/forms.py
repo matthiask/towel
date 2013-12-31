@@ -437,7 +437,7 @@ class SearchForm(forms.Form):
 
         if hasattr(order_by, '__call__'):
             queryset = order_by(queryset)
-        elif hasattr(order_by, '__iter__'):
+        elif isinstance(order_by, (list, tuple)):
             queryset = queryset.order_by(*order_by)
         else:
             queryset = queryset.order_by(order_by)
