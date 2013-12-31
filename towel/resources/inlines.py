@@ -1,9 +1,9 @@
-from __future__ import absolute_import, unicode_literals
-
 """
 This is mostly equivalent with Django's inline formsets mechanism, but
 used together with editlive.
 """
+
+from __future__ import absolute_import, unicode_literals
 
 import json
 
@@ -116,7 +116,7 @@ class LiveChildFormView(ChildMixin, LiveFormView):
             return self.form_valid(form)
 
         # TODO that's actually quite ugly
-        return HttpResponse(unicode(form.errors))
+        return HttpResponse('%s' % form.errors)
 
     def form_valid(self, form):
         self.object = form.save()

@@ -50,7 +50,7 @@ class FrankenResource(Resource):
             # application/json with a list instead of a single entry,
             # e.g. {"customer_id": ["1"]}
             raise APIException('Malformed data', data={
-                'exception': unicode(exc)})
+                'exception': '%s' % exc})
 
         if not is_valid:
             raise APIException(data={
@@ -142,7 +142,7 @@ class FrankenResource(Resource):
         if not self.modelview.deletion_allowed(request, instance):
             raise APIException(status=httplib.FORBIDDEN, data={
                 'messages': [{
-                    'message': unicode(msg),
+                    'message': '%s' % msg,
                     'tags': msg.tags,
                 } for msg in get_messages(request)],
             })
