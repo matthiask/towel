@@ -946,7 +946,7 @@ class ModelView(object):
                 if len(pretty_classes) > 1:
                     pretty_classes = ''.join((
                         ', '.join(pretty_classes[:-1]),
-                        _(' and '),
+                        ugettext(' and '),
                         pretty_classes[-1],
                     ))
                 else:
