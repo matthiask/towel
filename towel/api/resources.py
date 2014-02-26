@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from collections import namedtuple
+import logging
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -15,6 +16,8 @@ from .utils import querystring
 
 #: The ``page`` object from ``Resource.objects``
 Page = namedtuple('Page', 'queryset offset limit full_queryset')
+
+logger = logging.getLogger('towel.api')
 
 
 class Resource(generic.View):
@@ -110,6 +113,12 @@ class Resource(generic.View):
                 {'error': exc.args[0]},
                 status=http_client.NOT_FOUND)
         except APIException as exc:
+            logger.warning(
+                'APIException: %s, %r' % (exc, exc.__dict__),
+                extra={
+                    'request': self.request,
+                })
+
             data = {
                 'error': exc.error_message,
             }
