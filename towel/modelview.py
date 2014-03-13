@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
@@ -889,9 +889,9 @@ class ModelView(object):
 
             if len(pretty_classes) > 1:
                 pretty_classes = ''.join((
-                    ', '.join(pretty_classes[:-1]),
-                    _(' and '),
-                    pretty_classes[-1],
+                    ', '.join('%s' % cls for cls in pretty_classes[:-1]),
+                    ugettext(' and '),
+                    '%s' % pretty_classes[-1],
                 ))
             else:
                 pretty_classes = pretty_classes[-1]
