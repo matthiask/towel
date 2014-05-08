@@ -252,8 +252,8 @@ class ListView(ModelResourceView):
         """
         Returns the value of ``self.paginate_by``.
         """
-        #if self.paginate_all_allowed and self.request.GET.get('all'):
-        #    return None
+        # if self.paginate_all_allowed and self.request.GET.get('all'):
+        #     return None
         return self.paginate_by
 
     def get_context_data(self, object_list=None, **kwargs):

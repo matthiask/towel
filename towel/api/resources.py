@@ -32,7 +32,7 @@ class Resource(generic.View):
     model = None
 
     #: Prefiltered queryset for this resource. Defaults to
-    #:``model._default_manager.all()`` if unset.
+    #: ``model._default_manager.all()`` if unset.
     queryset = None
 
     #: Default instance count for list views
