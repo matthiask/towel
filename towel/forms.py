@@ -8,7 +8,7 @@ from django.db.models import ObjectDoesNotExist
 from django.forms.util import flatatt
 from django.http import HttpResponse, QueryDict
 from django.utils import six
-from django.utils.encoding import force_text
+from django.utils.encoding import force_text, force_bytes
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -331,7 +331,8 @@ class SearchForm(forms.Form):
         elif request.method == 'GET' and 's' not in request.GET:
             # try to get saved search from session
             if session_key in request.session:
-                self.data = QueryDict(request.session[session_key])
+                session_data = force_bytes(request.session[session_key])
+                self.data = QueryDict(session_data, encoding='utf-8')
                 self.persistency = True
 
             else:
