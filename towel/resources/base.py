@@ -213,7 +213,7 @@ class ModelResourceView(TemplateView):
         would be deleted as well.
 
         Returns ``True`` if the classes only belong to the model itself and
-        to the clsasses mentioned in ``related``.
+        to the classes mentioned in ``related``.
         """
         classes = set(related_classes(object)).difference(
             (self.model,), related)
