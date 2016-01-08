@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django import forms, template
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 
 register = template.Library()
@@ -30,11 +31,11 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return ''.join(render_to_string('towel/_form_item.html', {
+    return mark_safe(''.join(render_to_string('towel/_form_item.html', {
         'item': field,
         'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
         'type_class': _type_class(field),
-    }) for field in form if field.name != 'ignore_warnings')
+    }) for field in form if field.name != 'ignore_warnings'))
 
 
 @register.inclusion_tag('towel/_form_item.html')
@@ -245,4 +246,4 @@ class DynamicFormsetNode(template.Node):
             result.append(self.nodelist.render(context))
             context.pop()
 
-        return ''.join(result)
+        return mark_safe(''.join(result))

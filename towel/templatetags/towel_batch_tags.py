@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from django import template
+from django.utils.safestring import mark_safe
 
 
 register = template.Library()
@@ -30,4 +31,4 @@ def batch_checkbox(form, id):
     if id in form.ids:
         return cb % (id, id, 'checked="checked" ')
 
-    return cb % (id, id, '')
+    return mark_safe(cb % (id, id, ''))
