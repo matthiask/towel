@@ -374,6 +374,7 @@ class ModelView(object):
         kwargs.setdefault(
             'formfield_callback', self.get_formfield_callback(request))
         kwargs.setdefault('form', self.form_class or forms.ModelForm)
+        kwargs.setdefault('fields', '__all__')
 
         return modelform_factory(self.model, **kwargs)
 
@@ -423,6 +424,7 @@ class ModelView(object):
         for prefix, config in self.inlineformset_config.items():
             config.setdefault('form', forms.ModelForm)
             config.setdefault('formfield_callback', formfield_callback)
+            config.setdefault('fields', '__all__')
 
             cls = inlineformset_factory(self.model, extra=0, **config)
             formsets[prefix] = cls(prefix=prefix, *args, **kwargs)

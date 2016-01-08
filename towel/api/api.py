@@ -3,7 +3,6 @@ from __future__ import absolute_import, unicode_literals
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf.urls import patterns, include, url
 from django.db import models
-from django.db.models.related import RelatedObject
 from django.http import HttpResponse
 from django.utils.encoding import force_text
 from django.utils.functional import curry
@@ -347,9 +346,9 @@ def serialize_model_instance(instance, api, inline_depth=0,
         # TODO maybe check before querying the database whether the objects
         # are included in the API or only_registered=False?
 
-        if isinstance(f, (models.ManyToManyField, RelatedObject)):
+        if isinstance(f, (models.ManyToManyField,)):
             if inline_depth > 0:
-                is_relobj = isinstance(f, RelatedObject)
+                is_relobj = False  # isinstance(f, RelatedObject)
                 name = f.get_accessor_name() if is_relobj else f.name
 
                 if is_relobj and not f.field.rel.multiple:

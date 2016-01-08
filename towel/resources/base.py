@@ -516,6 +516,7 @@ class FormView(ModelResourceView):
         return modelform_factory(
             self.model,
             form=self.form_class,
+            fields='__all__',
             formfield_callback=towel_formfield_callback)
 
     def get_form(self):

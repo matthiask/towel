@@ -16,6 +16,7 @@ from .models import Group, Person, EmailAddress, Message
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
+        fields = '__all__'
 
 
 class MessageResource(Resource):

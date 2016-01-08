@@ -54,6 +54,7 @@ class PersonForm(forms.ModelForm):
 class MessageForm(forms.ModelForm, WarningsForm):
     class Meta:
         model = Message
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         person = kwargs.pop('person')

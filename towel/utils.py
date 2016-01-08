@@ -198,7 +198,4 @@ def app_model_label(model):
     """
     Stop those deprecation warnings
     """
-    try:
-        return model._meta.app_label, model._meta.model_name
-    except AttributeError:  # Django <1.6
-        return model._meta.app_label, model._meta.module_name
+    return model._meta.app_label, model._meta.model_name
