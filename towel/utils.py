@@ -186,7 +186,13 @@ def substitute_with(to_delete, instance):
     assert to_delete.pk != instance.pk
 
     for related_object in to_delete._meta.get_all_related_objects():
-        queryset = related_object.model._base_manager.complex_filter({
+        print(related_object.__dict__)
+        try:
+            model = related_object.related_model
+        except AttributeError:
+            model = related_object.model
+
+        queryset = model._base_manager.complex_filter({
             related_object.field.name: to_delete.pk,
         })
 
