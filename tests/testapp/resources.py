@@ -16,8 +16,7 @@ class ResourceSearchForm(SearchForm):
 
 class ResourceViewMixin(object):
     def get_queryset(self):
-        return super(ResourceViewMixin, self).get_queryset().select_related(
-            'user')
+        return super(ResourceViewMixin, self).get_queryset()
 
     def allow_delete(self, object=None, silent=True):
         if object is None:

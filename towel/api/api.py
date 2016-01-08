@@ -373,7 +373,7 @@ def serialize_model_instance(instance, api, inline_depth=0,
                     if any(related):
                         data[name] = related
 
-        elif f.rel:
+        elif getattr(f, 'rel', None):
             value = f.value_from_object(instance)
             if value is None:
                 data[f.name] = None
