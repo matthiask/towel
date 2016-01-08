@@ -186,7 +186,6 @@ def substitute_with(to_delete, instance):
     assert to_delete.pk != instance.pk
 
     for related_object in to_delete._meta.get_all_related_objects():
-        print(related_object.__dict__)
         try:
             model = related_object.related_model
         except AttributeError:
