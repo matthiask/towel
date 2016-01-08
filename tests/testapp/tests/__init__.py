@@ -1,5 +1,4 @@
 # flake8: noqa
-from .test_api import APITest
 from .test_deletion import DeletionTest
 from .test_forms import FormsTest
 from .test_modelview import ModelViewTest
