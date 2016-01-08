@@ -112,10 +112,9 @@ class FormsTest(TestCase):
         )
 
         # Invalid query
-        self.assertRedirects(
-            self.client.get(list_url + '?created__year=abc'),
-            list_url + '?clear=1',
-        )
+        response = self.client.get(list_url + '?created__year=abc')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['location'].endswith('?clear=1'))
 
         # Mixed quick (only inactive) and form field (only active)
         # Form field takes precedence
