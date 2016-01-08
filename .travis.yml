@@ -2,11 +2,11 @@ language: python
 sudo: false
 python:
   - "3.4"
-  - "3.2"
   - "2.7"
 env:
   - REQ='Django>=1.7,<1.8'
   - REQ='Django>=1.8,<1.9'
+  - REQ='Django>=1.9,<1.10'
 matrix:
 install:
   - pip install -q $REQ flake8
