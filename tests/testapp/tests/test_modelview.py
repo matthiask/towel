@@ -279,7 +279,7 @@ class ModelViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            '<ul class="errorlist"><li>No items selected</li></ul>')
+            '<li>No items selected</li>')
 
         self.assertEqual(Person.objects.filter(is_active=False).count(), 0)
         data = {

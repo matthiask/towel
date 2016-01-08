@@ -37,7 +37,7 @@ class FormsTest(TestCase):
 
         response = self.client.post(person.urls['message'], {
             'sent_to': emailaddress.pk,
-            'message': '   ',
+            'message': '  hello ',
             'ignore_warnings': 1,
         })
         self.assertRedirects(response, person.urls['detail'])
