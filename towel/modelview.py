@@ -783,7 +783,7 @@ class ModelView(object):
                 request, instance=new_instance, change=change)
 
             if all_valid(formsets.values()) and form_validated:
-                with transaction.commit_on_success():
+                with transaction.atomic():
                     self.save_model(request, new_instance, form, change=change)
                     form.save_m2m()
                     self.save_formsets(request, form, formsets, change=change)
