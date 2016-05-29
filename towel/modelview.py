@@ -243,11 +243,10 @@ class ModelView(object):
         ``crud_view_decorator``. If you need additional URLs, use
         ``additional_urls`` instead.
         """
-        from django.conf.urls import patterns, url
+        from django.conf.urls import url
         info = app_model_label(self.model)
 
-        urlpatterns = patterns(
-            '',
+        urlpatterns = [
             url(r'^$',
                 self.view_decorator(self.list_view),
                 name='%s_%s_list' % info),
@@ -260,7 +259,7 @@ class ModelView(object):
             url(r'^%s/delete/$' % self.urlconf_detail_re,
                 self.crud_view_decorator(self.delete_view),
                 name='%s_%s_delete' % info),
-        )
+        ]
 
         for spec in self.additional_urls():
             urlp, view = spec[:2]
@@ -269,8 +268,7 @@ class ModelView(object):
             else:
                 ident = view.__name__
 
-            urlpatterns += patterns(
-                '',
+            urlpatterns.extend([
                 url(
                     urlp % {
                         'detail': self.urlconf_detail_re,
@@ -279,10 +277,9 @@ class ModelView(object):
                     view,
                     name=('%s_%s_%%s' % info) % ident
                 ),
-            )
+            ])
 
-        urlpatterns += patterns(
-            '',
+        urlpatterns.append(
             url(r'^%s/$' % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
                 name='%s_%s_detail' % info),
@@ -323,9 +320,9 @@ class ModelView(object):
 
             from towel.modelview import ModelView
 
-            urlpatterns = patterns('',
+            urlpatterns = [
                 url(r'^prefix/', include(ModelView(Model).urls)),
-            )
+            ]
         """
         return self.get_urls()
 

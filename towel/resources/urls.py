@@ -80,14 +80,13 @@ def resource_url_fn(
             mixins=(ProjectViewMixin,),
             decorators=(login_required,),
             )
-        urlpatterns = patterns(
-            '',
+        urlpatterns = [
             project_url('list', url=r'^$', paginate_by=50),
             project_url('detail', url=r'^(?P<pk>\d+)/$'),
             project_url('add', url=r^add/$'),
             project_url('edit'),
             project_url('delete'),
-        )
+        ]
 
         # the project URLs will be:
         # ^$
