@@ -374,11 +374,7 @@ class ModelView(object):
         kwargs.setdefault(
             'formfield_callback', self.get_formfield_callback(request))
         kwargs.setdefault('form', self.form_class or forms.ModelForm)
-        try:
-            if not kwargs['form']._meta.fields:
-                kwargs.setdefault('fields', '__all__')
-        except AttributeError:
-            pass
+        kwargs.setdefault('exclude', ())
 
         return modelform_factory(self.model, **kwargs)
 
