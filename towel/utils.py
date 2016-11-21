@@ -185,7 +185,13 @@ def substitute_with(to_delete, instance):
     assert to_delete.__class__ == instance.__class__
     assert to_delete.pk != instance.pk
 
-    for related_object in to_delete._meta.get_all_related_objects():
+    fields = [
+        f for f in to_delete._meta.get_fields()
+        if (f.one_to_many or f.one_to_one)
+        and f.auto_created and not f.concrete
+    ]
+
+    for related_object in fields:
         try:
             model = related_object.related_model
         except AttributeError:

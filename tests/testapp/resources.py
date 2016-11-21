@@ -1,7 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
 from django import forms
-from django.conf.urls import patterns
 from django.contrib import messages
 
 from towel.forms import SearchForm
@@ -65,8 +64,7 @@ resource_url = resource_url_fn(
 )
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     resource_url(
         'list',
         url=r'^$',
@@ -77,4 +75,4 @@ urlpatterns = patterns(
     resource_url('add', url=r'^add/$'),
     resource_url('edit'),
     resource_url('delete'),
-)
+]

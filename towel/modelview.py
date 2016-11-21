@@ -503,6 +503,9 @@ class ModelView(object):
             'search_form': (
                 self.search_form(request.GET, request=request)
                 if self.search_form_everywhere else None),
+
+            'request': request,  # Something changed with Django 1.10's
+                                 # context processors...
         }
 
     def get_context(self, request, context):

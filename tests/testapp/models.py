@@ -55,7 +55,7 @@ class EmailManager(SearchManager):
 
 
 class EmailAddress(deletion.Model):
-    person = models.ForeignKey(Person)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     email = models.EmailField()
 
     objects = EmailManager()
@@ -79,7 +79,7 @@ class Message(models.Model):
     ``save_formset_deletion_allowed_if_only``. The presence of message
     instances should protect email addresses from getting deleted.
     """
-    sent_to = models.ForeignKey(EmailAddress)
+    sent_to = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
     message = models.TextField()
 
     # No get_absolute_url method on purpose; is automatically added by
