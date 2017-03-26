@@ -8,8 +8,7 @@ from django.db import models, transaction
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render_to_response
-from django.template import RequestContext
+from django.shortcuts import redirect, render
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
@@ -510,18 +509,18 @@ class ModelView(object):
 
     def get_context(self, request, context):
         """
-        Creates a ``RequestContext`` and merges the passed context
-        and the return value of ``get_extra_context`` into it.
+        Return a context dictionary which also contains everything from
+        ``get_extra_context``.
         """
-        instance = RequestContext(request, self.get_extra_context(request))
-        instance.update(context)
-        return instance
+        ctx = self.get_extra_context(request)
+        ctx.update(context)
+        return ctx
 
     def render(self, request, template, context):
         """
         Render the whole shebang.
         """
-        return render_to_response(template, context)
+        return render(request, template, context)
 
     def render_list(self, request, context):
         """
