@@ -1,5 +1,5 @@
 """
 Towel - Keeping you DRY since 2010
 """
-VERSION = (0, 9, 0)
+VERSION = (0, 10, 0)
 __version__ = '.'.join(map(str, VERSION))
