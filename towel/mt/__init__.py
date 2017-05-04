@@ -43,15 +43,15 @@ from __future__ import absolute_import, unicode_literals
 
 
 def client_model():
+    from django.apps import apps
     from django.conf import settings
-    from django.db.models import loading
-    return loading.get_model(*settings.TOWEL_MT_CLIENT_MODEL.split('.'))
+    return apps.get_model(*settings.TOWEL_MT_CLIENT_MODEL.split('.'))
 
 
 def access_model():
+    from django.apps import apps
     from django.conf import settings
-    from django.db.models import loading
-    return loading.get_model(*settings.TOWEL_MT_ACCESS_MODEL.split('.'))
+    return apps.get_model(*settings.TOWEL_MT_ACCESS_MODEL.split('.'))
 
 
 class AccessDecorator(object):
