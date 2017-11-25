@@ -43,7 +43,7 @@ def model_details(instance, fields=None):
                     value = mark_safe('<a href="%s">%s</a>' % (
                         fk.get_absolute_url(),
                         fk))
-                except:  # Whatever.
+                except Exception:  # Whatever.
                     value = fk
             else:
                 value = fk
