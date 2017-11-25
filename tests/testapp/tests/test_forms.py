@@ -2,11 +2,15 @@ from __future__ import absolute_import, unicode_literals
 
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils import timezone
 
 from testapp.models import Person, Message
+
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 
 class FormsTest(TestCase):

@@ -30,7 +30,6 @@ import json
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.core.urlresolvers import NoReverseMatch
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -43,6 +42,11 @@ from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
 from towel.utils import (
     app_model_label, changed_regions, related_classes, safe_queryset_and)
+
+try:
+    from django.urls import NoReverseMatch
+except ImportError:
+    from django.core.urlresolvers import NoReverseMatch
 
 
 class ModelResourceView(TemplateView):

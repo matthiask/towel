@@ -3,8 +3,12 @@ from __future__ import absolute_import, unicode_literals
 import itertools
 import re
 
-from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db.models.deletion import Collector
+
+try:
+    from django.urls import NoReverseMatch, reverse
+except ImportError:
+    from django.core.urlresolvers import NoReverseMatch, reverse
 
 
 def related_classes(instance):

@@ -1,10 +1,14 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.core.urlresolvers import reverse
 from django.utils.encoding import force_text
 from django.test import TestCase
 
 from testapp.models import Resource
+
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 
 class ResourceTest(TestCase):

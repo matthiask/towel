@@ -1,10 +1,14 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.conf.urls import url as _url
-from django.core.urlresolvers import NoReverseMatch, reverse
 
 from towel import resources
 from towel.utils import app_model_label
+
+try:
+    from django.urls import NoReverseMatch, reverse
+except ImportError:
+    from django.core.urlresolvers import NoReverseMatch, reverse
 
 
 class _MRUHelper(object):
