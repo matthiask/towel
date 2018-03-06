@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django.db import models, transaction
+from django.db import transaction
 from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
