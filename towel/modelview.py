@@ -204,11 +204,10 @@ class ModelView(object):
         if not hasattr(self.model, 'get_absolute_url'):
             # Add a simple primary key based URL to the model if it does not
             # have one yet
-            self.model.get_absolute_url = models.permalink(
-                lambda self: (
-                    '%s_%s_detail' % app_model_label(self),
-                    (self.pk,),
-                    {}))
+            self.model.get_absolute_url = lambda self: reverse(
+                '%s_%s_detail' % app_model_label(self),
+                args=(self.pk,),
+            )
 
     def get_query_set(self, request, *args, **kwargs):
         """
