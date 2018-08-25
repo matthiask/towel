@@ -739,7 +739,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         if value is None:
             value = []
         attrs["type"] = "text"
-        attrs["name"] = "name"]
+        attrs["name"] = "name"
         final_attrs = self.build_attrs(attrs)
 
         if value:
