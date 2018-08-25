@@ -630,9 +630,12 @@ class ModelAutocompleteWidget(forms.TextInput):
         super(ModelAutocompleteWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None, choices=()):
+        attrs = attrs or {}
         if value is None:
             value = ''
-        final_attrs = self.build_attrs(attrs, type='hidden', name=name)
+        attrs["type"] = "hidden"
+        attrs["name"] = name
+        final_attrs = self.build_attrs(attrs)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
             final_attrs['value'] = force_text(self._format_value(value))
@@ -732,9 +735,12 @@ class MultipleAutocompletionWidget(forms.TextInput):
         return dict((force_text(o).lower(), o) for o in self.queryset._clone())
 
     def render(self, name, value, attrs=None, choices=()):
+        attrs = attrs or {}
         if value is None:
             value = []
-        final_attrs = self.build_attrs(attrs, name=name, type='text')
+        attrs["type"] = "text"
+        attrs["name"] = "name"]
+        final_attrs = self.build_attrs(attrs)
 
         if value:
             value = ', '.join(
