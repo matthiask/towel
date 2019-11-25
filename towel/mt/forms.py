@@ -51,7 +51,7 @@ class ModelForm(forms.ModelForm):
             field = self.instance._meta.get_field(attr)
         except FieldDoesNotExist:
             field = None
-        if field and field.rel and field.rel.to and issubclass(field.rel.to, Client):
+        if field and field.related_model and issubclass(field.related_model, Client):
             setattr(self.instance, attr, getattr(self.request.access, attr))
 
         return super(ModelForm, self).save(commit=commit)

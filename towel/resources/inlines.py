@@ -21,7 +21,7 @@ class ChildMixin(object):
     parent_attr = "parent"
 
     def get_parent_class(self):
-        return self.model._meta.get_field(self.parent_attr).rel.to
+        return self.model._meta.get_field(self.parent_attr).related_model
 
     def get_parent_queryset(self):
         return self.get_parent_class()._default_manager.all()

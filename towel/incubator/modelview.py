@@ -65,7 +65,7 @@ class InlineModelView(EditLiveModelView):
 
     @property
     def parent_class(self):
-        return self.model._meta.get_field(self.parent_attr).rel.to
+        return self.model._meta.get_field(self.parent_attr).related_model
 
     def get_object(self, request, *args, **kwargs):
         if "pk" in kwargs:
