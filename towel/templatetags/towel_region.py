@@ -79,7 +79,7 @@ class RegionNode(template.Node):
             regions[region_id] = output
             dependencies = regions.setdefault("_dependencies", {})
 
-            for field in re.split("[,\s]+", str(fields)):
+            for field in re.split(r"[,\s]+", str(fields)):
                 dependencies.setdefault(field, []).append(region_id)
 
         kwargs["id"] = region_id

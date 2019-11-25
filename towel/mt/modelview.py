@@ -50,7 +50,7 @@ class ModelView(towel_modelview.ModelView):
     ):
         args = self.extend_args_if_post(request, [])
         kwargs.update(
-            {"instance": instance, "request": request,}  # towel.mt.forms needs that
+            {"instance": instance, "request": request}  # towel.mt.forms needs that
         )
 
         return form_class(*args, **kwargs)

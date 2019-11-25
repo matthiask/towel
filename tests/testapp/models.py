@@ -86,6 +86,9 @@ class Message(models.Model):
     # No get_absolute_url method on purpose; is automatically added by
     # ModelView
 
+    class Meta:
+        ordering = ["id"]
+
 
 class ResourceManager(SearchManager):
     search_fields = ("name",)
@@ -97,6 +100,9 @@ class Resource(models.Model):
     is_active = models.BooleanField(default=True)
 
     objects = ResourceManager()
+
+    class Meta:
+        ordering = ["id"]
 
     def __str__(self):
         return self.name

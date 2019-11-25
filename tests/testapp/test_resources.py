@@ -1,6 +1,5 @@
 from __future__ import absolute_import, unicode_literals
 
-import django
 from django.utils.encoding import force_text
 from django.test import TestCase
 
@@ -32,7 +31,7 @@ class ResourceTest(TestCase):
     def test_crud(self):
         self.assertContains(self.client.get("/resources/add/"), "<form", 1)
         self.assertEqual(
-            self.client.post("/resources/add/", {"name": "",}).status_code, 200
+            self.client.post("/resources/add/", {"name": ""}).status_code, 200
         )
         self.assertEqual(
             self.client.post(
@@ -44,13 +43,13 @@ class ResourceTest(TestCase):
             ).status_code,
             200,
         )
-        response = self.client.post("/resources/add/", {"name": "Blub",})
+        response = self.client.post("/resources/add/", {"name": "Blub"})
         resource = Resource.objects.get()
         self.assertRedirects(response, resource.get_absolute_url())
         self.assertContains(self.client.get(resource.get_absolute_url()), "Blub")
 
         self.assertContains(self.client.get(resource.urls["edit"]), "<form", 1)
-        response = self.client.post(resource.urls["edit"], {"name": "Blabbba",})
+        response = self.client.post(resource.urls["edit"], {"name": "Blabbba"})
         self.assertRedirects(response, resource.get_absolute_url())
         self.assertContains(self.client.get(resource.get_absolute_url()), "Blabbba")
 
@@ -84,7 +83,7 @@ class ResourceTest(TestCase):
 
         self.assertContains(self.client.get("/resources/"), "<span>1 - 5 / 20</span>")
 
-        response = self.client.post("/resources/", {"batchform": 1,})
+        response = self.client.post("/resources/", {"batchform": 1})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<li>No items selected</li>")
 
@@ -97,12 +96,9 @@ class ResourceTest(TestCase):
             data["batch_%s" % pk] = pk
         response = self.client.post("/resources/", data)
         self.assertContains(response, "Set active")
-        if django.VERSION < (1, 11):
-            self.assertContains(
-                response, '<option value="1" selected="selected">Unknown</option>'
-            )
-        else:
-            self.assertContains(response, '<option value="1" selected>Unknown</option>')
+        self.assertContains(
+            response, '<option value="unknown" selected>Unknown</option>'
+        )
         data["confirm"] = 1
         data["is_active"] = 3
         response = self.client.post("/resources/", data)

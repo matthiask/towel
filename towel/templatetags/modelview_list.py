@@ -60,7 +60,7 @@ def model_row(instance, fields):
 
         elif isinstance(f, (models.BooleanField, models.NullBooleanField)):
             value = getattr(instance, f.name)
-            value = {True: _("yes"), False: _("no"), None: _("unknown"),}.get(
+            value = {True: _("yes"), False: _("no"), None: _("unknown")}.get(
                 value, value
             )
 

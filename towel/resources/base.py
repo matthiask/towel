@@ -426,7 +426,7 @@ class ListView(ModelResourceView):
             title=_("Delete selected"),
             action_queryset=queryset,
             action_hidden_fields=self.batch_action_hidden_fields(
-                queryset, [("batch-action", "delete_selected"), ("confirm", 1),]
+                queryset, [("batch-action", "delete_selected"), ("confirm", 1)]
             ),
         )
         self.template_name_suffix = "_action"
@@ -519,9 +519,7 @@ class FormView(ModelResourceView):
         """
         kw = {"instance": self.object}
         if self.request.method in ("POST", "PUT"):
-            kw.update(
-                {"data": self.request.POST, "files": self.request.FILES,}
-            )
+            kw.update({"data": self.request.POST, "files": self.request.FILES})
         kw.update(kwargs)
         return kw
 

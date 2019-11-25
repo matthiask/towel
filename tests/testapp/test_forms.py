@@ -23,20 +23,20 @@ class FormsTest(TestCase):
 
         response = self.client.post(
             person.urls["message"],
-            {"sent_to": emailaddress.pk, "message": "Hallo Welt",},
+            {"sent_to": emailaddress.pk, "message": "Hallo Welt"},
         )
         self.assertRedirects(response, person.urls["detail"])
         self.assertEqual(Message.objects.count(), 1)
 
         response = self.client.post(
-            person.urls["message"], {"sent_to": emailaddress.pk, "message": "   ",}
+            person.urls["message"], {"sent_to": emailaddress.pk, "message": "   "}
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Please review the following warnings:")
 
         response = self.client.post(
             person.urls["message"],
-            {"sent_to": emailaddress.pk, "message": "  hello ", "ignore_warnings": 1,},
+            {"sent_to": emailaddress.pk, "message": "  hello ", "ignore_warnings": 1},
         )
         self.assertRedirects(response, person.urls["detail"])
         self.assertEqual(Message.objects.count(), 2)

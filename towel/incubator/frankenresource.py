@@ -49,9 +49,7 @@ class FrankenResource(Resource):
             raise APIException("Malformed data", data={"exception": "%s" % exc})
 
         if not is_valid:
-            raise APIException(
-                data={"validation": form.errors,}
-            )
+            raise APIException(data={"validation": form.errors})
 
         instance = self.modelview.save_form(request, form, change=False)
         self.modelview.save_model(request, instance, form, change=False)
@@ -87,9 +85,7 @@ class FrankenResource(Resource):
         )
 
         if not form.is_valid():
-            raise APIException(
-                data={"validation": form.errors,}
-            )
+            raise APIException(data={"validation": form.errors})
 
         instance = self.modelview.save_form(request, form, change=True)
         self.modelview.save_model(request, instance, form, change=True)
@@ -136,7 +132,7 @@ class FrankenResource(Resource):
                 status=httplib.FORBIDDEN,
                 data={
                     "messages": [
-                        {"message": "%s" % msg, "tags": msg.tags,}
+                        {"message": "%s" % msg, "tags": msg.tags}
                         for msg in get_messages(request)
                     ],
                 },

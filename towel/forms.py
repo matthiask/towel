@@ -605,7 +605,7 @@ def autocompletion_response(queryset, limit=10):
     return HttpResponse(
         json.dumps(
             [
-                {"label": force_text(instance), "value": instance.pk,}
+                {"label": force_text(instance), "value": instance.pk}
                 for instance in queryset[:limit]
             ]
         ),
@@ -670,7 +670,7 @@ class ModelAutocompleteWidget(forms.TextInput):
 
             ac = (
                 ' <a href="#" id="%(id)s_cl" class="ac_clear">'
-                " %(text)s</a>" % {"id": final_attrs["id"][:-3], "text": _("clear"),}
+                " %(text)s</a>" % {"id": final_attrs["id"][:-3], "text": _("clear")}
             ) + ("<input%s />" % flatatt(final_attrs))
 
         js = """<script type="text/javascript">
@@ -713,7 +713,7 @@ $(function() {
             return "'%s'" % self.url
         else:
             data = json.dumps(
-                [{"label": force_text(o), "value": o.id,} for o in self.queryset.all()]
+                [{"label": force_text(o), "value": o.id} for o in self.queryset.all()]
             )
 
             return """function (request, response) {
@@ -759,7 +759,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         js = """<script type="text/javascript">
 $(function() {
     function split( val ) {
-        return val.split( /,\s*/ );
+        return val.split( /,\\s*/ );
     }
     function extractLast( term ) {
         return split( term ).pop();

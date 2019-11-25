@@ -43,7 +43,7 @@ class EditLiveModelView(ModelView):
     def response_editlive(self, request, new_instance, form, formsets):
         regions = {}
         self.render_detail(
-            request, {self.template_object_name: new_instance, "regions": regions,}
+            request, {self.template_object_name: new_instance, "regions": regions}
         )
         data = {"!form-errors": {}}
         data.update(changed_regions(regions, form.changed_data))
@@ -88,11 +88,11 @@ class InlineModelView(EditLiveModelView):
         render(
             request,
             "%s/%s_detail.html" % app_model_label(self.parent_class),
-            {"object": getattr(instance, self.parent_attr), "regions": regions,},
+            {"object": getattr(instance, self.parent_attr), "regions": regions},
         )
         return HttpResponse(
             json.dumps(
-                changed_regions(regions, ["%s_set" % self.model.__name__.lower(),])
+                changed_regions(regions, ["%s_set" % self.model.__name__.lower()])
             ),
             content_type="application/json",
         )

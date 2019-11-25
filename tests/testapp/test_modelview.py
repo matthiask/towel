@@ -210,7 +210,7 @@ class ModelViewTest(TestCase):
         self.assertContains(response, "test@example.com", 3)
         self.assertContains(
             response,
-            reverse("testapp_person_detail", kwargs={"pk": emailaddress.person_id,}),
+            reverse("testapp_person_detail", kwargs={"pk": emailaddress.person_id}),
         )
 
         list_url = reverse("testapp_emailaddress_list")
@@ -263,7 +263,7 @@ class ModelViewTest(TestCase):
 
         self.assertContains(self.client.get("/persons/"), "<span>1 - 5 / 20</span>")
 
-        response = self.client.post("/persons/", {"batchform": 1,})
+        response = self.client.post("/persons/", {"batchform": 1})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<li>No items selected</li>")
 

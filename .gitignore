@@ -13,3 +13,4 @@
 /tests/.tox
 .tox
 .coverage
+htmlcov

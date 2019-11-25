@@ -204,7 +204,7 @@ class FormWarningsNode(template.Node):
 
         return render_to_string(
             "towel/_form_warnings.html",
-            {"forms": form_list, "formsets": formset_list, "warnings": True,},
+            {"forms": form_list, "formsets": formset_list, "warnings": True},
         )
 
 
@@ -239,7 +239,7 @@ class DynamicFormsetNode(template.Node):
         result = []
 
         context.update(
-            {"empty": True, "form_id": "%s-empty" % slug, "form": formset.empty_form,}
+            {"empty": True, "form_id": "%s-empty" % slug, "form": formset.empty_form}
         )
         result.append('<script type="text/template" id="%s-empty">' % slug)
         result.append(self.nodelist.render(context))
@@ -248,7 +248,7 @@ class DynamicFormsetNode(template.Node):
 
         for idx, form in enumerate(formset.forms):
             context.update(
-                {"empty": False, "form_id": "%s-%s" % (slug, idx), "form": form,}
+                {"empty": False, "form_id": "%s-%s" % (slug, idx), "form": form}
             )
             result.append(self.nodelist.render(context))
             context.pop()

@@ -99,7 +99,7 @@ class PersonModelView(ModelView):
             request,
             self.get_template(request, "form"),
             self.get_context(
-                request, {self.template_object_name: instance, "form": form,}
+                request, {self.template_object_name: instance, "form": form}
             ),
         )
 
@@ -111,7 +111,7 @@ person_views = PersonModelView(
     batch_form=PersonBatchForm,
     form_class=PersonForm,
     paginate_by=5,
-    inlineformset_config={"emails": {"model": EmailAddress},},
+    inlineformset_config={"emails": {"model": EmailAddress}},
 )
 
 

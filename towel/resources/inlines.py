@@ -38,7 +38,7 @@ class ChildMixin(object):
 
         return HttpResponse(
             json.dumps(
-                changed_regions(regions, ["%s_set" % self.model.__name__.lower(),])
+                changed_regions(regions, ["%s_set" % self.model.__name__.lower()])
             ),
             content_type="application/json",
         )

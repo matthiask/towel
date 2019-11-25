@@ -84,7 +84,7 @@ def resource_url_fn(
             )
         urlpatterns = [
             project_url('list', url=r'^$', paginate_by=50),
-            project_url('detail', url=r'^(?P<pk>\d+)/$'),
+            project_url('detail', url=r'^(?P<pk>\\d+)/$'),
             project_url('add', url=r^add/$'),
             project_url('edit'),
             project_url('delete'),
@@ -92,10 +92,10 @@ def resource_url_fn(
 
         # the project URLs will be:
         # ^$
-        # ^(?P<pk>\d+)/$
+        # ^(?P<pk>\\d+)/$
         # ^add/$'
-        # ^(?P<pk>\d+)/edit/$
-        # ^(?P<pk>\d+)/delete/$
+        # ^(?P<pk>\\d+)/edit/$
+        # ^(?P<pk>\\d+)/delete/$
 
     The returned helper function comes with ``mixins`` and ``decorators``
     arguments too. They default to the values passed into the

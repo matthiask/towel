@@ -63,7 +63,7 @@ def parse_quickadd(quick, regexes):
                 for key, value in extract(match.groupdict()).items():
                     data.setdefault(key, []).append(value)
 
-                quick = quick[len(match.group(0)) :].strip()
+                quick = quick[len(match.group(0)) : 9999].strip()
                 break
 
         else:

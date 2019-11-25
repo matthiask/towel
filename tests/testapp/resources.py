@@ -49,7 +49,7 @@ class ResourceViewMixin(object):
             form=form,
             action_queryset=queryset,
             action_hidden_fields=self.batch_action_hidden_fields(
-                queryset, [("batch-action", "set_active"), ("confirm", 1),]
+                queryset, [("batch-action", "set_active"), ("confirm", 1)]
             ),
         )
         return self.render_to_response(context)

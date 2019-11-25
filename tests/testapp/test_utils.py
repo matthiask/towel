@@ -98,6 +98,6 @@ class UtilsTest(TestCase):
         for test, result in testcases:
             t = Template("{% load testapp_tags %}" + test)
             self.assertHTMLEqual(
-                t.render(Context({"abcd": "yay", "bla": "blaaa", "blub": "blubber",})),
+                t.render(Context({"abcd": "yay", "bla": "blaaa", "blub": "blubber"})),
                 result,
             )

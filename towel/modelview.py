@@ -285,7 +285,7 @@ class ModelView(object):
             urlpatterns.extend(
                 [
                     url(
-                        urlp % {"detail": self.urlconf_detail_re, "ident": ident,},
+                        urlp % {"detail": self.urlconf_detail_re, "ident": ident},
                         view,
                         name=("%s_%s_%%s" % info) % ident,
                     ),

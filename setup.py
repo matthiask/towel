@@ -31,7 +31,7 @@ setup(
             "templates/*/*/*/*.*",
         ],
     },
-    install_requires=["Django>=1.4.2"],
+    install_requires=["Django>=1.11"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
