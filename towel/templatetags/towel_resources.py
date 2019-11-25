@@ -2,9 +2,9 @@ from __future__ import absolute_import, unicode_literals
 
 from functools import reduce
 import operator
+import six
 
 from django import template
-from django.utils import six
 from django.utils.http import urlencode
 
 

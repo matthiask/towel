@@ -9,9 +9,9 @@ subclass which makes sure that data is only ever shown from one tenant.
 from __future__ import absolute_import, unicode_literals
 
 from functools import wraps
+from six.moves import http_client
 
 from django.http import HttpResponse
-from django.utils.six.moves import http_client
 
 from towel import api
 from towel.utils import safe_queryset_and

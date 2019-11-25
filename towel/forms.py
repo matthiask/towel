@@ -6,12 +6,13 @@ from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 
+import six
+
 try:
     from django.forms.utils import flatatt
 except ImportError:
     from django.forms.util import flatatt
 from django.http import HttpResponse, QueryDict
-from django.utils import six
 from django.utils.encoding import force_text, force_bytes
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
