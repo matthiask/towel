@@ -1,8 +1,9 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
+
+import six
 
 from towel import deletion
 from towel.managers import SearchManager
@@ -18,7 +19,7 @@ class PersonManager(SearchManager):
     search_fields = ("family_name", "given_name")
 
 
-@python_2_unicode_compatible
+@six.python_2_unicode_compatible
 class Person(models.Model):
     RELATIONSHIP_CHOICES = (
         ("", "unspecified"),

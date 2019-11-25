@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+import django
 from django.utils.encoding import force_text
 from django.test import TestCase
 
@@ -96,9 +97,12 @@ class ResourceTest(TestCase):
             data["batch_%s" % pk] = pk
         response = self.client.post("/resources/", data)
         self.assertContains(response, "Set active")
-        self.assertContains(
-            response, '<option value="unknown" selected>Unknown</option>'
-        )
+        if django.VERSION < (2, 2):
+            self.assertContains(response, '<option value="1" selected>Unknown</option>')
+        else:
+            self.assertContains(
+                response, '<option value="unknown" selected>Unknown</option>'
+            )
         data["confirm"] = 1
         data["is_active"] = 3
         response = self.client.post("/resources/", data)
