@@ -6,6 +6,7 @@ Middleware for a lazy ``request.access`` attribute
 from __future__ import absolute_import, unicode_literals
 
 from django.db.models import ObjectDoesNotExist
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import SimpleLazyObject
 
 
@@ -16,7 +17,7 @@ def get_access(request):
         return None
 
 
-class LazyAccessMiddleware(object):
+class LazyAccessMiddleware(MiddlewareMixin):
     """
     This middleware (or something equivalent providing a ``request.access``
     attribute must be put in ``MIDDLEWARE_CLASSES`` to use the helpers in
