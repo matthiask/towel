@@ -41,7 +41,11 @@ from django.views.generic.base import TemplateView
 from towel.forms import BatchForm, towel_formfield_callback
 from towel.paginator import Paginator, EmptyPage, InvalidPage
 from towel.utils import (
-    app_model_label, changed_regions, related_classes, safe_queryset_and)
+    app_model_label,
+    changed_regions,
+    related_classes,
+    safe_queryset_and,
+)
 
 try:
     from django.urls import NoReverseMatch
@@ -59,7 +63,7 @@ class ModelResourceView(TemplateView):
     #: template which should always be used when rendering templates related
     #: to a single model. A practical example might be adding the same sidebar
     #: to all resources related to a specific model.
-    base_template = 'base.html'
+    base_template = "base.html"
 
     #: The model. Required.
     model = None
@@ -85,10 +89,10 @@ class ModelResourceView(TemplateView):
             self.url('edit', pk=self.object.pk)
             # equals self.object.urls.url('edit') if using ModelViewURLs
         """
-        fail_silently = kwargs.pop('fail_silently', False)
+        fail_silently = kwargs.pop("fail_silently", False)
 
         try:
-            if getattr(self, 'object', None):
+            if getattr(self, "object", None):
                 return self.object.urls.url(item, *args, **kwargs)
             return self.model().urls.url(item, *args, **kwargs)
         except NoReverseMatch:
@@ -115,17 +119,16 @@ class ModelResourceView(TemplateView):
         """
         opts = self.model._meta
         context = {
-            'base_template': self.base_template,
-            'verbose_name': opts.verbose_name,
-            'verbose_name_plural': opts.verbose_name_plural,
-            'view': self,
-
-            'add_url': self.url('add', fail_silently=True),
-            'list_url': self.url('list', fail_silently=True),
+            "base_template": self.base_template,
+            "verbose_name": opts.verbose_name,
+            "verbose_name_plural": opts.verbose_name_plural,
+            "view": self,
+            "add_url": self.url("add", fail_silently=True),
+            "list_url": self.url("list", fail_silently=True),
         }
         title = self.get_title()
         if title:
-            context['title'] = title
+            context["title"] = title
         context.update(kwargs)
         return context
 
@@ -138,9 +141,10 @@ class ModelResourceView(TemplateView):
         - ``resources/object<template_name_suffix>.html
         """
         names = [
-            '{0}/{1}{2}.html'.format(
-                *(app_model_label(self.model) + (self.template_name_suffix,))),
-            'resources/object{0}.html'.format(self.template_name_suffix),
+            "{0}/{1}{2}.html".format(
+                *(app_model_label(self.model) + (self.template_name_suffix,))
+            ),
+            "resources/object{0}.html".format(self.template_name_suffix),
         ]
         if self.template_name:
             names.insert(0, self.template_name)
@@ -157,8 +161,9 @@ class ModelResourceView(TemplateView):
         elif self.model is not None:
             return self.model._default_manager.all()
         else:
-            raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
-                                       % self.__class__.__name__)
+            raise ImproperlyConfigured(
+                "'%s' must define 'queryset' or 'model'" % self.__class__.__name__
+            )
 
     def get_object(self):
         """
@@ -199,15 +204,17 @@ class ModelResourceView(TemplateView):
         if not silent:
             opts = self.model._meta
             if object is None:
-                messages.error(self.request, _(
-                    'You are not allowed to'
-                    ' delete %(verbose_name_plural)s.'
-                ) % opts.__dict__)
+                messages.error(
+                    self.request,
+                    _("You are not allowed to" " delete %(verbose_name_plural)s.")
+                    % opts.__dict__,
+                )
             else:
-                messages.error(self.request, _(
-                    'You are not allowed to'
-                    ' delete this %(verbose_name)s.'
-                ) % opts.__dict__)
+                messages.error(
+                    self.request,
+                    _("You are not allowed to" " delete this %(verbose_name)s.")
+                    % opts.__dict__,
+                )
         return False
 
     def allow_delete_if_only(self, object, related=(), silent=True):
@@ -219,19 +226,18 @@ class ModelResourceView(TemplateView):
         Returns ``True`` if the classes only belong to the model itself and
         to the classes mentioned in ``related``.
         """
-        classes = set(related_classes(object)).difference(
-            (self.model,), related)
+        classes = set(related_classes(object)).difference((self.model,), related)
         if not classes:
             return True
         if not silent:
             messages.error(
                 self.request,
-                _('Deletion not allowed because of related objects: %s') % (
-                    ', '.join(
-                        force_text(cls._meta.verbose_name_plural)
-                        for cls in classes
+                _("Deletion not allowed because of related objects: %s")
+                % (
+                    ", ".join(
+                        force_text(cls._meta.verbose_name_plural) for cls in classes
                     ),
-                )
+                ),
             )
         return False
 
@@ -250,7 +256,7 @@ class ListView(ModelResourceView):
     search_form = None
 
     #: ``object_list.html`` it is.
-    template_name_suffix = '_list'
+    template_name_suffix = "_list"
 
     def get_paginate_by(self, queryset):
         """
@@ -266,7 +272,8 @@ class ListView(ModelResourceView):
         as well if paginating.
         """
         context = super(ListView, self).get_context_data(
-            object_list=object_list, **kwargs)
+            object_list=object_list, **kwargs
+        )
 
         if object_list is not None:
             paginate_by = self.get_paginate_by(object_list)
@@ -274,7 +281,7 @@ class ListView(ModelResourceView):
                 paginator = Paginator(object_list, paginate_by)
 
                 try:
-                    page = int(self.request.GET.get('page'))
+                    page = int(self.request.GET.get("page"))
                 except (TypeError, ValueError):
                     page = 1
                 try:
@@ -282,11 +289,13 @@ class ListView(ModelResourceView):
                 except (EmptyPage, InvalidPage):
                     page = paginator.page(paginator.num_pages)
 
-                context.update({
-                    'object_list': page.object_list,
-                    'page': page,
-                    'paginator': paginator,
-                })
+                context.update(
+                    {
+                        "object_list": page.object_list,
+                        "page": page,
+                        "paginator": paginator,
+                    }
+                )
 
         return context
 
@@ -300,14 +309,12 @@ class ListView(ModelResourceView):
         if self.search_form:
             form = self.search_form(self.request.GET, request=self.request)
             if not form.is_valid():
-                messages.error(
-                    self.request, _('The search query was invalid.'))
-                return HttpResponseRedirect('?clear=1')
+                messages.error(self.request, _("The search query was invalid."))
+                return HttpResponseRedirect("?clear=1")
             self.object_list = safe_queryset_and(
-                self.object_list,
-                form.queryset(self.model),
+                self.object_list, form.queryset(self.model),
             )
-            context['search_form'] = form
+            context["search_form"] = form
 
         context.update(self.get_context_data(object_list=self.object_list))
 
@@ -315,37 +322,35 @@ class ListView(ModelResourceView):
         if actions:
             form = BatchForm(self.request, self.object_list)
             form.actions = actions
-            form.fields['action'] = forms.ChoiceField(
-                label=_('Action'),
-                choices=[('', '---------')] + [row[:2] for row in actions],
+            form.fields["action"] = forms.ChoiceField(
+                label=_("Action"),
+                choices=[("", "---------")] + [row[:2] for row in actions],
                 widget=forms.HiddenInput,
             )
-            context['batch_form'] = form
+            context["batch_form"] = form
 
             if form.should_process():
-                action = form.cleaned_data.get('action')
+                action = form.cleaned_data.get("action")
                 name, title, fn = [a for a in actions if action == a[0]][0]
                 result = fn(form.batch_queryset)
                 if isinstance(result, HttpResponse):
                     return result
-                elif hasattr(result, '__iter__'):
+                elif hasattr(result, "__iter__"):
                     messages.success(
                         self.request,
                         _(
-                            '<p>Processed the following items:</p>'
-                            ' <ul><li>%s</li></ul>'
-                        ) % (
-                            '</li><li>'.join(
-                                force_text(item) for item in result
-                            )
+                            "<p>Processed the following items:</p>"
+                            " <ul><li>%s</li></ul>"
                         )
+                        % ("</li><li>".join(force_text(item) for item in result)),
                     )
                 elif result is not None:
                     # Not None, but cannot make sense of it either.
-                    raise TypeError('Return value %r of %s invalid.' % (
-                        result, fn.__name__))
+                    raise TypeError(
+                        "Return value %r of %s invalid." % (result, fn.__name__)
+                    )
 
-                return redirect(self.url('list'))
+                return redirect(self.url("list"))
 
         return self.render_to_response(context)
 
@@ -364,7 +369,7 @@ class ListView(ModelResourceView):
         * ``handler_fn``: Callable. Receives the request and the queryset.
         """
         return [
-            ('delete_selected', _('Delete selected'), self.delete_selected),
+            ("delete_selected", _("Delete selected"), self.delete_selected),
         ]
 
     def batch_action_hidden_fields(self, queryset, additional=[]):
@@ -375,12 +380,15 @@ class ListView(ModelResourceView):
 
         See ``delete_selected`` below for the usage.
         """
-        post_values = [('batchform', 1)] + additional + [
-            ('batch_%s' % item.pk, '1') for item in queryset]
+        post_values = (
+            [("batchform", 1)]
+            + additional
+            + [("batch_%s" % item.pk, "1") for item in queryset]
+        )
 
-        return '\n'.join(
-            '<input type="hidden" name="%s" value="%s">' % item
-            for item in post_values)
+        return "\n".join(
+            '<input type="hidden" name="%s" value="%s">' % item for item in post_values
+        )
 
     def delete_selected(self, queryset):
         """
@@ -393,31 +401,35 @@ class ListView(ModelResourceView):
         queryset = [item for item, perm in zip(queryset, allowed) if perm]
 
         if not queryset:
-            messages.error(self.request, _(
-                'You are not allowed to delete any'
-                ' object in the selection.'))
+            messages.error(
+                self.request,
+                _("You are not allowed to delete any" " object in the selection."),
+            )
             return
 
         elif not all(allowed):
-            messages.warning(self.request, _(
-                'Deletion of some objects not allowed. Those have been'
-                ' excluded from the selection already.'))
+            messages.warning(
+                self.request,
+                _(
+                    "Deletion of some objects not allowed. Those have been"
+                    " excluded from the selection already."
+                ),
+            )
 
-        if 'confirm' in self.request.POST:
-            messages.success(self.request, _('Deletion successful.'))
+        if "confirm" in self.request.POST:
+            messages.success(self.request, _("Deletion successful."))
             # Call all delete() methods individually
             [item.delete() for item in queryset]
             return
 
         context = super(ListView, self).get_context_data(
-            title=_('Delete selected'),
+            title=_("Delete selected"),
             action_queryset=queryset,
-            action_hidden_fields=self.batch_action_hidden_fields(queryset, [
-                ('batch-action', 'delete_selected'),
-                ('confirm', 1),
-            ]),
+            action_hidden_fields=self.batch_action_hidden_fields(
+                queryset, [("batch-action", "delete_selected"), ("confirm", 1),]
+            ),
         )
-        self.template_name_suffix = '_action'
+        self.template_name_suffix = "_action"
         return self.render_to_response(context)
 
 
@@ -425,7 +437,8 @@ class DetailView(ModelResourceView):
     """
     Detail view. Nuff said.
     """
-    template_name_suffix = '_detail'
+
+    template_name_suffix = "_detail"
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -485,7 +498,7 @@ class FormView(ModelResourceView):
     object = None
 
     #: ``object_form.html`` should be enough for everyone.
-    template_name_suffix = '_form'
+    template_name_suffix = "_form"
 
     def get_title(self):
         """
@@ -493,8 +506,8 @@ class FormView(ModelResourceView):
         whether ``self.object`` is set or not.
         """
         if self.object and self.object.pk:
-            return capfirst(_('Edit %s') % self.object)
-        return capfirst(_('Add %s') % self.model._meta.verbose_name)
+            return capfirst(_("Edit %s") % self.object)
+        return capfirst(_("Add %s") % self.model._meta.verbose_name)
 
     def get_form_kwargs(self, **kwargs):
         """
@@ -504,12 +517,11 @@ class FormView(ModelResourceView):
         All passed keyword arguments are added to the dictionary, and may
         be used to override any of ``data``, ``files`` and ``instance``.
         """
-        kw = {'instance': self.object}
-        if self.request.method in ('POST', 'PUT'):
-            kw.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
+        kw = {"instance": self.object}
+        if self.request.method in ("POST", "PUT"):
+            kw.update(
+                {"data": self.request.POST, "files": self.request.FILES,}
+            )
         kw.update(kwargs)
         return kw
 
@@ -520,8 +532,9 @@ class FormView(ModelResourceView):
         return modelform_factory(
             self.model,
             form=self.form_class,
-            fields='__all__',
-            formfield_callback=towel_formfield_callback)
+            fields="__all__",
+            formfield_callback=towel_formfield_callback,
+        )
 
     def get_form(self):
         """
@@ -539,8 +552,8 @@ class FormView(ModelResourceView):
         self.object = form.save()
         messages.success(
             self.request,
-            _('The %(verbose_name)s has been successfully saved.') %
-            self.object._meta.__dict__,
+            _("The %(verbose_name)s has been successfully saved.")
+            % self.object._meta.__dict__,
         )
         return redirect(self.object)
 
@@ -561,15 +574,16 @@ class AddView(FormView):
     Checks whether adding objects is allowed first and redirects to the
     list URL for the current model if not.
     """
+
     def get(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect(self.url('list'))
+            return redirect(self.url("list"))
         form = self.get_form()
         return self.render_to_response(self.get_context_data(form=form))
 
     def post(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect(self.url('list'))
+            return redirect(self.url("list"))
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
@@ -588,6 +602,7 @@ class EditView(FormView):
     additional information right now. This will not necessarily stay like that
     in the future, do not rely on it.
     """
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.allow_edit(self.object, silent=False):
@@ -611,13 +626,14 @@ class LiveUpdateAfterEditMixin(object):
     Only uses the editlive mechanism for updating. The edit step happens
     inside a standard modal.
     """
+
     def form_valid(self, form):
         self.object = form.save()
 
         regions = DetailView.render_regions(self)
-        data = {'!form-errors': {}}
+        data = {"!form-errors": {}}
         data.update(changed_regions(regions, form.changed_data))
-        return HttpResponse(json.dumps(data), content_type='application/json')
+        return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 class LiveFormView(LiveUpdateAfterEditMixin, FormView):
@@ -628,6 +644,7 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
     Only supports updating fields on the model itself, and no many to many
     fields either.
     """
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.allow_edit(self.object, silent=True):
@@ -637,7 +654,8 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
         data = model_to_dict(
             self.object,
             fields=form_class._meta.fields,
-            exclude=form_class._meta.exclude)
+            exclude=form_class._meta.exclude,
+        )
 
         for key, value in request.POST.items():
             data[key] = value
@@ -648,8 +666,9 @@ class LiveFormView(LiveUpdateAfterEditMixin, FormView):
             return self.form_valid(form)
 
         return HttpResponse(
-            json.dumps({'!form-errors': dict(form.errors)}),
-            content_type='application/json')
+            json.dumps({"!form-errors": dict(form.errors)}),
+            content_type="application/json",
+        )
 
 
 class PickerView(ModelResourceView):
@@ -657,34 +676,31 @@ class PickerView(ModelResourceView):
     View handling a picker opened in a modal layer. Requires the editlive
     Javascript code to be loaded for searches to work.
     """
-    template_name_suffix = '_picker'
+
+    template_name_suffix = "_picker"
 
     def get_title(self):
-        return capfirst(_('Select a %s') % self.model._meta.verbose_name)
+        return capfirst(_("Select a %s") % self.model._meta.verbose_name)
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         regions = None
-        query = request.GET.get('query')
+        query = request.GET.get("query")
 
         if query is not None:
             self.object_list = safe_queryset_and(
-                self.object_list,
-                self.model.objects._search(query))
+                self.object_list, self.model.objects._search(query)
+            )
             regions = {}
 
-        context = self.get_context_data(
-            object_list=self.object_list,
-            regions=regions)
+        context = self.get_context_data(object_list=self.object_list, regions=regions)
         response = self.render_to_response(context)
 
         if query is not None:
             response.render()
-            data = changed_regions(regions, ['object_list'])
-            data['!keep'] = True  # Keep modal open
-            return HttpResponse(
-                json.dumps(data),
-                content_type='application/json')
+            data = changed_regions(regions, ["object_list"])
+            data["!keep"] = True  # Keep modal open
+            return HttpResponse(json.dumps(data), content_type="application/json")
 
         return response
 
@@ -705,14 +721,15 @@ class DeleteView(ModelResourceView):
     validates for all POST requests. You can optionally specify your own form
     if additional confirmation is required.
     """
+
     #: ``object_delete_confirmation.html``.
-    template_name_suffix = '_delete_confirmation'
+    template_name_suffix = "_delete_confirmation"
 
     #: The form class used for deletions.
     deletion_form_class = forms.Form
 
     def get_title(self):
-        return capfirst(_('Delete %s') % self.object)
+        return capfirst(_("Delete %s") % self.object)
 
     def get_deletion_form(self):
         """
@@ -720,7 +737,7 @@ class DeleteView(ModelResourceView):
         form initialization; ``get_form_class`` and ``get_form_kwargs`` are
         not available for deletions for simplicity.
         """
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return self.deletion_form_class(self.request.POST)
         return self.deletion_form_class()
 
@@ -749,10 +766,10 @@ class DeleteView(ModelResourceView):
         self.object.delete()
         messages.success(
             self.request,
-            _('The %(verbose_name)s has been successfully deleted.') %
-            self.object._meta.__dict__,
+            _("The %(verbose_name)s has been successfully deleted.")
+            % self.object._meta.__dict__,
         )
-        return redirect(self.url('list'))
+        return redirect(self.url("list"))
 
     def deletion_form_invalid(self, form):
         context = self.get_context_data(object=self.object, form=form)

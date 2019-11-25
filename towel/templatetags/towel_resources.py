@@ -11,7 +11,7 @@ from django.utils.http import urlencode
 register = template.Library()
 
 
-@register.inclusion_tag('towel/_pagination.html', takes_context=True)
+@register.inclusion_tag("towel/_pagination.html", takes_context=True)
 def pagination(context, page, paginator, where=None):
     """
     Shows pagination links::
@@ -26,34 +26,38 @@ def pagination(context, page, paginator, where=None):
     """
 
     return {
-        'context': context,
-        'page': page,
-        'paginator': paginator,
-        'where': where,
+        "context": context,
+        "page": page,
+        "paginator": paginator,
+        "where": where,
     }
 
 
 @register.filter
-def querystring(data, exclude='page,all'):
+def querystring(data, exclude="page,all"):
     """
     Returns the current querystring, excluding specified GET parameters::
 
         {% request.GET|querystring:"page,all" %}
     """
 
-    exclude = exclude.split(',')
+    exclude = exclude.split(",")
 
     items = reduce(
         operator.add,
-        (list((k, v) for v in values) for k, values
-            in six.iterlists(data) if k not in exclude),
-        [])
+        (
+            list((k, v) for v in values)
+            for k, values in six.iterlists(data)
+            if k not in exclude
+        ),
+        [],
+    )
 
     return urlencode(sorted(items))
 
 
-@register.inclusion_tag('towel/_ordering_link.html', takes_context=True)
-def ordering_link(context, field, request, title='', base_url='', **kwargs):
+@register.inclusion_tag("towel/_ordering_link.html", takes_context=True)
+def ordering_link(context, field, request, title="", base_url="", **kwargs):
     """
     Shows a table column header suitable for use as a link to change the
     ordering of objects in a list::
@@ -80,22 +84,22 @@ def ordering_link(context, field, request, title='', base_url='', **kwargs):
     The ``classes`` argument defaults to ``'ordering'``.
     """
 
-    current = request.GET.get('o', '')
+    current = request.GET.get("o", "")
 
     # Automatically handle search form persistency
     data = request.GET.copy()
     if not data:
-        form = context.get('search_form')
-        if form is not None and getattr(form, 'persistency', False):
+        form = context.get("search_form")
+        if form is not None and getattr(form, "persistency", False):
             data = form.data
 
     ctx = {
-        'querystring': querystring(data, exclude='page,all,o'),
-        'field': field,
-        'used': current in (field, '-%s' % field),
-        'descending': current == field,
-        'title': title,
-        'base_url': base_url,
+        "querystring": querystring(data, exclude="page,all,o"),
+        "field": field,
+        "used": current in (field, "-%s" % field),
+        "descending": current == field,
+        "title": title,
+        "base_url": base_url,
     }
     ctx.update(kwargs)
     return ctx

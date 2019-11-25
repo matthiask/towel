@@ -35,13 +35,10 @@ class FrankenResource(Resource):
         if not self.modelview.adding_allowed(request):
             raise APIException(status=httplib.FORBIDDEN)
 
-        form_class = self.modelview.get_form(
-            request,
-            change=False)
+        form_class = self.modelview.get_form(request, change=False)
         form = self.modelview.get_form_instance(
-            request,
-            form_class=form_class,
-            change=False)
+            request, form_class=form_class, change=False
+        )
 
         try:
             is_valid = form.is_valid()
@@ -49,25 +46,23 @@ class FrankenResource(Resource):
             # This can happen when POSTing something of type
             # application/json with a list instead of a single entry,
             # e.g. {"customer_id": ["1"]}
-            raise APIException('Malformed data', data={
-                'exception': '%s' % exc})
+            raise APIException("Malformed data", data={"exception": "%s" % exc})
 
         if not is_valid:
-            raise APIException(data={
-                'validation': form.errors,
-            })
+            raise APIException(
+                data={"validation": form.errors,}
+            )
 
         instance = self.modelview.save_form(request, form, change=False)
         self.modelview.save_model(request, instance, form, change=False)
         self.modelview.post_save(request, instance, form, {}, change=False)
 
         data = self.api.serialize_instance(
-            instance,
-            build_absolute_uri=request.build_absolute_uri)
+            instance, build_absolute_uri=request.build_absolute_uri
+        )
         return self.serialize_response(
-            data,
-            status=httplib.CREATED,
-            headers={'Location': data['__uri__']})
+            data, status=httplib.CREATED, headers={"Location": data["__uri__"]}
+        )
 
     def put_detail(self, request, *args, **kwargs):
         """
@@ -84,29 +79,25 @@ class FrankenResource(Resource):
             raise APIException(status=httplib.FORBIDDEN)
 
         # The ModelView code only does the right thing when method is POST
-        request.method = 'POST'
+        request.method = "POST"
 
-        form_class = self.modelview.get_form(
-            request,
-            instance=instance,
-            change=True)
+        form_class = self.modelview.get_form(request, instance=instance, change=True)
         form = self.modelview.get_form_instance(
-            request,
-            form_class=form_class,
-            instance=instance,
-            change=True)
+            request, form_class=form_class, instance=instance, change=True
+        )
 
         if not form.is_valid():
-            raise APIException(data={
-                'validation': form.errors,
-            })
+            raise APIException(
+                data={"validation": form.errors,}
+            )
 
         instance = self.modelview.save_form(request, form, change=True)
         self.modelview.save_model(request, instance, form, change=True)
         self.modelview.post_save(request, instance, form, {}, change=True)
 
         data = self.api.serialize_instance(
-            instance, build_absolute_uri=request.build_absolute_uri)
+            instance, build_absolute_uri=request.build_absolute_uri
+        )
         return self.serialize_response(data, status=httplib.OK)
 
     def patch_detail(self, request, *args, **kwargs):
@@ -123,7 +114,8 @@ class FrankenResource(Resource):
             raise APIException(status=httplib.FORBIDDEN)
 
         data = self.api.serialize_instance(
-            instance, build_absolute_uri=request.build_absolute_uri)
+            instance, build_absolute_uri=request.build_absolute_uri
+        )
         for key in request.POST:
             if isinstance(data[key], (list, tuple)):
                 data[key] = request.POST.getlist(key)
@@ -140,12 +132,15 @@ class FrankenResource(Resource):
         instance = self.detail_object_or_404()
 
         if not self.modelview.deletion_allowed(request, instance):
-            raise APIException(status=httplib.FORBIDDEN, data={
-                'messages': [{
-                    'message': '%s' % msg,
-                    'tags': msg.tags,
-                } for msg in get_messages(request)],
-            })
+            raise APIException(
+                status=httplib.FORBIDDEN,
+                data={
+                    "messages": [
+                        {"message": "%s" % msg, "tags": msg.tags,}
+                        for msg in get_messages(request)
+                    ],
+                },
+            )
 
         instance.delete()
         return self.serialize_response({}, status=httplib.NO_CONTENT)

@@ -9,10 +9,10 @@ register = template.Library()
 
 
 PATHS = [
-    '_meta',
-    'queryset.model._meta',
-    'instance._meta',
-    'model._meta',
+    "_meta",
+    "queryset.model._meta",
+    "instance._meta",
+    "model._meta",
 ]
 
 
@@ -20,7 +20,7 @@ def _resolve(instance, last_part):
     for path in PATHS:
         o = instance
         found = True
-        for part in itertools.chain(path.split('.'), [last_part]):
+        for part in itertools.chain(path.split("."), [last_part]):
             try:
                 o = getattr(o, part)
             except AttributeError:
@@ -41,7 +41,7 @@ def verbose_name(item):
         {{ formset|verbose_name }}
         {{ object_list|verbose_name }}
     """
-    return _resolve(item, 'verbose_name')
+    return _resolve(item, "verbose_name")
 
 
 @register.filter
@@ -54,4 +54,4 @@ def verbose_name_plural(item):
         {{ formset|verbose_name_plural }}
         {{ object_list|verbose_name_plural }}
     """
-    return _resolve(item, 'verbose_name_plural')
+    return _resolve(item, "verbose_name_plural")

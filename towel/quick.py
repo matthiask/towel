@@ -13,11 +13,11 @@ Usage example::
 
     QUICK_RULES = [
         (re.compile(r'!!'), quick.static(important=True)),
-        (re.compile(r'@(?P<username>\w+)'),
+        (re.compile(r'@(?P<username>\\w+)'),
             quick.model_mapper(User.objects.all(), 'assigned_to')),
-        (re.compile(r'\^\+(?P<due>\d+)'),
+        (re.compile(r'\\^\\+(?P<due>\\d+)'),
             lambda v: {'due': date.today() + timedelta(days=int(v['due']))}),
-        (re.compile(r'=(?P<estimated_hours>[\d\.]+)h'),
+        (re.compile(r'=(?P<estimated_hours>[\\d\\.]+)h'),
             quick.identity()),
         ]
 
@@ -63,11 +63,11 @@ def parse_quickadd(quick, regexes):
                 for key, value in extract(match.groupdict()).items():
                     data.setdefault(key, []).append(value)
 
-                quick = quick[len(match.group(0)):].strip()
+                quick = quick[len(match.group(0)) :].strip()
                 break
 
         else:
-            splitted = quick.split(' ', 1)
+            splitted = quick.split(" ", 1)
             if len(splitted) < 2:
                 rest.append(quick)
                 break
@@ -83,7 +83,7 @@ def identity():
     Identity mapper. Returns the values from the regular expression
     directly.
     """
-    return (lambda value: value)
+    return lambda value: value
 
 
 def model_mapper(queryset, attribute):
@@ -93,15 +93,17 @@ def model_mapper(queryset, attribute):
     primary key of the instance under the ``attribute`` name, and the instance
     itself as ``attribute_``.
     """
+
     def _fn(values):
         try:
             instance = queryset.get(**values)
             return {
                 attribute: instance.pk,
-                attribute + '_': instance,
+                attribute + "_": instance,
             }
         except (queryset.model.DoesNotExist, KeyError, TypeError, ValueError):
             return {}
+
     return _fn
 
 
@@ -109,7 +111,7 @@ def static(**kwargs):
     """
     Return a predefined ``dict`` when the given regex matches.
     """
-    return (lambda values: kwargs)
+    return lambda values: kwargs
 
 
 def model_choices_mapper(data, attribute):
@@ -127,16 +129,18 @@ def model_choices_mapper(data, attribute):
             visibility = models.CharField(choices=VISIBILITY_CHOICES)
 
         QUICK_RULES = [
-            (re.compile(r'~(?P<value>[^\s]+)'), quick.model_choices_mapper(
+            (re.compile(r'~(?P<value>[^\\s]+)'), quick.model_choices_mapper(
                 Ticket.VISIBILITY_CHOICES, 'visibility')),
             ]
     """
+
     def _fn(values):
         reverse = dict((force_text(value), key) for key, value in data)
         try:
-            return {attribute: reverse[values['value']]}
+            return {attribute: reverse[values["value"]]}
         except KeyError:
             return {}
+
     return _fn
 
 
@@ -145,14 +149,17 @@ def due_mapper(attribute):
     Understands ``Today``, ``Tomorrow``, the following five localized
     week day names or (partial) dates such as ``20.12.`` and ``01.03.2012``.
     """
+
     def _fn(values):
         today = date.today()
-        due = values['due']
+        due = values["due"]
 
-        days = [(dateformat.format(d, 'l'), d) for d in [
-            (today + timedelta(days=d)) for d in range(2, 7)]]
-        days.append((_('Today'), today))
-        days.append((_('Tomorrow'), today + timedelta(days=1)))
+        days = [
+            (dateformat.format(d, "l"), d)
+            for d in [(today + timedelta(days=d)) for d in range(2, 7)]
+        ]
+        days.append((_("Today"), today))
+        days.append((_("Tomorrow"), today + timedelta(days=1)))
         days = dict((k.lower(), value) for k, value in days)
 
         if due.lower() in days:
@@ -160,7 +167,7 @@ def due_mapper(attribute):
 
         day = [today.year, today.month, today.day]
         try:
-            for i, n in enumerate(due.split('.')):
+            for i, n in enumerate(due.split(".")):
                 day[2 - i] = int(n, 10)
         except (IndexError, TypeError, ValueError):
             pass
@@ -171,6 +178,7 @@ def due_mapper(attribute):
             pass
 
         return {}
+
     return _fn
 
 
@@ -179,10 +187,12 @@ def bool_mapper(attribute):
     Maps ``yes``, ``1`` and ``on`` to ``True`` and ``no``, ``0``
     and ``off`` to ``False``.
     """
+
     def _fn(values):
-        if values['bool'].lower() in ('yes', '1', 'on', 'true'):
+        if values["bool"].lower() in ("yes", "1", "on", "true"):
             return {attribute: True}
-        elif values['bool'].lower() in ('no', '0', 'off', 'false'):
+        elif values["bool"].lower() in ("no", "0", "off", "false"):
             return {attribute: False}
         return {}
+
     return _fn

@@ -40,7 +40,7 @@ from django.db import models
 
 
 DEFAULT = None
-PROTECT = 'protect'
+PROTECT = "protect"
 
 _deletion = local()
 
@@ -86,6 +86,7 @@ class Model(models.Model):
     :py:class:`django.db.models.Model` if you want to take advantage of
     the :py:mod:`towel.deletion` module.
     """
+
     class Meta:
         abstract = True
 
@@ -94,6 +95,6 @@ class Model(models.Model):
         Deletion is skipped if inside a :py:func:`~towel.deletion.protect`
         block.
         """
-        if getattr(_deletion, 'mode', None) == PROTECT:
+        if getattr(_deletion, "mode", None) == PROTECT:
             return
         super(Model, self).delete(*args, **kwargs)

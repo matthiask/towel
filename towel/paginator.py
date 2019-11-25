@@ -28,7 +28,7 @@ from django.conf import settings
 from django.core import paginator
 
 
-__all__ = ('InvalidPage', 'PageNotAnInteger', 'EmptyPage', 'Paginator', 'Page')
+__all__ = ("InvalidPage", "PageNotAnInteger", "EmptyPage", "Paginator", "Page")
 
 
 # Import useful exceptions into the local scope
@@ -38,17 +38,21 @@ EmptyPage = paginator.EmptyPage
 
 
 #: Paginator configuration
-PAGINATION = getattr(settings, 'PAGINATION', {
-    'START': 6,   # items at the start
-    'END': 6,     # items at the end
-    'AROUND': 5,  # items around the current page
-})
+PAGINATION = getattr(
+    settings,
+    "PAGINATION",
+    {
+        "START": 6,  # items at the start
+        "END": 6,  # items at the end
+        "AROUND": 5,  # items around the current page
+    },
+)
 
 
 def filter_adjacent(iterable):
     """Collapse identical adjacent values"""
     # Generate an object guaranteed to not exist inside the iterable
-    current = type(str('Marker'), (object,), {})
+    current = type(str("Marker"), (object,), {})
 
     for item in iterable:
         if item != current:
@@ -61,6 +65,7 @@ class Paginator(paginator.Paginator):
     Custom paginator returning a Page object with an additional page_range
     method which can be used to implement Digg-style pagination
     """
+
     def page(self, number):
         return Page(paginator.Paginator.page(self, number))
 
@@ -69,6 +74,7 @@ class Page(paginator.Page):
     """
     Page object for Digg-style pagination
     """
+
     def __init__(self, page):
         # We do not call super.__init__, because we're only a wrapper / proxy
         self.__dict__ = page.__dict__
@@ -103,13 +109,13 @@ class Page(paginator.Page):
         num_pages = self.paginator.num_pages
 
         for i in range(1, num_pages + 1):
-            if i <= PAGINATION['START']:
+            if i <= PAGINATION["START"]:
                 yield i
 
-            elif i > num_pages - PAGINATION['END']:
+            elif i > num_pages - PAGINATION["END"]:
                 yield i
 
-            elif abs(self.number - i) <= PAGINATION['AROUND']:
+            elif abs(self.number - i) <= PAGINATION["AROUND"]:
                 yield i
 
             else:

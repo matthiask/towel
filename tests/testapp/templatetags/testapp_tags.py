@@ -10,8 +10,7 @@ register = template.Library()
 
 @register.tag
 def testtag(parser, token):
-    return TestNode(
-        *parse_args_and_kwargs(parser, token.split_contents()[1:]))
+    return TestNode(*parse_args_and_kwargs(parser, token.split_contents()[1:]))
 
 
 class TestNode(template.Node):
@@ -22,7 +21,7 @@ class TestNode(template.Node):
     def render(self, context):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
 
-        return 'ARGS: %s\nKWARGS: %s\n' % (
-            ','.join(str(arg) for arg in args),
-            ','.join('%s=%s' % (k, v) for k, v in sorted(kwargs.items())),
+        return "ARGS: %s\nKWARGS: %s\n" % (
+            ",".join(str(arg) for arg in args),
+            ",".join("%s=%s" % (k, v) for k, v in sorted(kwargs.items())),
         )

@@ -5,6 +5,7 @@ import json
 from django import forms
 from django.db import models
 from django.db.models import ObjectDoesNotExist
+
 try:
     from django.forms.utils import flatatt
 except ImportError:
@@ -109,15 +110,16 @@ class BatchForm(forms.Form):
     ids = []
 
     def __init__(self, request, queryset, *args, **kwargs):
-        kwargs.setdefault('prefix', 'batch')
+        kwargs.setdefault("prefix", "batch")
 
         self.request = request
         self.queryset = queryset
 
-        if request.method == 'POST' and 'batchform' in request.POST:
+        if request.method == "POST" and "batchform" in request.POST:
             self._process = True
             super(BatchForm, self).__init__(
-                request.POST, request.FILES, *args, **kwargs)
+                request.POST, request.FILES, *args, **kwargs
+            )
         else:
             super(BatchForm, self).__init__(*args, **kwargs)
 
@@ -130,11 +132,13 @@ class BatchForm(forms.Form):
 
         post_data = self.request.POST
         self.ids = [
-            pk for pk in self.queryset.values_list('id', flat=True)
-            if post_data.get('batch_%s' % pk)]
+            pk
+            for pk in self.queryset.values_list("id", flat=True)
+            if post_data.get("batch_%s" % pk)
+        ]
 
         if not self.ids:
-            raise forms.ValidationError(_('No items selected'))
+            raise forms.ValidationError(_("No items selected"))
 
         return data
 
@@ -167,24 +171,22 @@ class BatchForm(forms.Form):
           A success message will be generated containing all items in the
           iterable.
         """
-        if hasattr(self, '_context'):
+        if hasattr(self, "_context"):
             import warnings
+
             warnings.warn(
-                'The batch form \'%s.%s\' is still using \'_context\'.'
-                ' Switch to using the new \'process\' method now!' % (
-                    self.__class__.__module__,
-                    self.__class__.__name__,
-                ),
+                "The batch form '%s.%s' is still using '_context'."
+                " Switch to using the new 'process' method now!"
+                % (self.__class__.__module__, self.__class__.__name__,),
                 DeprecationWarning,
             )
 
             ctx = self._context(self.batch_queryset)
-            if 'response' in ctx:
-                return ctx['response']
+            if "response" in ctx:
+                return ctx["response"]
             return ctx
 
-        raise NotImplementedError(
-            'BatchForm.process has no default implementation.')
+        raise NotImplementedError("BatchForm.process has no default implementation.")
 
 
 class SearchForm(forms.Form):
@@ -244,7 +246,7 @@ class SearchForm(forms.Form):
 
     #: Fields which are always excluded from automatic filtering
     #: in ``apply_filters``
-    always_exclude = ('s', 'query', 'o')
+    always_exclude = ("s", "query", "o")
 
     #: Default field values - used if not overridden by the user
     default = {}
@@ -256,17 +258,17 @@ class SearchForm(forms.Form):
     quick_rules = []
 
     #: Search form active?
-    s = forms.CharField(required=False, widget=forms.HiddenInput(),
-                        initial='1')
+    s = forms.CharField(required=False, widget=forms.HiddenInput(), initial="1")
 
     #: Current ordering
     o = forms.CharField(required=False, widget=forms.HiddenInput())
 
     #: Full text search query
     query = forms.CharField(
-        label=_('Query'),
+        label=_("Query"),
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': _('Query')}))
+        widget=forms.TextInput(attrs={"placeholder": _("Query")}),
+    )
 
     def __init__(self, data, *args, **kwargs):
         # Are the results filtered in any way?
@@ -274,11 +276,11 @@ class SearchForm(forms.Form):
         # Is a persisted search active?
         self.persistency = False
 
-        request = kwargs.pop('request')
+        request = kwargs.pop("request")
         self.original_data = data
         super(SearchForm, self).__init__(
-            self.prepare_data(data, request),
-            *args, **kwargs)
+            self.prepare_data(data, request), *args, **kwargs
+        )
         self.persist(request)
         self.post_init(request)
 
@@ -294,10 +296,10 @@ class SearchForm(forms.Form):
         data = data.copy()
         for key, value in self.default.items():
             if key not in data:
-                if hasattr(value, '__call__'):
+                if hasattr(value, "__call__"):
                     value = value(request)
 
-                if hasattr(value, '__iter__'):
+                if hasattr(value, "__iter__"):
                     data.setlist(key, value)
                 else:
                     data[key] = value
@@ -316,32 +318,31 @@ class SearchForm(forms.Form):
         isn't searching right now.
         """
 
-        session_key = 'sf_%s.%s' % (
-            self.__class__.__module__,
-            self.__class__.__name__)
+        session_key = "sf_%s.%s" % (self.__class__.__module__, self.__class__.__name__)
 
-        if 'clear' in request.GET or 'n' in request.GET:
+        if "clear" in request.GET or "n" in request.GET:
             if session_key in request.session:
                 del request.session[session_key]
 
         if self.original_data and (
-                set(self.original_data.keys()) & set(self.fields.keys())):
+            set(self.original_data.keys()) & set(self.fields.keys())
+        ):
             data = self.data.copy()
-            if 's' in data:
-                del data['s']
+            if "s" in data:
+                del data["s"]
                 request.session[session_key] = data.urlencode()
 
-        elif request.method == 'GET' and 's' not in request.GET:
+        elif request.method == "GET" and "s" not in request.GET:
             # try to get saved search from session
             if session_key in request.session:
                 session_data = force_bytes(request.session[session_key])
-                self.data = QueryDict(session_data, encoding='utf-8')
+                self.data = QueryDict(session_data, encoding="utf-8")
                 self.persistency = True
 
             else:
                 self.filtered = False
 
-        elif request.method == 'POST' and 's' not in request.POST:
+        elif request.method == "POST" and "s" not in request.POST:
             # It wasn't the search form which was POSTed, hopefully :-)
             self.filtered = False
 
@@ -351,9 +352,9 @@ class SearchForm(forms.Form):
         by this search form in any way.
         """
 
-        if self.persistency or self.safe_cleaned_data.get('s'):
-            return 'searching'
-        return ''
+        if self.persistency or self.safe_cleaned_data.get("s"):
+            return "searching"
+        return ""
 
     @property
     def safe_cleaned_data(self):
@@ -372,7 +373,7 @@ class SearchForm(forms.Form):
         Yield all additional search fields.
         """
 
-        skip = ('query', 's', 'o')
+        skip = ("query", "s", "o")
 
         for field in self:
             if field.name not in skip:
@@ -392,9 +393,12 @@ class SearchForm(forms.Form):
                 continue
 
             value = data.get(field)
-            if (value and hasattr(value, '__iter__')
-                    and not isinstance(value, six.string_types)):
-                queryset = queryset.filter(**{'%s__in' % field: value})
+            if (
+                value
+                and hasattr(value, "__iter__")
+                and not isinstance(value, six.string_types)
+            ):
+                queryset = queryset.filter(**{"%s__in" % field: value})
             elif value or value is False:
                 queryset = queryset.filter(**{field: value})
 
@@ -404,8 +408,9 @@ class SearchForm(forms.Form):
                 if field in exclude:
                     continue
 
-                if field.endswith('_') and (
-                        field[:-1] in quick_only or field[:-1] in self.fields):
+                if field.endswith("_") and (
+                    field[:-1] in quick_only or field[:-1] in self.fields
+                ):
                     # Either ``quick.model_mapper`` wanted to trick us and
                     # added the model instance, too, or the quick mechanism
                     # filled an existing form field which means that the
@@ -428,7 +433,7 @@ class SearchForm(forms.Form):
         if ordering is None:
             return queryset
 
-        if ordering and ordering[0] == '-':
+        if ordering and ordering[0] == "-":
             order_by, desc = ordering[1:], True
         else:
             order_by, desc = ordering, False
@@ -439,7 +444,7 @@ class SearchForm(forms.Form):
 
         order_by = self.orderings[order_by]
 
-        if hasattr(order_by, '__call__'):
+        if hasattr(order_by, "__call__"):
             queryset = order_by(queryset)
         elif isinstance(order_by, (list, tuple)):
             queryset = queryset.order_by(*order_by)
@@ -456,21 +461,19 @@ class SearchForm(forms.Form):
         simple filter() calls
         """
 
-        if not hasattr(self, '_query_data_cache'):
+        if not hasattr(self, "_query_data_cache"):
             data = self.safe_cleaned_data
 
             if self.quick_rules:
-                data, query = quick.parse_quickadd(
-                    data.get('query'),
-                    self.quick_rules)
-                query = ' '.join(query)
+                data, query = quick.parse_quickadd(data.get("query"), self.quick_rules)
+                query = " ".join(query)
 
                 # Data in form fields overrides any quick specifications
                 for k, v in self.safe_cleaned_data.items():
                     if v is not None:
                         data[k] = v
             else:
-                query = data.get('query')
+                query = data.get("query")
 
             self._query_data_cache = query, data
         return self._query_data_cache
@@ -483,7 +486,7 @@ class SearchForm(forms.Form):
         query, data = self.query_data()
         queryset = model.objects.search(query)
         queryset = self.apply_filters(queryset, data)
-        return self.apply_ordering(queryset, data.get('o'))
+        return self.apply_ordering(queryset, data.get("o"))
 
 
 class WarningsForm(forms.BaseForm):
@@ -505,11 +508,13 @@ class WarningsForm(forms.BaseForm):
     * An additional form field named ``ignore_warnings`` is available - this
       field should only be displayed if ``WarningsForm.warnings`` is non-emtpy.
     """
+
     def __init__(self, *args, **kwargs):
         super(WarningsForm, self).__init__(*args, **kwargs)
 
-        self.fields['ignore_warnings'] = forms.BooleanField(
-            label=_('Ignore warnings'), required=False)
+        self.fields["ignore_warnings"] = forms.BooleanField(
+            label=_("Ignore warnings"), required=False
+        )
         self.warnings = []
 
     def add_warning(self, warning):
@@ -527,7 +532,8 @@ class WarningsForm(forms.BaseForm):
             return False
 
         if self.warnings and not (
-                ignore_warnings or self.cleaned_data.get('ignore_warnings')):
+            ignore_warnings or self.cleaned_data.get("ignore_warnings")
+        ):
             return False
 
         return True
@@ -545,6 +551,7 @@ class StrippedTextInput(StrippedInputMixin, forms.TextInput):
     """
     ``TextInput`` form widget subclass returning stripped contents only
     """
+
     pass
 
 
@@ -552,6 +559,7 @@ class StrippedTextarea(StrippedInputMixin, forms.Textarea):
     """
     ``Textarea`` form widget subclass returning stripped contents only
     """
+
     pass
 
 
@@ -563,13 +571,13 @@ def towel_formfield_callback(field, **kwargs):
     """
 
     if isinstance(field, models.CharField) and not field.choices:
-        kwargs['widget'] = StrippedTextInput()
+        kwargs["widget"] = StrippedTextInput()
     elif isinstance(field, models.TextField):
-        kwargs['widget'] = StrippedTextarea()
+        kwargs["widget"] = StrippedTextarea()
     elif isinstance(field, models.DateTimeField):
-        kwargs['widget'] = forms.DateTimeInput(attrs={'class': 'dateinput'})
+        kwargs["widget"] = forms.DateTimeInput(attrs={"class": "dateinput"})
     elif isinstance(field, models.DateField):
-        kwargs['widget'] = forms.DateInput(attrs={'class': 'dateinput'})
+        kwargs["widget"] = forms.DateInput(attrs={"class": "dateinput"})
 
     return field.formfield(**kwargs)
 
@@ -578,10 +586,13 @@ def towel_formfield_callback(field, **kwargs):
 #: ``stripped_formfield_callback`` too.
 def stripped_formfield_callback(field, **kwargs):
     import warnings
+
     warnings.warn(
-        'stripped_formfield_callback has been renamed to'
-        ' towel_formfield_callback, please start using the new name.',
-        DeprecationWarning, stacklevel=2)
+        "stripped_formfield_callback has been renamed to"
+        " towel_formfield_callback, please start using the new name.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return towel_formfield_callback(field, **kwargs)
 
 
@@ -592,13 +603,13 @@ def autocompletion_response(queryset, limit=10):
     ``towel.forms.ModelAutocompleteWidget``.
     """
     return HttpResponse(
-        json.dumps([
-            {
-                'label': force_text(instance),
-                'value': instance.pk,
-            } for instance in queryset[:limit]
-        ]),
-        content_type='application/json',
+        json.dumps(
+            [
+                {"label": force_text(instance), "value": instance.pk,}
+                for instance in queryset[:limit]
+            ]
+        ),
+        content_type="application/json",
     )
 
 
@@ -622,8 +633,7 @@ class ModelAutocompleteWidget(forms.TextInput):
     """
 
     def __init__(self, attrs=None, url=None, queryset=None):
-        assert (url is None) != (queryset is None), (
-            'Provide either url or queryset')
+        assert (url is None) != (queryset is None), "Provide either url or queryset"
 
         self.url = url
         self.queryset = queryset
@@ -632,41 +642,38 @@ class ModelAutocompleteWidget(forms.TextInput):
     def render(self, name, value, attrs=None, choices=()):
         attrs = attrs or {}
         if value is None:
-            value = ''
+            value = ""
         attrs["type"] = "hidden"
         attrs["name"] = name
         final_attrs = self.build_attrs(attrs)
-        if value != '':
+        if value != "":
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_text(self._format_value(value))
+            final_attrs["value"] = force_text(self._format_value(value))
 
-        hidden = '<input%s />' % flatatt(final_attrs)
+        hidden = "<input%s />" % flatatt(final_attrs)
 
-        final_attrs['type'] = 'text'
-        final_attrs['id'] += '_ac'
-        del final_attrs['name']
+        final_attrs["type"] = "text"
+        final_attrs["id"] += "_ac"
+        del final_attrs["name"]
 
         try:
             instance = self.choices.queryset.get(pk=value)
-            final_attrs['value'] = force_text(instance)
+            final_attrs["value"] = force_text(instance)
         except (ObjectDoesNotExist, ValueError, TypeError):
-            final_attrs['value'] = ''
+            final_attrs["value"] = ""
 
         if self.is_required:
-            ac = '<input%s />' % flatatt(final_attrs)
+            ac = "<input%s />" % flatatt(final_attrs)
         else:
-            final_attrs.setdefault('class', '')
-            final_attrs['class'] += ' ac_nullable'
+            final_attrs.setdefault("class", "")
+            final_attrs["class"] += " ac_nullable"
 
             ac = (
                 ' <a href="#" id="%(id)s_cl" class="ac_clear">'
-                ' %(text)s</a>' % {
-                    'id': final_attrs['id'][:-3],
-                    'text': _('clear'),
-                }
-            ) + ('<input%s />' % flatatt(final_attrs))
+                " %(text)s</a>" % {"id": final_attrs["id"][:-3], "text": _("clear"),}
+            ) + ("<input%s />" % flatatt(final_attrs))
 
-        js = '''<script type="text/javascript">
+        js = """<script type="text/javascript">
 $(function() {
     $('#%(id)s_ac').autocomplete({
         source: %(source)s,
@@ -691,24 +698,25 @@ $(function() {
     });
 });
 </script>
-''' % {'id': attrs.get('id', name), 'name': name, 'source': self._source()}
+""" % {
+            "id": attrs.get("id", name),
+            "name": name,
+            "source": self._source(),
+        }
 
         return mark_safe(hidden + ac + js)
 
     def _source(self):
         if self.url:
-            if hasattr(self.url, '__call__'):
-                return '\'%s\'' % self.url()
-            return '\'%s\'' % self.url
+            if hasattr(self.url, "__call__"):
+                return "'%s'" % self.url()
+            return "'%s'" % self.url
         else:
-            data = json.dumps([
-                {
-                    'label': force_text(o),
-                    'value': o.id,
-                } for o in self.queryset.all()
-            ])
+            data = json.dumps(
+                [{"label": force_text(o), "value": o.id,} for o in self.queryset.all()]
+            )
 
-            return '''function (request, response) {
+            return """function (request, response) {
     var data = %(data)s, ret = [], term = request.term.toLowerCase();
     for (var i=0; i<data.length; ++i) {
         if (data[i].label.toLowerCase().indexOf(term) != -1)
@@ -716,7 +724,9 @@ $(function() {
     }
     response(ret);
 }
-''' % {'data': data}
+""" % {
+                "data": data
+            }
 
 
 class InvalidEntry(object):
@@ -727,6 +737,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
     """
     You should probably use harvest chosen instead.
     """
+
     def __init__(self, attrs=None, queryset=None):
         self.queryset = queryset
         super(MultipleAutocompletionWidget, self).__init__(attrs)
@@ -743,10 +754,9 @@ class MultipleAutocompletionWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs)
 
         if value:
-            value = ', '.join(
-                force_text(o) for o in self.queryset.filter(id__in=value))
+            value = ", ".join(force_text(o) for o in self.queryset.filter(id__in=value))
 
-        js = '''<script type="text/javascript">
+        js = """<script type="text/javascript">
 $(function() {
     function split( val ) {
         return val.split( /,\s*/ );
@@ -790,17 +800,14 @@ $(function() {
     });
 });
 </script>
-''' % {
-            'id': final_attrs.get('id', name),
-            'name': name,
-            'source': self._source(),
+""" % {
+            "id": final_attrs.get("id", name),
+            "name": name,
+            "source": self._source(),
         }
 
         return mark_safe(
-            '<textarea%s>%s</textarea>' % (
-                flatatt(final_attrs),
-                value,
-            ) + js
+            "<textarea%s>%s</textarea>" % (flatatt(final_attrs), value,) + js
         )
 
     def value_from_datadict(self, data, files, name):
@@ -809,16 +816,12 @@ $(function() {
             return []
 
         possible = self._possible()
-        values = [
-            s for s in
-            [s.strip() for s in value.lower().split(',')]
-            if s]
+        values = [s for s in [s.strip() for s in value.lower().split(",")] if s]
         return list(set(possible.get(s, InvalidEntry).pk for s in values))
 
     def _source(self):
-        return '''function(request, response) {
+        return """function(request, response) {
     response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
-    }''' % {
-            'data': json.dumps(
-                [force_text(o) for o in self.queryset._clone()]),
+    }""" % {
+            "data": json.dumps([force_text(o) for o in self.queryset._clone()]),
         }

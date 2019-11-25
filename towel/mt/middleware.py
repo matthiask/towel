@@ -23,5 +23,6 @@ class LazyAccessMiddleware(MiddlewareMixin):
     attribute must be put in ``MIDDLEWARE_CLASSES`` to use the helpers in
     ``towel.mt``.
     """
+
     def process_request(self, request):
         request.access = SimpleLazyObject(lambda: get_access(request))

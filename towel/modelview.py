@@ -15,8 +15,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
-from towel.utils import (
-    app_model_label, related_classes, safe_queryset_and, tryreverse)
+from towel.utils import app_model_label, related_classes, safe_queryset_and, tryreverse
 
 try:
     from django.urls import NoReverseMatch, reverse
@@ -47,18 +46,18 @@ class ModelView(object):
         return self.view_decorator(func)
 
     #: Used for detail and edit views
-    template_object_name = 'object'
+    template_object_name = "object"
 
     #: Used for list views
-    template_object_list_name = 'object_list'
+    template_object_list_name = "object_list"
 
     #: The base template which all default modelview templates inherit
     #: from
-    base_template = 'base.html'
+    base_template = "base.html"
 
     #: The regular expression for detail URLs. Override this if you
     #: do not want the primary key in the URL.
-    urlconf_detail_re = r'(?P<pk>\d+)'
+    urlconf_detail_re = r"(?P<pk>\d+)"
 
     #: Paginate list views by this much. ``None`` means no pagination (the
     #: default).
@@ -96,35 +95,42 @@ class ModelView(object):
 
     #: Messages dictionary to centrally control all possible messages
     default_messages = {
-        'object_created': (
+        "object_created": (
             messages.SUCCESS,
-            _('The new object has been successfully created.')),
-        'adding_denied': (
-            messages.ERROR,
-            _('You are not allowed to add objects.')),
-        'object_updated': (
+            _("The new object has been successfully created."),
+        ),
+        "adding_denied": (messages.ERROR, _("You are not allowed to add objects.")),
+        "object_updated": (
             messages.SUCCESS,
-            _('The object has been successfully updated.')),
-        'editing_denied': (
+            _("The object has been successfully updated."),
+        ),
+        "editing_denied": (
             messages.ERROR,
-            _('You are not allowed to edit this object.')),
-        'object_deleted': (
+            _("You are not allowed to edit this object."),
+        ),
+        "object_deleted": (
             messages.SUCCESS,
-            _('The object has been successfully deleted.')),
-        'deletion_denied': (
+            _("The object has been successfully deleted."),
+        ),
+        "deletion_denied": (
             messages.ERROR,
-            _('You are not allowed to delete this object.')),
-        'deletion_denied_related': (
+            _("You are not allowed to delete this object."),
+        ),
+        "deletion_denied_related": (
             messages.ERROR,
-            _('Deletion not allowed: There are %(pretty_classes)s related'
-                ' to this object.')),
+            _(
+                "Deletion not allowed: There are %(pretty_classes)s related"
+                " to this object."
+            ),
+        ),
     }
 
     #: User defined messages
     custom_messages = {}
 
-    def add_message(self, request, message, variables=None, level=None,
-                    ignore=None, **kwargs):
+    def add_message(
+        self, request, message, variables=None, level=None, ignore=None, **kwargs
+    ):
         """
         This helper function is used to easily add messages for the current
         user.
@@ -167,7 +173,7 @@ class ModelView(object):
 
         message = force_text(message)
 
-        ignorable = getattr(request, '_towel_add_message_ignore', [])
+        ignorable = getattr(request, "_towel_add_message_ignore", [])
         if message in ignorable:
             return
         if ignore is not None:
@@ -189,7 +195,7 @@ class ModelView(object):
             level = messages.INFO
 
         # We should not fail if the messages framework is disabled
-        kwargs.setdefault('fail_silently', True)
+        kwargs.setdefault("fail_silently", True)
 
         messages.add_message(request, level, message, **kwargs)
 
@@ -197,16 +203,17 @@ class ModelView(object):
         self.model = model
         for key, value in kwargs.items():
             if not hasattr(self, key):
-                raise TypeError('%s() received an invalid keyword %r' % (
-                    self.__class__.__name__, key))
+                raise TypeError(
+                    "%s() received an invalid keyword %r"
+                    % (self.__class__.__name__, key)
+                )
             setattr(self, key, value)
 
-        if not hasattr(self.model, 'get_absolute_url'):
+        if not hasattr(self.model, "get_absolute_url"):
             # Add a simple primary key based URL to the model if it does not
             # have one yet
             self.model.get_absolute_url = lambda self: reverse(
-                '%s_%s_detail' % app_model_label(self),
-                args=(self.pk,),
+                "%s_%s_detail" % app_model_label(self), args=(self.pk,),
             )
 
     def get_query_set(self, request, *args, **kwargs):
@@ -233,8 +240,8 @@ class ModelView(object):
             ]
         """
         return [
-            '%s/%s_%s.html' % (app_model_label(self.model) + (action,)),
-            'modelview/object_%s.html' % action,
+            "%s/%s_%s.html" % (app_model_label(self.model) + (action,)),
+            "modelview/object_%s.html" % action,
         ]
 
     def get_urls(self):
@@ -246,21 +253,26 @@ class ModelView(object):
         ``additional_urls`` instead.
         """
         from django.conf.urls import url
+
         info = app_model_label(self.model)
 
         urlpatterns = [
-            url(r'^$',
-                self.view_decorator(self.list_view),
-                name='%s_%s_list' % info),
-            url(r'^add/$',
+            url(r"^$", self.view_decorator(self.list_view), name="%s_%s_list" % info),
+            url(
+                r"^add/$",
                 self.crud_view_decorator(self.add_view),
-                name='%s_%s_add' % info),
-            url(r'^%s/edit/$' % self.urlconf_detail_re,
+                name="%s_%s_add" % info,
+            ),
+            url(
+                r"^%s/edit/$" % self.urlconf_detail_re,
                 self.crud_view_decorator(self.edit_view),
-                name='%s_%s_edit' % info),
-            url(r'^%s/delete/$' % self.urlconf_detail_re,
+                name="%s_%s_edit" % info,
+            ),
+            url(
+                r"^%s/delete/$" % self.urlconf_detail_re,
                 self.crud_view_decorator(self.delete_view),
-                name='%s_%s_delete' % info),
+                name="%s_%s_delete" % info,
+            ),
         ]
 
         for spec in self.additional_urls():
@@ -270,21 +282,22 @@ class ModelView(object):
             else:
                 ident = view.__name__
 
-            urlpatterns.extend([
-                url(
-                    urlp % {
-                        'detail': self.urlconf_detail_re,
-                        'ident': ident,
-                    },
-                    view,
-                    name=('%s_%s_%%s' % info) % ident
-                ),
-            ])
+            urlpatterns.extend(
+                [
+                    url(
+                        urlp % {"detail": self.urlconf_detail_re, "ident": ident,},
+                        view,
+                        name=("%s_%s_%%s" % info) % ident,
+                    ),
+                ]
+            )
 
         urlpatterns.append(
-            url(r'^%s/$' % self.urlconf_detail_re,
+            url(
+                r"^%s/$" % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
-                name='%s_%s_detail' % info),
+                name="%s_%s_detail" % info,
+            ),
         )
 
         return urlpatterns
@@ -342,8 +355,9 @@ class ModelView(object):
         try:
             return queryset.get(*args, **kwargs)
         except (ValueError, ValidationError):
-            raise self.model.DoesNotExist('No %s matches the given query.' % (
-                self.model._meta.object_name))
+            raise self.model.DoesNotExist(
+                "No %s matches the given query." % (self.model._meta.object_name)
+            )
 
     def get_object_or_404(self, request, *args, **kwargs):
         """
@@ -352,8 +366,9 @@ class ModelView(object):
         try:
             return self.get_object(request, *args, **kwargs)
         except self.model.DoesNotExist:
-            raise Http404('No %s matches the given query.' % (
-                self.model._meta.object_name))
+            raise Http404(
+                "No %s matches the given query." % (self.model._meta.object_name)
+            )
 
     def get_formfield_callback(self, request):
         """
@@ -370,10 +385,9 @@ class ModelView(object):
         for creating and editing objects.
         """
 
-        kwargs.setdefault(
-            'formfield_callback', self.get_formfield_callback(request))
-        kwargs.setdefault('form', self.form_class or forms.ModelForm)
-        kwargs.setdefault('exclude', ())
+        kwargs.setdefault("formfield_callback", self.get_formfield_callback(request))
+        kwargs.setdefault("form", self.form_class or forms.ModelForm)
+        kwargs.setdefault("exclude", ())
 
         return modelform_factory(self.model, **kwargs)
 
@@ -386,25 +400,25 @@ class ModelView(object):
             form = Form(*args, **kwargs)
         """
 
-        if request.method == 'POST':
+        if request.method == "POST":
             args[:0] = [request.POST, request.FILES]
 
         return args
 
-    def get_form_instance(self, request, form_class, instance=None,
-                          change=None, **kwargs):
+    def get_form_instance(
+        self, request, form_class, instance=None, change=None, **kwargs
+    ):
         """
         Returns the form instance
 
         Override this if your form class has special needs for instantiation.
         """
         args = self.extend_args_if_post(request, [])
-        kwargs['instance'] = instance
+        kwargs["instance"] = instance
 
         return form_class(*args, **kwargs)
 
-    def get_formset_instances(self, request, instance=None, change=None,
-                              **kwargs):
+    def get_formset_instances(self, request, instance=None, change=None, **kwargs):
         """
         Return a dict of formset instances. You may freely choose the
         keys for this dict, use a SortedDict or something else as long
@@ -414,16 +428,16 @@ class ModelView(object):
         been saved to the database yet.
         """
         args = self.extend_args_if_post(request, [])
-        kwargs['instance'] = instance
+        kwargs["instance"] = instance
 
         formsets = {}
 
         formfield_callback = self.get_formfield_callback(request)
 
         for prefix, config in self.inlineformset_config.items():
-            config.setdefault('form', forms.ModelForm)
-            config.setdefault('formfield_callback', formfield_callback)
-            config.setdefault('fields', '__all__')
+            config.setdefault("form", forms.ModelForm)
+            config.setdefault("formfield_callback", formfield_callback)
+            config.setdefault("fields", "__all__")
 
             cls = inlineformset_factory(self.model, extra=0, **config)
             formsets[prefix] = cls(prefix=prefix, *args, **kwargs)
@@ -438,7 +452,7 @@ class ModelView(object):
         Defaults to an empty form which only verifies that the deletion
         request has been POSTed.
         """
-        if request.method == 'POST':
+        if request.method == "POST":
             return forms.Form(request.POST, request.FILES)
         return forms.Form()
 
@@ -494,20 +508,19 @@ class ModelView(object):
         info = app_model_label(self.model)
 
         return {
-            'verbose_name': self.model._meta.verbose_name,
-            'verbose_name_plural': self.model._meta.verbose_name_plural,
-            'list_url': tryreverse('%s_%s_list' % info),
-            'add_url': tryreverse('%s_%s_add' % info),
-            'base_template': self.base_template,
-
-            'adding_allowed': self.adding_allowed(request),
-
-            'search_form': (
+            "verbose_name": self.model._meta.verbose_name,
+            "verbose_name_plural": self.model._meta.verbose_name_plural,
+            "list_url": tryreverse("%s_%s_list" % info),
+            "add_url": tryreverse("%s_%s_add" % info),
+            "base_template": self.base_template,
+            "adding_allowed": self.adding_allowed(request),
+            "search_form": (
                 self.search_form(request.GET, request=request)
-                if self.search_form_everywhere else None),
-
-            'request': request,  # Something changed with Django 1.10's
-                                 # context processors...
+                if self.search_form_everywhere
+                else None
+            ),
+            "request": request,  # Something changed with Django 1.10's
+            # context processors...
         }
 
     def get_context(self, request, context):
@@ -531,8 +544,9 @@ class ModelView(object):
         """
         return self.render(
             request,
-            self.get_template(request, 'list'),
-            self.get_context(request, context))
+            self.get_template(request, "list"),
+            self.get_context(request, context),
+        )
 
     def render_detail(self, request, context):
         """
@@ -540,8 +554,9 @@ class ModelView(object):
         """
         return self.render(
             request,
-            self.get_template(request, 'detail'),
-            self.get_context(request, context))
+            self.get_template(request, "detail"),
+            self.get_context(request, context),
+        )
 
     def render_form(self, request, context, change):
         """
@@ -549,8 +564,9 @@ class ModelView(object):
         """
         return self.render(
             request,
-            self.get_template(request, 'form'),
-            self.get_context(request, context))
+            self.get_template(request, "form"),
+            self.get_context(request, context),
+        )
 
     def render_delete_confirmation(self, request, context):
         """
@@ -558,17 +574,18 @@ class ModelView(object):
         """
         return self.render(
             request,
-            self.get_template(request, 'delete_confirmation'),
-            self.get_context(request, context))
+            self.get_template(request, "delete_confirmation"),
+            self.get_context(request, context),
+        )
 
     def response_add(self, request, instance, form, formsets):
         """
         Return the response after successful addition of a new instance
         """
-        self.add_message(request, 'object_created')
+        self.add_message(request, "object_created")
 
-        if '_continue' in request.POST:
-            return HttpResponseRedirect(instance.get_absolute_url() + 'edit/')
+        if "_continue" in request.POST:
+            return HttpResponseRedirect(instance.get_absolute_url() + "edit/")
 
         return redirect(instance)
 
@@ -576,18 +593,18 @@ class ModelView(object):
         """
         Return the response when adding instances is denied
         """
-        self.add_message(request, 'adding_denied')
-        url = tryreverse('%s_%s_list' % app_model_label(self.model))
-        return HttpResponseRedirect(url if url else '../../')
+        self.add_message(request, "adding_denied")
+        url = tryreverse("%s_%s_list" % app_model_label(self.model))
+        return HttpResponseRedirect(url if url else "../../")
 
     def response_edit(self, request, instance, form, formsets):
         """
         Return the response after an instance has been successfully edited
         """
-        self.add_message(request, 'object_updated')
+        self.add_message(request, "object_updated")
 
-        if '_continue' in request.POST:
-            return HttpResponseRedirect('.')
+        if "_continue" in request.POST:
+            return HttpResponseRedirect(".")
 
         return redirect(instance)
 
@@ -595,22 +612,22 @@ class ModelView(object):
         """
         Return the response when editing the given instance is denied
         """
-        self.add_message(request, 'editing_denied')
+        self.add_message(request, "editing_denied")
         return redirect(instance)
 
     def response_delete(self, request, instance):
         """
         Return the response when an object has been successfully deleted
         """
-        self.add_message(request, 'object_deleted')
-        url = tryreverse('%s_%s_list' % app_model_label(self.model))
-        return HttpResponseRedirect(url if url else '../../')
+        self.add_message(request, "object_deleted")
+        url = tryreverse("%s_%s_list" % app_model_label(self.model))
+        return HttpResponseRedirect(url if url else "../../")
 
     def response_deletion_denied(self, request, instance):
         """
         Return the response when deleting the given instance is not allowed
         """
-        self.add_message(request, 'deletion_denied')
+        self.add_message(request, "deletion_denied")
         return redirect(instance)
 
     def paginate_object_list(self, request, queryset, paginate_by=10):
@@ -622,7 +639,7 @@ class ModelView(object):
         paginator_obj = self.paginator_class(queryset, paginate_by)
 
         try:
-            page = int(request.GET.get('page', '1'))
+            page = int(request.GET.get("page", "1"))
         except ValueError:
             page = 1
 
@@ -631,7 +648,7 @@ class ModelView(object):
         except (paginator.EmptyPage, paginator.InvalidPage):
             page_obj = paginator_obj.page(paginator_obj.num_pages)
 
-        if self.pagination_all_allowed and request.GET.get('all'):
+        if self.pagination_all_allowed and request.GET.get("all"):
             page_obj.object_list = queryset
             page_obj.show_all_objects = True
             page_obj.start_index = 1
@@ -650,7 +667,7 @@ class ModelView(object):
         """
         ctx = {}
         queryset = self.get_query_set(request, *args, **kwargs)
-        ctx['root_%s' % self.template_object_list_name] = queryset
+        ctx["root_%s" % self.template_object_list_name] = queryset
 
         queryset, response = self.handle_search_form(request, ctx, queryset)
 
@@ -661,17 +678,20 @@ class ModelView(object):
         if response:
             return response
 
-        ctx['full_%s' % self.template_object_list_name] = queryset
+        ctx["full_%s" % self.template_object_list_name] = queryset
 
         if self.paginate_by:
             page, paginator = self.paginate_object_list(
-                request, queryset, self.paginate_by)
+                request, queryset, self.paginate_by
+            )
 
-            ctx.update({
-                self.template_object_list_name: page.object_list,
-                'page': page,
-                'paginator': paginator,
-            })
+            ctx.update(
+                {
+                    self.template_object_list_name: page.object_list,
+                    "page": page,
+                    "paginator": paginator,
+                }
+            )
         else:
             ctx[self.template_object_list_name] = queryset
 
@@ -690,21 +710,20 @@ class ModelView(object):
             form = self.search_form(request.GET, request=request)
             if not form.is_valid():
                 self.add_message(
-                    request,
-                    _('The search query was invalid.'),
-                    level=messages.ERROR)
+                    request, _("The search query was invalid."), level=messages.ERROR
+                )
 
-                if request.get_full_path().endswith('?clear=1'):
+                if request.get_full_path().endswith("?clear=1"):
                     # No redirect loop generation
                     raise ImproperlyConfigured(
-                        'Search form %r does not validate after'
-                        ' clearing.' % form)
+                        "Search form %r does not validate after" " clearing." % form
+                    )
 
-                return queryset, HttpResponseRedirect('?clear=1')
+                return queryset, HttpResponseRedirect("?clear=1")
 
             queryset = safe_queryset_and(queryset, form.queryset(self.model))
 
-            ctx['search_form'] = form
+            ctx["search_form"] = form
 
         return queryset, None
 
@@ -718,7 +737,7 @@ class ModelView(object):
             return
 
         form = self.batch_form(request, queryset)
-        ctx['batch_form'] = form
+        ctx["batch_form"] = form
 
         if form.should_process():
             result = form.process()
@@ -726,22 +745,22 @@ class ModelView(object):
             if isinstance(result, HttpResponse):
                 return result
 
-            elif hasattr(result, '__iter__'):
+            elif hasattr(result, "__iter__"):
                 messages.success(
                     request,
-                    _('Processed the following items: <br>\n %s') % (
-                        '<br>\n '.join(
-                            force_text(item) for item in result)))
+                    _("Processed the following items: <br>\n %s")
+                    % ("<br>\n ".join(force_text(item) for item in result)),
+                )
 
             elif result is not None:
                 # Not None, but cannot make sense of it either.
-                raise TypeError('Return value %r of %s.process() invalid.' % (
-                    result,
-                    form.__class__.__name__,
-                ))
+                raise TypeError(
+                    "Return value %r of %s.process() invalid."
+                    % (result, form.__class__.__name__,)
+                )
 
-            url = tryreverse('%s_%s_list' % app_model_label(self.model))
-            return HttpResponseRedirect(url if url else '.')
+            url = tryreverse("%s_%s_list" % app_model_label(self.model))
+            return HttpResponseRedirect(url if url else ".")
 
     def detail_view(self, request, *args, **kwargs):
         """
@@ -749,10 +768,13 @@ class ModelView(object):
         """
         instance = self.get_object_or_404(request, *args, **kwargs)
 
-        return self.render_detail(request, {
-            self.template_object_name: instance,
-            'editing_allowed': self.editing_allowed(request, instance),
-        })
+        return self.render_detail(
+            request,
+            {
+                self.template_object_name: instance,
+                "editing_allowed": self.editing_allowed(request, instance),
+            },
+        )
 
     def adding_allowed(self, request):
         """
@@ -770,9 +792,10 @@ class ModelView(object):
         valid = False
         ModelForm = self.get_form(request, instance, change=change)
 
-        if request.method == 'POST':
+        if request.method == "POST":
             form = self.get_form_instance(
-                request, ModelForm, instance=instance, change=change)
+                request, ModelForm, instance=instance, change=change
+            )
 
             if form.is_valid():
                 new_instance = self.save_form(request, form, change=change)
@@ -782,22 +805,24 @@ class ModelView(object):
                 form_validated = False
 
             formsets = self.get_formset_instances(
-                request, instance=new_instance, change=change)
+                request, instance=new_instance, change=change
+            )
 
             if all_valid(formsets.values()) and form_validated:
                 with transaction.atomic():
                     self.save_model(request, new_instance, form, change=change)
                     form.save_m2m()
                     self.save_formsets(request, form, formsets, change=change)
-                    self.post_save(
-                        request, new_instance, form, formsets, change=change)
+                    self.post_save(request, new_instance, form, formsets, change=change)
 
                 valid = True
         else:
             form = self.get_form_instance(
-                request, ModelForm, instance=instance, change=change)
+                request, ModelForm, instance=instance, change=change
+            )
             formsets = self.get_formset_instances(
-                request, instance=instance, change=change)
+                request, instance=instance, change=change
+            )
 
         return form, formsets, new_instance, valid
 
@@ -808,8 +833,7 @@ class ModelView(object):
         if not self.adding_allowed(request):
             return self.response_adding_denied(request)
 
-        form, formsets, new_instance, valid = self.process_form(
-            request, change=False)
+        form, formsets, new_instance, valid = self.process_form(request, change=False)
 
         if valid:
             return self.response_add(request, new_instance, form, formsets)
@@ -817,9 +841,9 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            'title': capfirst(_('Add %s') % force_text(opts.verbose_name)),
-            'form': form,
-            'formsets': formsets,
+            "title": capfirst(_("Add %s") % force_text(opts.verbose_name)),
+            "form": form,
+            "formsets": formsets,
         }
 
         return self.render_form(request, context, change=False)
@@ -841,7 +865,8 @@ class ModelView(object):
             return self.response_editing_denied(request, instance)
 
         form, formsets, new_instance, valid = self.process_form(
-            request, instance=instance, change=True)
+            request, instance=instance, change=True
+        )
 
         if valid:
             return self.response_edit(request, new_instance, form, formsets)
@@ -849,10 +874,9 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            'title': capfirst(
-                _('Change %s') % force_text(opts.verbose_name)),
-            'form': form,
-            'formsets': formsets,
+            "title": capfirst(_("Change %s") % force_text(opts.verbose_name)),
+            "form": form,
+            "formsets": formsets,
             self.template_object_name: instance,
         }
 
@@ -888,29 +912,32 @@ class ModelView(object):
 
         if len(related):
             pretty_classes = [
-                force_text(class_._meta.verbose_name_plural)
-                for class_ in related]
+                force_text(class_._meta.verbose_name_plural) for class_ in related
+            ]
 
             if len(pretty_classes) > 1:
-                pretty_classes = ''.join((
-                    ', '.join('%s' % cls for cls in pretty_classes[:-1]),
-                    ugettext(' and '),
-                    '%s' % pretty_classes[-1],
-                ))
+                pretty_classes = "".join(
+                    (
+                        ", ".join("%s" % cls for cls in pretty_classes[:-1]),
+                        ugettext(" and "),
+                        "%s" % pretty_classes[-1],
+                    )
+                )
             else:
                 pretty_classes = pretty_classes[-1]
 
             self.add_message(
                 request,
-                'deletion_denied_related',
-                {'pretty_classes': pretty_classes},
-                ignore=('deletion_denied',),
+                "deletion_denied_related",
+                {"pretty_classes": pretty_classes},
+                ignore=("deletion_denied",),
             )
 
         return not len(related)
 
-    def save_formset_deletion_allowed_if_only(self, request, form, formset,
-                                              change, classes):
+    def save_formset_deletion_allowed_if_only(
+        self, request, form, formset, change, classes
+    ):
         """
         Helper which has is most useful when used inside ``save_formsets``
 
@@ -944,20 +971,25 @@ class ModelView(object):
 
             if len(related):
                 pretty_classes = [
-                    force_text(class_._meta.verbose_name_plural)
-                    for class_ in related]
+                    force_text(class_._meta.verbose_name_plural) for class_ in related
+                ]
 
                 if len(pretty_classes) > 1:
-                    pretty_classes = ''.join((
-                        ', '.join(pretty_classes[:-1]),
-                        ugettext(' and '),
-                        pretty_classes[-1],
-                    ))
+                    pretty_classes = "".join(
+                        (
+                            ", ".join(pretty_classes[:-1]),
+                            ugettext(" and "),
+                            pretty_classes[-1],
+                        )
+                    )
                 else:
                     pretty_classes = pretty_classes[-1]
 
-                self.add_message(request, 'deletion_denied_related', {
-                    'pretty_classes': pretty_classes})
+                self.add_message(
+                    request,
+                    "deletion_denied_related",
+                    {"pretty_classes": pretty_classes},
+                )
             else:
                 instance.delete()
 
@@ -976,20 +1008,24 @@ class ModelView(object):
             obj.delete()
             return self.response_delete(request, obj)
         else:
-            if not hasattr(obj, '_collected_objects'):
+            if not hasattr(obj, "_collected_objects"):
                 related_classes(obj)
 
             collected_objects = [
-                (key._meta, len(value))
-                for key, value in obj._collected_objects.items()]
+                (key._meta, len(value)) for key, value in obj._collected_objects.items()
+            ]
 
-            return self.render_delete_confirmation(request, {
-                'title': capfirst(_('Delete %s') % force_text(
-                    self.model._meta.verbose_name)),
-                self.template_object_name: obj,
-                'collected_objects': collected_objects,
-                'form': form,
-            })
+            return self.render_delete_confirmation(
+                request,
+                {
+                    "title": capfirst(
+                        _("Delete %s") % force_text(self.model._meta.verbose_name)
+                    ),
+                    self.template_object_name: obj,
+                    "collected_objects": collected_objects,
+                    "form": form,
+                },
+            )
 
 
 class _MVUHelper(object):
@@ -1003,11 +1039,11 @@ class _MVUHelper(object):
     def url(self, item, *args, **kwargs):
         kw = self.kwargs.copy()
         if args:
-            kw.setdefault('args', [])
-            kw['args'].extend(args)
+            kw.setdefault("args", [])
+            kw["args"].extend(args)
         elif kwargs:
-            kw.setdefault('kwargs', {})
-            kw['kwargs'].update(kwargs)
+            kw.setdefault("kwargs", {})
+            kw["kwargs"].update(kwargs)
 
         try:
             return reverse(self.viewname_pattern % item, **kw)
@@ -1043,18 +1079,18 @@ class ModelViewURLs(object):
         if reverse_args_fn:
             self.reverse_args_fn = reverse_args_fn
         else:
-            self.reverse_args_fn = lambda obj: {'pk': obj.pk}
+            self.reverse_args_fn = lambda obj: {"pk": obj.pk}
 
     def __get__(self, obj, objtype=None):
-        if not hasattr(obj, '_modelviewurls_cache'):
+        if not hasattr(obj, "_modelviewurls_cache"):
             kwargs = {}
             data = self.reverse_args_fn(obj)
             if isinstance(data, dict):
-                kwargs['kwargs'] = data
+                kwargs["kwargs"] = data
             else:
-                kwargs['args'] = data
+                kwargs["args"] = data
 
-            viewname_pattern = '%s_%s_%%s' % app_model_label(obj)
+            viewname_pattern = "%s_%s_%%s" % app_model_label(obj)
 
             obj._modelviewurls_cache = _MVUHelper(viewname_pattern, kwargs)
         return obj._modelviewurls_cache

@@ -10,18 +10,18 @@ register = template.Library()
 
 def _type_class(item):
     if isinstance(item.field.widget, forms.CheckboxInput):
-        return 'checkbox'
+        return "checkbox"
     elif isinstance(item.field.widget, forms.DateInput):
-        return 'date'
+        return "date"
     elif isinstance(item.field.widget, forms.HiddenInput):
-        return 'hidden'
+        return "hidden"
     elif isinstance(
-            item.field.widget,
-            (forms.RadioSelect, forms.CheckboxSelectMultiple)):
-        return 'list'
+        item.field.widget, (forms.RadioSelect, forms.CheckboxSelectMultiple)
+    ):
+        return "list"
     elif isinstance(item.field.widget, forms.Select):
-        return 'choice'
-    return 'default'
+        return "choice"
+    return "default"
 
 
 @register.simple_tag
@@ -31,14 +31,23 @@ def form_items(form):
 
         {% form_items form %}
     """
-    return mark_safe(''.join(render_to_string('towel/_form_item.html', {
-        'item': field,
-        'is_checkbox': isinstance(field.field.widget, forms.CheckboxInput),
-        'type_class': _type_class(field),
-    }) for field in form if field.name != 'ignore_warnings'))
+    return mark_safe(
+        "".join(
+            render_to_string(
+                "towel/_form_item.html",
+                {
+                    "item": field,
+                    "is_checkbox": isinstance(field.field.widget, forms.CheckboxInput),
+                    "type_class": _type_class(field),
+                },
+            )
+            for field in form
+            if field.name != "ignore_warnings"
+        )
+    )
 
 
-@register.inclusion_tag('towel/_form_item.html')
+@register.inclusion_tag("towel/_form_item.html")
 def form_item(item, additional_classes=None):
     """
     Helper for easy displaying of form items:
@@ -51,14 +60,14 @@ def form_item(item, additional_classes=None):
     """
 
     return {
-        'item': item,
-        'additional_classes': additional_classes,
-        'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
-        'type_class': _type_class(item),
+        "item": item,
+        "additional_classes": additional_classes,
+        "is_checkbox": isinstance(item.field.widget, forms.CheckboxInput),
+        "type_class": _type_class(item),
     }
 
 
-@register.inclusion_tag('towel/_form_item_plain.html')
+@register.inclusion_tag("towel/_form_item_plain.html")
 def form_item_plain(item, additional_classes=None):
     """
     Helper for easy displaying of form items without any additional
@@ -68,10 +77,10 @@ def form_item_plain(item, additional_classes=None):
     """
 
     return {
-        'item': item,
-        'additional_classes': additional_classes,
-        'is_checkbox': isinstance(item.field.widget, forms.CheckboxInput),
-        'type_class': _type_class(item),
+        "item": item,
+        "additional_classes": additional_classes,
+        "is_checkbox": isinstance(item.field.widget, forms.CheckboxInput),
+        "type_class": _type_class(item),
     }
 
 
@@ -121,21 +130,24 @@ class FormErrorsNode(template.Node):
             else:
                 formset_list.append(i)
 
-            if getattr(i, 'non_field_errors', lambda: None)():
+            if getattr(i, "non_field_errors", lambda: None)():
                 errors = True
                 has_non_field_errors = True
-            if getattr(i, 'errors', None):
+            if getattr(i, "errors", None):
                 errors = True
 
         if not errors:
-            return ''
+            return ""
 
-        return render_to_string('towel/_form_errors.html', {
-            'forms': form_list,
-            'formsets': formset_list,
-            'errors': errors,
-            'has_non_field_errors': has_non_field_errors,
-        })
+        return render_to_string(
+            "towel/_form_errors.html",
+            {
+                "forms": form_list,
+                "formsets": formset_list,
+                "errors": errors,
+                "has_non_field_errors": has_non_field_errors,
+            },
+        )
 
 
 @register.tag
@@ -180,21 +192,20 @@ class FormWarningsNode(template.Node):
         for i in items:
             if isinstance(i, forms.BaseForm):
                 form_list.append(i)
-                if getattr(i, 'warnings', None):
+                if getattr(i, "warnings", None):
                     warnings = True
             else:
                 formset_list.append(i)
-                if any(getattr(f, 'warnings', None) for f in i):
+                if any(getattr(f, "warnings", None) for f in i):
                     warnings = True
 
         if not warnings:
-            return ''
+            return ""
 
-        return render_to_string('towel/_form_warnings.html', {
-            'forms': form_list,
-            'formsets': formset_list,
-            'warnings': True,
-        })
+        return render_to_string(
+            "towel/_form_warnings.html",
+            {"forms": form_list, "formsets": formset_list, "warnings": True,},
+        )
 
 
 @register.tag
@@ -209,7 +220,7 @@ def dynamic_formset(parser, token):
     """
 
     tokens = token.split_contents()
-    nodelist = parser.parse(('enddynamic_formset',))
+    nodelist = parser.parse(("enddynamic_formset",))
     parser.delete_first_token()
 
     return DynamicFormsetNode(tokens[1], tokens[2], nodelist)
@@ -227,23 +238,19 @@ class DynamicFormsetNode(template.Node):
 
         result = []
 
-        context.update({
-            'empty': True,
-            'form_id': '%s-empty' % slug,
-            'form': formset.empty_form,
-        })
+        context.update(
+            {"empty": True, "form_id": "%s-empty" % slug, "form": formset.empty_form,}
+        )
         result.append('<script type="text/template" id="%s-empty">' % slug)
         result.append(self.nodelist.render(context))
-        result.append('</script>')
+        result.append("</script>")
         context.pop()
 
         for idx, form in enumerate(formset.forms):
-            context.update({
-                'empty': False,
-                'form_id': '%s-%s' % (slug, idx),
-                'form': form,
-            })
+            context.update(
+                {"empty": False, "form_id": "%s-%s" % (slug, idx), "form": form,}
+            )
             result.append(self.nodelist.render(context))
             context.pop()
 
-        return mark_safe(''.join(result))
+        return mark_safe("".join(result))

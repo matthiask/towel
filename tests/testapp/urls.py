@@ -8,10 +8,9 @@ from .views import person_views, emailaddress_views, message_views
 
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^persons/', include(person_views.urls)),
-    url(r'^emailaddresses/', include(emailaddress_views.urls)),
-    url(r'^messages/', include(message_views.urls)),
-
-    url(r'^resources/', include('testapp.resources')),
+    url(r"^admin/", admin.site.urls),
+    url(r"^persons/", include(person_views.urls)),
+    url(r"^emailaddresses/", include(emailaddress_views.urls)),
+    url(r"^messages/", include(message_views.urls)),
+    url(r"^resources/", include("testapp.resources")),
 ] + staticfiles_urlpatterns()

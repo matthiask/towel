@@ -20,9 +20,7 @@ def flatatt(attrs):
     XML-escaped.  If the passed dictionary is empty, then return an empty
     string.
     """
-    return ''.join([
-        ' %s="%s"' % (k, conditional_escape(v))
-        for k, v in attrs.items()])
+    return "".join([' %s="%s"' % (k, conditional_escape(v)) for k, v in attrs.items()])
 
 
 @register.tag
@@ -53,11 +51,12 @@ def region(parser, token):
     be used to specify classes, data attributes or whatever you desire.
     """
 
-    nodelist = parser.parse(('endregion',))
+    nodelist = parser.parse(("endregion",))
     parser.delete_first_token()
 
     return RegionNode(
-        nodelist, *parse_args_and_kwargs(parser, token.split_contents()[1:]))
+        nodelist, *parse_args_and_kwargs(parser, token.split_contents()[1:])
+    )
 
 
 class RegionNode(template.Node):
@@ -70,23 +69,23 @@ class RegionNode(template.Node):
         args, kwargs = resolve_args_and_kwargs(context, self.args, self.kwargs)
         return self._render(context, *args, **kwargs)
 
-    def _render(self, context, identifier, fields='', tag='div', **kwargs):
-        regions = context.get('regions')
+    def _render(self, context, identifier, fields="", tag="div", **kwargs):
+        regions = context.get("regions")
 
-        region_id = 'twrg-%s' % identifier
+        region_id = "twrg-%s" % identifier
         output = self.nodelist.render(context)
 
         if regions is not None:
             regions[region_id] = output
-            dependencies = regions.setdefault('_dependencies', {})
+            dependencies = regions.setdefault("_dependencies", {})
 
-            for field in re.split('[,\s]+', str(fields)):
+            for field in re.split("[,\s]+", str(fields)):
                 dependencies.setdefault(field, []).append(region_id)
 
-        kwargs['id'] = region_id
+        kwargs["id"] = region_id
 
-        return mark_safe('<{tag} {attrs}>{output}</{tag}>'.format(
-            attrs=flatatt(kwargs),
-            output=output,
-            tag=tag,
-        ))
+        return mark_safe(
+            "<{tag} {attrs}>{output}</{tag}>".format(
+                attrs=flatatt(kwargs), output=output, tag=tag,
+            )
+        )

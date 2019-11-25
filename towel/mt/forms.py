@@ -23,25 +23,24 @@ from towel.utils import safe_queryset_and
 
 def _process_fields(form, request):
     for field in form.fields.values():
-        if hasattr(field, 'queryset'):
+        if hasattr(field, "queryset"):
             model = field.queryset.model
 
             field.queryset = safe_queryset_and(
-                field.queryset,
-                model.objects.for_access(request.access),
+                field.queryset, model.objects.for_access(request.access),
             )
 
 
 class Form(forms.Form):
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
+        self.request = kwargs.pop("request")
         super(Form, self).__init__(*args, **kwargs)
         _process_fields(self, self.request)
 
 
 class ModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
+        self.request = kwargs.pop("request")
         super(ModelForm, self).__init__(*args, **kwargs)
         _process_fields(self, self.request)
 
@@ -52,8 +51,7 @@ class ModelForm(forms.ModelForm):
             field = self.instance._meta.get_field(attr)
         except FieldDoesNotExist:
             field = None
-        if (field and field.rel and field.rel.to
-                and issubclass(field.rel.to, Client)):
+        if field and field.rel and field.rel.to and issubclass(field.rel.to, Client):
             setattr(self.instance, attr, getattr(self.request.access, attr))
 
         return super(ModelForm, self).save(commit=commit)

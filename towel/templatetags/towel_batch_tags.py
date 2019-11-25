@@ -23,12 +23,12 @@ def batch_checkbox(form, id):
     requirement).
     """
 
-    if not form or not hasattr(form, 'ids'):
-        return ''
+    if not form or not hasattr(form, "ids"):
+        return ""
 
     cb = '<input type="checkbox" name="batch_%s" value="%s" class="batch" %s>'
 
     if id in form.ids:
         return cb % (id, id, 'checked="checked" ')
 
-    return mark_safe(cb % (id, id, ''))
+    return mark_safe(cb % (id, id, ""))

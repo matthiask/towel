@@ -15,17 +15,17 @@ class Group(models.Model):
 
 
 class PersonManager(SearchManager):
-    search_fields = ('family_name', 'given_name')
+    search_fields = ("family_name", "given_name")
 
 
 @python_2_unicode_compatible
 class Person(models.Model):
     RELATIONSHIP_CHOICES = (
-        ('', 'unspecified'),
-        ('single', 'single'),
-        ('relation', 'in a relationship'),
-        ('married', 'married'),
-        ('divorced', 'divorced'),
+        ("", "unspecified"),
+        ("single", "single"),
+        ("relation", "in a relationship"),
+        ("married", "married"),
+        ("divorced", "divorced"),
     )
 
     created = models.DateTimeField(default=now)
@@ -33,25 +33,25 @@ class Person(models.Model):
     family_name = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
     relationship = models.CharField(
-        max_length=20, blank=True,
-        choices=RELATIONSHIP_CHOICES)
-    groups = models.ManyToManyField(Group, related_name='members')
+        max_length=20, blank=True, choices=RELATIONSHIP_CHOICES
+    )
+    groups = models.ManyToManyField(Group, related_name="members")
 
     objects = PersonManager()
-    urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
+    urls = ModelViewURLs(lambda obj: {"pk": obj.pk})
 
     class Meta:
-        ordering = ['family_name', 'given_name']
+        ordering = ["family_name", "given_name"]
 
     def __str__(self):
-        return '%s %s' % (self.given_name, self.family_name)
+        return "%s %s" % (self.given_name, self.family_name)
 
     def get_absolute_url(self):
-        return self.urls['detail']
+        return self.urls["detail"]
 
 
 class EmailManager(SearchManager):
-    search_fields = ('person__family_name', 'person__given_name', 'email')
+    search_fields = ("person__family_name", "person__given_name", "email")
 
 
 class EmailAddress(deletion.Model):
@@ -59,18 +59,18 @@ class EmailAddress(deletion.Model):
     email = models.EmailField()
 
     objects = EmailManager()
-    urls = ModelViewURLs(lambda obj: {'pk': obj.pk})
+    urls = ModelViewURLs(lambda obj: {"pk": obj.pk})
 
     class Meta:
-        ordering = ['email']
-        verbose_name = 'email address'
-        verbose_name_plural = 'email addresses'
+        ordering = ["email"]
+        verbose_name = "email address"
+        verbose_name_plural = "email addresses"
 
     def __str__(self):
         return self.email
 
     def get_absolute_url(self):
-        return self.urls['detail']
+        return self.urls["detail"]
 
 
 class Message(models.Model):
@@ -79,6 +79,7 @@ class Message(models.Model):
     ``save_formset_deletion_allowed_if_only``. The presence of message
     instances should protect email addresses from getting deleted.
     """
+
     sent_to = models.ForeignKey(EmailAddress, on_delete=models.CASCADE)
     message = models.TextField()
 
@@ -87,7 +88,7 @@ class Message(models.Model):
 
 
 class ResourceManager(SearchManager):
-    search_fields = ('name',)
+    search_fields = ("name",)
 
 
 @model_resource_urls()

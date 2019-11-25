@@ -45,19 +45,22 @@ from __future__ import absolute_import, unicode_literals
 def client_model():
     from django.apps import apps
     from django.conf import settings
-    return apps.get_model(*settings.TOWEL_MT_CLIENT_MODEL.split('.'))
+
+    return apps.get_model(*settings.TOWEL_MT_CLIENT_MODEL.split("."))
 
 
 def access_model():
     from django.apps import apps
     from django.conf import settings
-    return apps.get_model(*settings.TOWEL_MT_ACCESS_MODEL.split('.'))
+
+    return apps.get_model(*settings.TOWEL_MT_ACCESS_MODEL.split("."))
 
 
 class AccessDecorator(object):
     def __new__(cls):
         instance = object.__new__(cls)
         from towel import mt
+
         mt._access_decorator = instance
         return instance
 
@@ -89,11 +92,12 @@ class AccessDecorator(object):
                     return view_func(request, *args, **kwargs)
                 elif isinstance(check, HttpResponse):
                     return check
-                raise PermissionDenied('Insufficient permissions')
+                raise PermissionDenied("Insufficient permissions")
 
             fn = wraps(view_func)(inner)
             fn.original_fn = view_func
             return fn
+
         return decorator
 
     def check_access(self, request, minimal):
@@ -101,4 +105,5 @@ class AccessDecorator(object):
 
     def handle_missing(self, request, *args, **kwargs):
         from django.core.exceptions import PermissionDenied
-        raise PermissionDenied('Missing permissions')
+
+        raise PermissionDenied("Missing permissions")

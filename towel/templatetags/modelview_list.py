@@ -11,10 +11,12 @@ from towel.templatetags import towel_resources
 register = template.Library()
 
 
-register.inclusion_tag('towel/_pagination.html', takes_context=True)(
-    towel_resources.pagination)
-register.inclusion_tag('towel/_ordering_link.html', takes_context=True)(
-    towel_resources.ordering_link)
+register.inclusion_tag("towel/_pagination.html", takes_context=True)(
+    towel_resources.pagination
+)
+register.inclusion_tag("towel/_ordering_link.html", takes_context=True)(
+    towel_resources.ordering_link
+)
 register.filter(towel_resources.querystring)
 
 
@@ -35,12 +37,12 @@ def model_row(instance, fields):
 
     """
 
-    for name in fields.split(','):
+    for name in fields.split(","):
         try:
             f = instance._meta.get_field(name)
         except models.FieldDoesNotExist:
             attr = getattr(instance, name)
-            if hasattr(attr, '__call__'):
+            if hasattr(attr, "__call__"):
                 yield (name, attr())
             else:
                 yield (name, attr)
@@ -48,23 +50,19 @@ def model_row(instance, fields):
 
         if isinstance(f, models.ForeignKey):
             fk = getattr(instance, f.name)
-            if hasattr(fk, 'get_absolute_url'):
-                value = mark_safe('<a href="%s">%s</a>' % (
-                    fk.get_absolute_url(),
-                    fk))
+            if hasattr(fk, "get_absolute_url"):
+                value = mark_safe('<a href="%s">%s</a>' % (fk.get_absolute_url(), fk))
             else:
                 value = fk
 
         elif f.choices:
-            value = getattr(instance, 'get_%s_display' % f.name)()
+            value = getattr(instance, "get_%s_display" % f.name)()
 
         elif isinstance(f, (models.BooleanField, models.NullBooleanField)):
             value = getattr(instance, f.name)
-            value = {
-                True: _('yes'),
-                False: _('no'),
-                None: _('unknown'),
-            }.get(value, value)
+            value = {True: _("yes"), False: _("no"), None: _("unknown"),}.get(
+                value, value
+            )
 
         else:
             value = getattr(instance, f.name)

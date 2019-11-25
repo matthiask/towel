@@ -17,8 +17,8 @@ from towel.utils import changed_regions
 
 
 class ChildMixin(object):
-    base_template = 'modal.html'
-    parent_attr = 'parent'
+    base_template = "modal.html"
+    parent_attr = "parent"
 
     def get_parent_class(self):
         return self.model._meta.get_field(self.parent_attr).rel.to
@@ -28,25 +28,25 @@ class ChildMixin(object):
 
     def get_parent(self):
         return get_object_or_404(
-            self.get_parent_queryset(),
-            pk=self.kwargs[self.parent_attr])
+            self.get_parent_queryset(), pk=self.kwargs[self.parent_attr]
+        )
 
     def update_parent(self):
         regions = DetailView.render_regions(
-            self,
-            model=self.parent.__class__,
-            object=self.parent)
+            self, model=self.parent.__class__, object=self.parent
+        )
 
         return HttpResponse(
-            json.dumps(changed_regions(regions, [
-                '%s_set' % self.model.__name__.lower(),
-            ])),
-            content_type='application/json')
+            json.dumps(
+                changed_regions(regions, ["%s_set" % self.model.__name__.lower(),])
+            ),
+            content_type="application/json",
+        )
 
 
 class ChildFormView(ChildMixin, FormView):
     def get_form_kwargs(self, **kwargs):
-        kwargs['prefix'] = self.model.__name__.lower()
+        kwargs["prefix"] = self.model.__name__.lower()
         return super(ChildMixin, self).get_form_kwargs(**kwargs)
 
     def form_valid(self, form):
@@ -58,14 +58,14 @@ class ChildFormView(ChildMixin, FormView):
 class ChildAddView(ChildFormView):
     def get(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect(self.url('list'))
+            return redirect(self.url("list"))
         self.parent = self.get_parent()
         form = self.get_form()
         return self.render_to_response(self.get_context_data(form=form))
 
     def post(self, request, *args, **kwargs):
         if not self.allow_add(silent=False):
-            return redirect(self.url('list'))
+            return redirect(self.url("list"))
         self.parent = self.get_parent()
         form = self.get_form()
         if form.is_valid():
@@ -105,7 +105,8 @@ class LiveChildFormView(ChildMixin, LiveFormView):
         data = model_to_dict(
             self.object,
             fields=form_class._meta.fields,
-            exclude=form_class._meta.exclude)
+            exclude=form_class._meta.exclude,
+        )
 
         for key, value in request.POST.items():
             data[key] = value
@@ -116,7 +117,7 @@ class LiveChildFormView(ChildMixin, LiveFormView):
             return self.form_valid(form)
 
         # TODO that's actually quite ugly
-        return HttpResponse('%s' % form.errors)
+        return HttpResponse("%s" % form.errors)
 
     def form_valid(self, form):
         self.object = form.save()

@@ -23,7 +23,7 @@ class _MRUHelper(object):
         kw = self.kwargs
         if kwargs:
             kw = kw.copy()
-            kw['kwargs'].update(kwargs)
+            kw["kwargs"].update(kwargs)
 
         try:
             return reverse(self.viewname_pattern % item, **kw)
@@ -36,8 +36,8 @@ class _MRUHelper(object):
 
 
 def model_resource_urls(
-        reverse_kwargs_fn=lambda object: {'pk': object.pk},
-        default='detail'):
+    reverse_kwargs_fn=lambda object: {"pk": object.pk}, default="detail"
+):
     """
     Usage::
 
@@ -48,27 +48,25 @@ def model_resource_urls(
         instance = MyModel.objects.get(...)
         instance.urls.url('detail') == instance.get_absolute_url()
     """
+
     def _dec(cls):
         class _descriptor(object):
             def __get__(self, obj, objtype=None):
-                viewname_pattern = '%s_%s_%%s' % app_model_label(obj)
-                kwargs = {'kwargs': reverse_kwargs_fn(obj)}
-                helper = obj.__dict__['urls'] = _MRUHelper(
-                    viewname_pattern, kwargs)
+                viewname_pattern = "%s_%s_%%s" % app_model_label(obj)
+                kwargs = {"kwargs": reverse_kwargs_fn(obj)}
+                helper = obj.__dict__["urls"] = _MRUHelper(viewname_pattern, kwargs)
                 return helper
 
         cls.urls = _descriptor()
         cls.get_absolute_url = lambda self: self.urls.url(default)
         return cls
+
     return _dec
 
 
 def resource_url_fn(
-        model,
-        urlconf_detail_re=r'(?P<pk>\d+)',
-        mixins=(),
-        decorators=(),
-        **kwargs):
+    model, urlconf_detail_re=r"(?P<pk>\d+)", mixins=(), decorators=(), **kwargs
+):
     """
     Returns a helper function most useful to easily create URLconf entries
     for model resources.
@@ -110,31 +108,23 @@ def resource_url_fn(
     global_decorators = decorators
 
     default_view_classes = {
-        'list': resources.ListView,
-        'detail': resources.DetailView,
-        'add': resources.AddView,
-        'edit': resources.EditView,
-        'delete': resources.DeleteView,
+        "list": resources.ListView,
+        "detail": resources.DetailView,
+        "add": resources.AddView,
+        "edit": resources.EditView,
+        "delete": resources.DeleteView,
     }
 
     def _fn(
-            name,
-            _sentinel=None,
-            view=None,
-            url=None,
-            mixins=None,
-            decorators=None,
-            **kw):
+        name, _sentinel=None, view=None, url=None, mixins=None, decorators=None, **kw
+    ):
 
         if _sentinel is not None:
-            raise TypeError('name is the only non-keyword')
+            raise TypeError("name is the only non-keyword")
 
-        urlregex = (
-            r'^%s/%s/$' % (urlconf_detail_re, name)
-            if url is None else url
-        )
+        urlregex = r"^%s/%s/$" % (urlconf_detail_re, name) if url is None else url
 
-        urlname = '%s_%s_%s' % (app_model_label(model) + (name,))
+        urlname = "%s_%s_%s" % (app_model_label(model) + (name,))
 
         mixins = global_mixins if mixins is None else mixins
         decorators = global_decorators if decorators is None else decorators

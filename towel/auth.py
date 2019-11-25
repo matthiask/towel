@@ -13,6 +13,7 @@ class ModelBackend(_ModelBackend):
             'towel.auth.ModelBackend',
         )
     """
+
     def authenticate(self, username=None, password=None):
         try:
             user = User.objects.get(username=username)

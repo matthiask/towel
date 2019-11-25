@@ -40,18 +40,17 @@ class ModelView(towel_modelview.ModelView):
         return towel.mt._access_decorator(self.view_access)(func)
 
     def crud_view_decorator(self, func):
-        return towel.mt._access_decorator(
-            self.crud_access or self.view_access)(func)
+        return towel.mt._access_decorator(self.crud_access or self.view_access)(func)
 
     def get_query_set(self, request, *args, **kwargs):
         return self.model.objects.for_access(request.access)
 
-    def get_form_instance(self, request, form_class, instance=None,
-                          change=None, **kwargs):
+    def get_form_instance(
+        self, request, form_class, instance=None, change=None, **kwargs
+    ):
         args = self.extend_args_if_post(request, [])
-        kwargs.update({
-            'instance': instance,
-            'request': request,  # towel.mt.forms needs that
-        })
+        kwargs.update(
+            {"instance": instance, "request": request,}  # towel.mt.forms needs that
+        )
 
         return form_class(*args, **kwargs)

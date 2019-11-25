@@ -51,9 +51,9 @@ def safe_queryset_and(head, *tail):
         else:
             res = qs1 & qs2
 
-        res._transform_fns = list(set(
-            getattr(qs1, '_transform_fns', [])
-            + getattr(qs2, '_transform_fns', [])))
+        res._transform_fns = list(
+            set(getattr(qs1, "_transform_fns", []) + getattr(qs2, "_transform_fns", []))
+        )
 
         if not (qs1.query.standard_ordering and qs2.query.standard_ordering):
             res.query.standard_ordering = False
@@ -77,8 +77,8 @@ def safe_queryset_and(head, *tail):
                 res = res.select_related()
 
         res._prefetch_related_lookups = list(
-            set(qs1._prefetch_related_lookups)
-            | set(qs2._prefetch_related_lookups))
+            set(qs1._prefetch_related_lookups) | set(qs2._prefetch_related_lookups)
+        )
 
         return res
 
@@ -162,12 +162,10 @@ def changed_regions(regions, fields):
             json.dumps(changed_regions(regions, ['emails', 'phones'])),
             content_type='application/json')
     """
-    dependencies = regions.get('_dependencies', {})
-    to_update = set(itertools.chain(*[
-        dependencies.get(field, []) for field in fields]))
+    dependencies = regions.get("_dependencies", {})
+    to_update = set(itertools.chain(*[dependencies.get(field, []) for field in fields]))
 
-    return dict(
-        (key, value) for key, value in regions.items() if key in to_update)
+    return dict((key, value) for key, value in regions.items() if key in to_update)
 
 
 def tryreverse(*args, **kwargs):
@@ -190,9 +188,9 @@ def substitute_with(to_delete, instance):
     assert to_delete.pk != instance.pk
 
     fields = [
-        f for f in to_delete._meta.get_fields()
-        if (f.one_to_many or f.one_to_one)
-        and f.auto_created and not f.concrete
+        f
+        for f in to_delete._meta.get_fields()
+        if (f.one_to_many or f.one_to_one) and f.auto_created and not f.concrete
     ]
 
     for related_object in fields:
@@ -201,9 +199,9 @@ def substitute_with(to_delete, instance):
         except AttributeError:
             model = related_object.model
 
-        queryset = model._base_manager.complex_filter({
-            related_object.field.name: to_delete.pk,
-        })
+        queryset = model._base_manager.complex_filter(
+            {related_object.field.name: to_delete.pk}
+        )
 
         queryset.update(**{related_object.field.name: instance.pk})
     to_delete.delete()

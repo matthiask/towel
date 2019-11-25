@@ -11,3 +11,5 @@
 /MANIFEST
 /tests/venv
 /tests/.tox
+.tox
+.coverage
