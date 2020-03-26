@@ -91,7 +91,7 @@ def form_errors(parser, token):
 
         {% form_errors form formset1 formset2 %}
 
-    Silently ignores non-existant variables.
+    Silently ignores non-existent variables.
     """
 
     tokens = token.split_contents()
@@ -157,7 +157,7 @@ def form_warnings(parser, token):
 
         {% form_warnings form formset1 formset2 %}
 
-    Silently ignores non-existant variables.
+    Silently ignores non-existent variables.
     """
 
     tokens = token.split_contents()
