@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import django
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.test import TestCase
 
 from testapp.models import Resource
@@ -55,7 +55,7 @@ class ResourceTest(TestCase):
         self.assertContains(self.client.get(resource.get_absolute_url()), "Blabbba")
 
         # We still only have one resource in the database
-        self.assertEqual(force_text(Resource.objects.get()), "Blabbba")
+        self.assertEqual(force_str(Resource.objects.get()), "Blabbba")
 
         # Open the deletion page
         response = self.client.get(resource.urls["delete"])

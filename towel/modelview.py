@@ -10,9 +10,9 @@ from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
@@ -172,7 +172,7 @@ class ModelView(object):
             self.add_message(request, 'editing_denied', fail_silently=False)
         """
 
-        message = force_text(message)
+        message = force_str(message)
 
         ignorable = getattr(request, "_towel_add_message_ignore", [])
         if message in ignorable:
@@ -750,7 +750,7 @@ class ModelView(object):
                 messages.success(
                     request,
                     _("Processed the following items: <br>\n %s")
-                    % ("<br>\n ".join(force_text(item) for item in result)),
+                    % ("<br>\n ".join(force_str(item) for item in result)),
                 )
 
             elif result is not None:
@@ -842,7 +842,7 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            "title": capfirst(_("Add %s") % force_text(opts.verbose_name)),
+            "title": capfirst(_("Add %s") % force_str(opts.verbose_name)),
             "form": form,
             "formsets": formsets,
         }
@@ -875,7 +875,7 @@ class ModelView(object):
         opts = self.model._meta
 
         context = {
-            "title": capfirst(_("Change %s") % force_text(opts.verbose_name)),
+            "title": capfirst(_("Change %s") % force_str(opts.verbose_name)),
             "form": form,
             "formsets": formsets,
             self.template_object_name: instance,
@@ -913,14 +913,14 @@ class ModelView(object):
 
         if len(related):
             pretty_classes = [
-                force_text(class_._meta.verbose_name_plural) for class_ in related
+                force_str(class_._meta.verbose_name_plural) for class_ in related
             ]
 
             if len(pretty_classes) > 1:
                 pretty_classes = "".join(
                     (
                         ", ".join("%s" % cls for cls in pretty_classes[:-1]),
-                        ugettext(" and "),
+                        gettext(" and "),
                         "%s" % pretty_classes[-1],
                     )
                 )
@@ -972,14 +972,14 @@ class ModelView(object):
 
             if len(related):
                 pretty_classes = [
-                    force_text(class_._meta.verbose_name_plural) for class_ in related
+                    force_str(class_._meta.verbose_name_plural) for class_ in related
                 ]
 
                 if len(pretty_classes) > 1:
                     pretty_classes = "".join(
                         (
                             ", ".join(pretty_classes[:-1]),
-                            ugettext(" and "),
+                            gettext(" and "),
                             pretty_classes[-1],
                         )
                     )
@@ -1020,7 +1020,7 @@ class ModelView(object):
                 request,
                 {
                     "title": capfirst(
-                        _("Delete %s") % force_text(self.model._meta.verbose_name)
+                        _("Delete %s") % force_str(self.model._meta.verbose_name)
                     ),
                     self.template_object_name: obj,
                     "collected_objects": collected_objects,

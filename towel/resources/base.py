@@ -33,9 +33,9 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.text import capfirst
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
@@ -235,7 +235,7 @@ class ModelResourceView(TemplateView):
                 _("Deletion not allowed because of related objects: %s")
                 % (
                     ", ".join(
-                        force_text(cls._meta.verbose_name_plural) for cls in classes
+                        force_str(cls._meta.verbose_name_plural) for cls in classes
                     ),
                 ),
             )
@@ -342,7 +342,7 @@ class ListView(ModelResourceView):
                             "<p>Processed the following items:</p>"
                             " <ul><li>%s</li></ul>"
                         )
-                        % ("</li><li>".join(force_text(item) for item in result)),
+                        % ("</li><li>".join(force_str(item) for item in result)),
                     )
                 elif result is not None:
                     # Not None, but cannot make sense of it either.

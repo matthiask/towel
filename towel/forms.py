@@ -13,10 +13,10 @@ try:
 except ImportError:
     from django.forms.util import flatatt
 from django.http import HttpResponse, QueryDict
-from django.utils.encoding import force_text, force_bytes
+from django.utils.encoding import force_str, force_bytes
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from towel import quick
 
@@ -78,7 +78,7 @@ class BatchForm(forms.Form):
                 elif hasattr(result, '__iter__'):
                     messages.success(request,
                         _('Processed the following items: %s') % (
-                            ', '.join(force_text(item) for item in result)))
+                            ', '.join(force_str(item) for item in result)))
 
                 return HttpResponseRedirect('.')
 
@@ -606,7 +606,7 @@ def autocompletion_response(queryset, limit=10):
     return HttpResponse(
         json.dumps(
             [
-                {"label": force_text(instance), "value": instance.pk}
+                {"label": force_str(instance), "value": instance.pk}
                 for instance in queryset[:limit]
             ]
         ),
@@ -649,7 +649,7 @@ class ModelAutocompleteWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs)
         if value != "":
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs["value"] = force_text(self._format_value(value))
+            final_attrs["value"] = force_str(self.format_value(value))
 
         hidden = "<input%s />" % flatatt(final_attrs)
 
@@ -659,7 +659,7 @@ class ModelAutocompleteWidget(forms.TextInput):
 
         try:
             instance = self.choices.queryset.get(pk=value)
-            final_attrs["value"] = force_text(instance)
+            final_attrs["value"] = force_str(instance)
         except (ObjectDoesNotExist, ValueError, TypeError):
             final_attrs["value"] = ""
 
@@ -701,8 +701,8 @@ $(function() {
 </script>
 """ % {
             "id": attrs.get("id", name),
-            "name": name,
             "source": self._source(),
+            # "name": name,
         }
 
         return mark_safe(hidden + ac + js)
@@ -714,7 +714,7 @@ $(function() {
             return "'%s'" % self.url
         else:
             data = json.dumps(
-                [{"label": force_text(o), "value": o.id} for o in self.queryset.all()]
+                [{"label": force_str(o), "value": o.id} for o in self.queryset.all()]
             )
 
             return """function (request, response) {
@@ -744,7 +744,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         super(MultipleAutocompletionWidget, self).__init__(attrs)
 
     def _possible(self):
-        return dict((force_text(o).lower(), o) for o in self.queryset._clone())
+        return dict((force_str(o).lower(), o) for o in self.queryset._clone())
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = attrs or {}
@@ -755,7 +755,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
         final_attrs = self.build_attrs(attrs)
 
         if value:
-            value = ", ".join(force_text(o) for o in self.queryset.filter(id__in=value))
+            value = ", ".join(force_str(o) for o in self.queryset.filter(id__in=value))
 
         js = """<script type="text/javascript">
 $(function() {
@@ -803,8 +803,8 @@ $(function() {
 </script>
 """ % {
             "id": final_attrs.get("id", name),
-            "name": name,
             "source": self._source(),
+            # "name": name,
         }
 
         return mark_safe(
@@ -824,5 +824,5 @@ $(function() {
         return """function(request, response) {
     response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
     }""" % {
-            "data": json.dumps([force_text(o) for o in self.queryset._clone()]),
+            "data": json.dumps([force_str(o) for o in self.queryset._clone()]),
         }

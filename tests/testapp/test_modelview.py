@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.test import TestCase
 
 from testapp.models import Person, EmailAddress, Message
@@ -88,7 +88,7 @@ class ModelViewTest(TestCase):
         self.assertContains(self.client.get(person.get_absolute_url()), "Blabbba Blub")
 
         # We still only have one person in the database
-        self.assertEqual(force_text(Person.objects.get()), "Blabbba Blub")
+        self.assertEqual(force_str(Person.objects.get()), "Blabbba Blub")
 
         # Open the deletion page
         response = self.client.get(person.urls["delete"])
