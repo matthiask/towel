@@ -636,7 +636,7 @@ class ModelAutocompleteWidget(forms.TextInput):
         self.queryset = queryset
         super(ModelAutocompleteWidget, self).__init__(attrs)
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         attrs = attrs or {}
         if value is None:
             value = ""
@@ -742,7 +742,7 @@ class MultipleAutocompletionWidget(forms.TextInput):
     def _possible(self):
         return dict((force_str(o).lower(), o) for o in self.queryset._clone())
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         attrs = attrs or {}
         if value is None:
             value = []
