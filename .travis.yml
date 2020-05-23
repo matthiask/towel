@@ -1,9 +1,10 @@
+os: linux
+dist: xenial
 language: python
 cache: pip
-sudo: false
 python:
   - 3.7
-matrix:
+jobs:
   fast_finish: true
   include:
     - python: 3.7
