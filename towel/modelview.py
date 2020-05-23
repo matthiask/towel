@@ -10,6 +10,7 @@ from django.forms.formsets import all_valid
 from django.forms.models import modelform_factory, inlineformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import force_str
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _, gettext
@@ -17,11 +18,6 @@ from django.utils.translation import gettext_lazy as _, gettext
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
 from towel.utils import app_model_label, related_classes, safe_queryset_and, tryreverse
-
-try:
-    from django.urls import NoReverseMatch, reverse
-except ImportError:
-    from django.core.urlresolvers import NoReverseMatch, reverse
 
 
 class ModelView(object):

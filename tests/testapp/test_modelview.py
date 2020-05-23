@@ -1,14 +1,10 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.utils.encoding import force_str
 from django.test import TestCase
+from django.utils.encoding import force_str
+from django.urls import reverse
 
 from testapp.models import Person, EmailAddress, Message
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 class ModelViewTest(TestCase):

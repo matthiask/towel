@@ -33,6 +33,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.forms.models import modelform_factory, model_to_dict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import NoReverseMatch
 from django.utils.encoding import force_str
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
@@ -46,11 +47,6 @@ from towel.utils import (
     related_classes,
     safe_queryset_and,
 )
-
-try:
-    from django.urls import NoReverseMatch
-except ImportError:
-    from django.core.urlresolvers import NoReverseMatch
 
 
 class ModelResourceView(TemplateView):

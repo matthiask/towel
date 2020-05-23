@@ -3,13 +3,9 @@ from __future__ import absolute_import, unicode_literals
 import django
 from django.utils.encoding import force_str
 from django.test import TestCase
+from django.urls import reverse
 
 from testapp.models import Resource
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 class ResourceTest(TestCase):
