@@ -6,12 +6,11 @@ All you need is a view decorator handling the permissions and a resource
 subclass which makes sure that data is only ever shown from one tenant.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from functools import wraps
-from six.moves import http_client
 
 from django.http import HttpResponse
+from six.moves import http_client
 
 from towel import api
 from towel.utils import safe_queryset_and
@@ -49,6 +48,6 @@ class Resource(api.Resource):
 
     def get_query_set(self):
         return safe_queryset_and(
-            super(Resource, self).get_query_set(),
+            super().get_query_set(),
             self.model.objects.for_access(self.request.access),
         )

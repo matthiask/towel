@@ -3,7 +3,6 @@ Middleware for a lazy ``request.access`` attribute
 ==================================================
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django.db.models import ObjectDoesNotExist
 from django.utils.deprecation import MiddlewareMixin

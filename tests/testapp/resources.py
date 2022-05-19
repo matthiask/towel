@@ -1,21 +1,18 @@
-from __future__ import absolute_import, unicode_literals
-
 from django import forms
 from django.contrib import messages
+from testapp.models import Resource
 
 from towel.forms import SearchForm
 from towel.resources.urls import resource_url_fn
-
-from testapp.models import Resource
 
 
 class ResourceSearchForm(SearchForm):
     is_active = forms.NullBooleanField(required=False)
 
 
-class ResourceViewMixin(object):
+class ResourceViewMixin:
     def get_queryset(self):
-        return super(ResourceViewMixin, self).get_queryset()
+        return super().get_queryset()
 
     def allow_delete(self, object=None, silent=True):
         if object is None:
@@ -23,7 +20,7 @@ class ResourceViewMixin(object):
         return self.allow_delete_if_only(object, silent=silent)
 
     def get_batch_actions(self):
-        return super(ResourceViewMixin, self).get_batch_actions() + [
+        return super().get_batch_actions() + [
             ("set_active", "Set active", self.set_active),
         ]
 
@@ -55,11 +52,20 @@ class ResourceViewMixin(object):
         return self.render_to_response(context)
 
 
-resource_url = resource_url_fn(Resource, mixins=(ResourceViewMixin,), decorators=(),)
+resource_url = resource_url_fn(
+    Resource,
+    mixins=(ResourceViewMixin,),
+    decorators=(),
+)
 
 
 urlpatterns = [
-    resource_url("list", url=r"^$", paginate_by=5, search_form=ResourceSearchForm,),
+    resource_url(
+        "list",
+        url=r"^$",
+        paginate_by=5,
+        search_form=ResourceSearchForm,
+    ),
     resource_url("detail", url=r"^(?P<pk>\d+)/$"),
     resource_url("add", url=r"^add/$"),
     resource_url("edit"),

@@ -1,26 +1,22 @@
-from __future__ import absolute_import, unicode_literals
-
-import six
-
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import transaction
 from django.forms.formsets import all_valid
-from django.forms.models import modelform_factory, inlineformset_factory
+from django.forms.models import inlineformset_factory, modelform_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import force_str
 from django.utils.text import capfirst
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext, gettext_lazy as _
 
 from towel import deletion, paginator
 from towel.forms import towel_formfield_callback
 from towel.utils import app_model_label, related_classes, safe_queryset_and, tryreverse
 
 
-class ModelView(object):
+class ModelView:
     """
     ``ModelView`` offers list views, detail views and CRUD functionality
     """
@@ -181,7 +177,7 @@ class ModelView(object):
         elif message in self.default_messages:
             message = self.default_messages[message]
 
-        if not isinstance(message, six.string_types):
+        if not isinstance(message, str):
             level = message[0]
             message = message[1]
 
@@ -210,7 +206,8 @@ class ModelView(object):
             # Add a simple primary key based URL to the model if it does not
             # have one yet
             self.model.get_absolute_url = lambda self: reverse(
-                "%s_%s_detail" % app_model_label(self), args=(self.pk,),
+                "%s_%s_detail" % app_model_label(self),
+                args=(self.pk,),
             )
 
     def get_query_set(self, request, *args, **kwargs):
@@ -249,23 +246,23 @@ class ModelView(object):
         ``crud_view_decorator``. If you need additional URLs, use
         ``additional_urls`` instead.
         """
-        from django.conf.urls import url
+        from django.urls import path, re_path
 
         info = app_model_label(self.model)
 
         urlpatterns = [
-            url(r"^$", self.view_decorator(self.list_view), name="%s_%s_list" % info),
-            url(
-                r"^add/$",
+            path("", self.view_decorator(self.list_view), name="%s_%s_list" % info),
+            path(
+                "add/",
                 self.crud_view_decorator(self.add_view),
                 name="%s_%s_add" % info,
             ),
-            url(
+            re_path(
                 r"^%s/edit/$" % self.urlconf_detail_re,
                 self.crud_view_decorator(self.edit_view),
                 name="%s_%s_edit" % info,
             ),
-            url(
+            re_path(
                 r"^%s/delete/$" % self.urlconf_detail_re,
                 self.crud_view_decorator(self.delete_view),
                 name="%s_%s_delete" % info,
@@ -281,7 +278,7 @@ class ModelView(object):
 
             urlpatterns.extend(
                 [
-                    url(
+                    re_path(
                         urlp % {"detail": self.urlconf_detail_re, "ident": ident},
                         view,
                         name=("%s_%s_%%s" % info) % ident,
@@ -290,7 +287,7 @@ class ModelView(object):
             )
 
         urlpatterns.append(
-            url(
+            re_path(
                 r"^%s/$" % self.urlconf_detail_re,
                 self.view_decorator(self.detail_view),
                 name="%s_%s_detail" % info,
@@ -753,7 +750,10 @@ class ModelView(object):
                 # Not None, but cannot make sense of it either.
                 raise TypeError(
                     "Return value %r of %s.process() invalid."
-                    % (result, form.__class__.__name__,)
+                    % (
+                        result,
+                        form.__class__.__name__,
+                    )
                 )
 
             url = tryreverse("%s_%s_list" % app_model_label(self.model))
@@ -1025,7 +1025,7 @@ class ModelView(object):
             )
 
 
-class _MVUHelper(object):
+class _MVUHelper:
     def __init__(self, viewname_pattern, kwargs):
         self.viewname_pattern = viewname_pattern
         self.kwargs = kwargs
@@ -1052,7 +1052,7 @@ class _MVUHelper(object):
                 raise e
 
 
-class ModelViewURLs(object):
+class ModelViewURLs:
     """
     Usage::
 

@@ -1,11 +1,9 @@
-from __future__ import absolute_import, unicode_literals
-
 from django.core.exceptions import ImproperlyConfigured
 
 from towel.utils import safe_queryset_and
 
 
-class MultitenancyMixin(object):
+class MultitenancyMixin:
     def get_queryset(self):
         if self.queryset is not None:
             return safe_queryset_and(
@@ -25,4 +23,4 @@ class MultitenancyMixin(object):
 
     def get_form_kwargs(self, **kwargs):
         kwargs["request"] = self.request
-        return super(MultitenancyMixin, self).get_form_kwargs(**kwargs)
+        return super().get_form_kwargs(**kwargs)

@@ -1,13 +1,10 @@
-from __future__ import absolute_import, unicode_literals
-
-from datetime import date, timedelta
 import re
+from datetime import date, timedelta
 
 from django.test import TestCase
+from testapp.models import Person
 
 from towel import quick
-
-from testapp.models import Person
 
 
 QUICK_RULES = [
@@ -76,13 +73,16 @@ class QuickTest(TestCase):
             self.assertTrue(date.today() <= due < date.today() + timedelta(days=7))
 
         self.assertEqual(
-            quick.parse_quickadd("=0.3h", QUICK_RULES)[0]["estimated_hours"], "0.3",
+            quick.parse_quickadd("=0.3h", QUICK_RULES)[0]["estimated_hours"],
+            "0.3",
         )
         self.assertEqual(
-            quick.parse_quickadd("=10.3h", QUICK_RULES)[0]["estimated_hours"], "10.3",
+            quick.parse_quickadd("=10.3h", QUICK_RULES)[0]["estimated_hours"],
+            "10.3",
         )
         self.assertEqual(
-            quick.parse_quickadd("=37h", QUICK_RULES)[0]["estimated_hours"], "37",
+            quick.parse_quickadd("=37h", QUICK_RULES)[0]["estimated_hours"],
+            "37",
         )
 
         self.assertEqual(

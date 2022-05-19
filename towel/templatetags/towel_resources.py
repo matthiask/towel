@@ -1,8 +1,5 @@
-from __future__ import absolute_import, unicode_literals
-
-from functools import reduce
 import operator
-import six
+from functools import reduce
 
 from django import template
 from django.utils.http import urlencode
@@ -47,7 +44,7 @@ def querystring(data, exclude="page,all"):
         operator.add,
         (
             list((k, v) for v in values)
-            for k, values in six.iterlists(data)
+            for k, values in data.lists()
             if k not in exclude
         ),
         [],

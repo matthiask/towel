@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import itertools
 import re
 
@@ -137,7 +135,7 @@ def resolve_args_and_kwargs(context, args, kwargs):
     """
     return (
         [v.resolve(context) for v in args],
-        dict((k, v.resolve(context)) for k, v in kwargs.items()),
+        {k: v.resolve(context) for k, v in kwargs.items()},
     )
 
 
@@ -161,7 +159,7 @@ def changed_regions(regions, fields):
     dependencies = regions.get("_dependencies", {})
     to_update = set(itertools.chain(*[dependencies.get(field, []) for field in fields]))
 
-    return dict((key, value) for key, value in regions.items() if key in to_update)
+    return {key: value for key, value in regions.items() if key in to_update}
 
 
 def tryreverse(*args, **kwargs):

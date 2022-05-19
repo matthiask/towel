@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import json
 
 from django.forms.models import model_to_dict
@@ -57,7 +55,7 @@ class ParentModelView(EditLiveModelView):
     def render_form(self, request, context, change):
         if change:
             context.setdefault("base_template", "modal.html")
-        return super(ParentModelView, self).render_form(request, context, change=change)
+        return super().render_form(request, context, change=change)
 
 
 class InlineModelView(EditLiveModelView):
@@ -70,18 +68,16 @@ class InlineModelView(EditLiveModelView):
     def get_object(self, request, *args, **kwargs):
         if "pk" in kwargs:
             kwargs[self.parent_attr] = kwargs.pop("parent")
-        return super(InlineModelView, self).get_object(request, *args, **kwargs)
+        return super().get_object(request, *args, **kwargs)
 
     def add_view(self, request, parent):
         request._parent = get_object_or_404(self.parent_class, id=parent)
-        return super(InlineModelView, self).add_view(request)
+        return super().add_view(request)
 
     def save_model(self, request, instance, form, change):
         if hasattr(request, "_parent"):
             setattr(instance, self.parent_attr, request._parent)
-        super(InlineModelView, self).save_model(
-            request, instance, form=form, change=change
-        )
+        super().save_model(request, instance, form=form, change=change)
 
     def response_add(self, request, instance, *args, **kwargs):
         regions = {}

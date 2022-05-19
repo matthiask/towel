@@ -1,17 +1,14 @@
-from __future__ import absolute_import, unicode_literals
-
 import django
-from django.utils.encoding import force_str
 from django.test import TestCase
 from django.urls import reverse
-
+from django.utils.encoding import force_str
 from testapp.models import Resource
 
 
 class ResourceTest(TestCase):
     def test_list_view(self):
         for i in range(7):
-            r = Resource.objects.create(name="Resource {0}".format(i))
+            r = Resource.objects.create(name=f"Resource {i}")
 
         # paginate_by=5
         self.assertContains(self.client.get("/resources/"), 'name="batch_', 5)
@@ -76,7 +73,9 @@ class ResourceTest(TestCase):
 
     def test_batchform(self):
         for i in range(20):
-            Resource.objects.create(name="Resource %s" % i,)
+            Resource.objects.create(
+                name="Resource %s" % i,
+            )
 
         self.assertContains(self.client.get("/resources/"), "<span>1 - 5 / 20</span>")
 
@@ -101,12 +100,13 @@ class ResourceTest(TestCase):
             )
         data["confirm"] = 1
         data["is_active"] = 3
-        response = self.client.post("/resources/", data)
+        response = self.client.post("/resources/", data, follow=True)
         self.assertRedirects(response, "/resources/")
 
-        cookies = str(response.cookies)
-        self.assertTrue("3 have been updated." in cookies)
-        self.assertTrue("Resource 0" in cookies)
-        self.assertTrue("Resource 1" in cookies)
-        self.assertTrue("Resource 2" in cookies)
+        messages = [str(m) for m in response.context["messages"]]
+        messages = str(messages)
+        self.assertTrue("3 have been updated." in messages)
+        self.assertTrue("Resource 0" in messages)
+        self.assertTrue("Resource 1" in messages)
+        self.assertTrue("Resource 2" in messages)
         self.assertEqual(Resource.objects.filter(is_active=False).count(), 3)

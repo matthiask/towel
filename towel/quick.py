@@ -35,7 +35,6 @@ Usage example::
    ``dict``.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from datetime import date, timedelta
 
@@ -135,7 +134,7 @@ def model_choices_mapper(data, attribute):
     """
 
     def _fn(values):
-        reverse = dict((force_str(value), key) for key, value in data)
+        reverse = {force_str(value): key for key, value in data}
         try:
             return {attribute: reverse[values["value"]]}
         except KeyError:
@@ -160,7 +159,7 @@ def due_mapper(attribute):
         ]
         days.append((_("Today"), today))
         days.append((_("Tomorrow"), today + timedelta(days=1)))
-        days = dict((k.lower(), value) for k, value in days)
+        days = {k.lower(): value for k, value in days}
 
         if due.lower() in days:
             return {attribute: days[due.lower()]}

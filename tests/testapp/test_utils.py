@@ -1,23 +1,25 @@
-from __future__ import absolute_import, unicode_literals
-
-from django.template import Template, Context
+from django.template import Context, Template
 from django.test import TestCase
+from testapp.models import EmailAddress, Person
 
-from towel.utils import related_classes, safe_queryset_and, tryreverse, substitute_with
-
-from testapp.models import Person, EmailAddress
+from towel.utils import related_classes, safe_queryset_and, substitute_with, tryreverse
 
 
 class UtilsTest(TestCase):
     def test_related_classes(self):
         """Test the functionality of towel.utils.related_classes"""
-        person = Person.objects.create(family_name="Muster", given_name="Hans",)
+        person = Person.objects.create(
+            family_name="Muster",
+            given_name="Hans",
+        )
         EmailAddress.objects.create(
-            person=person, email="hans@example.com",
+            person=person,
+            email="hans@example.com",
         )
 
         self.assertEqual(
-            set(related_classes(person)), set((Person, EmailAddress)),
+            set(related_classes(person)),
+            {Person, EmailAddress},
         )
 
     def test_safe_queryset_and(self):
@@ -53,7 +55,8 @@ class UtilsTest(TestCase):
         self.assertFalse(qs.query.distinct)
 
         qs = safe_queryset_and(
-            EmailAddress.objects.all(), EmailAddress.objects.select_related(),
+            EmailAddress.objects.all(),
+            EmailAddress.objects.select_related(),
         )
 
         self.assertTrue(qs.query.select_related)

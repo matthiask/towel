@@ -1,10 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 from django.test import TestCase
+from testapp.models import EmailAddress, Person
 
 from towel import deletion
-
-from testapp.models import Person, EmailAddress
 
 
 class DeletionTest(TestCase):

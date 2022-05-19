@@ -11,7 +11,6 @@ to all form fields with a ``queryset`` attribute.
     choices by the current tenant yourself.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django import forms
 from django.db.models import FieldDoesNotExist
@@ -27,21 +26,22 @@ def _process_fields(form, request):
             model = field.queryset.model
 
             field.queryset = safe_queryset_and(
-                field.queryset, model.objects.for_access(request.access),
+                field.queryset,
+                model.objects.for_access(request.access),
             )
 
 
 class Form(forms.Form):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        super(Form, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         _process_fields(self, self.request)
 
 
 class ModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        super(ModelForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         _process_fields(self, self.request)
 
     def save(self, commit=True):
@@ -54,7 +54,7 @@ class ModelForm(forms.ModelForm):
         if field and field.related_model and issubclass(field.related_model, Client):
             setattr(self.instance, attr, getattr(self.request.access, attr))
 
-        return super(ModelForm, self).save(commit=commit)
+        return super().save(commit=commit)
 
 
 class SearchForm(towel_forms.SearchForm):
@@ -65,5 +65,5 @@ class SearchForm(towel_forms.SearchForm):
 
 class BatchForm(towel_forms.BatchForm):
     def __init__(self, *args, **kwargs):
-        super(BatchForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         _process_fields(self, self.request)

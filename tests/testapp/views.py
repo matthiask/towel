@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import re
 
 from django import forms
@@ -10,7 +8,7 @@ from towel import quick
 from towel.forms import BatchForm, SearchForm, WarningsForm
 from towel.modelview import ModelView
 
-from .models import Person, EmailAddress, Message
+from .models import EmailAddress, Message, Person
 
 
 class PersonBatchForm(BatchForm):
@@ -58,11 +56,11 @@ class MessageForm(forms.ModelForm, WarningsForm):
 
     def __init__(self, *args, **kwargs):
         person = kwargs.pop("person")
-        super(MessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["sent_to"].queryset = person.emailaddress_set.all()
 
     def clean(self):
-        data = super(MessageForm, self).clean()
+        data = super().clean()
 
         if not data.get("message", "").strip():
             self.add_warning("Only spaces in message, really send?")
@@ -127,8 +125,13 @@ class EmailAddressSearchForm(SearchForm):
 
 
 emailaddress_views = ModelView(
-    EmailAddress, paginate_by=5, search_form=EmailAddressSearchForm,
+    EmailAddress,
+    paginate_by=5,
+    search_form=EmailAddressSearchForm,
 )
 
 
-message_views = ModelView(Message, paginate_by=5,)
+message_views = ModelView(
+    Message,
+    paginate_by=5,
+)

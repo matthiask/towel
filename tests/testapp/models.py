@@ -1,9 +1,5 @@
-from __future__ import absolute_import, unicode_literals
-
 from django.db import models
 from django.utils.timezone import now
-
-import six
 
 from towel import deletion
 from towel.managers import SearchManager
@@ -19,7 +15,6 @@ class PersonManager(SearchManager):
     search_fields = ("family_name", "given_name")
 
 
-@six.python_2_unicode_compatible
 class Person(models.Model):
     RELATIONSHIP_CHOICES = (
         ("", "unspecified"),
@@ -45,7 +40,7 @@ class Person(models.Model):
         ordering = ["family_name", "given_name"]
 
     def __str__(self):
-        return "%s %s" % (self.given_name, self.family_name)
+        return f"{self.given_name} {self.family_name}"
 
     def get_absolute_url(self):
         return self.urls["detail"]

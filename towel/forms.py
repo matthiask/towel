@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import json
 
 from django import forms
@@ -7,12 +5,10 @@ from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.forms.utils import flatatt
 from django.http import HttpResponse, QueryDict
-from django.utils.encoding import force_str, force_bytes
+from django.utils.encoding import force_bytes, force_str
 from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
-
-import six
 
 from towel import quick
 
@@ -114,18 +110,16 @@ class BatchForm(forms.Form):
 
         if request.method == "POST" and "batchform" in request.POST:
             self._process = True
-            super(BatchForm, self).__init__(
-                request.POST, request.FILES, *args, **kwargs
-            )
+            super().__init__(request.POST, request.FILES, *args, **kwargs)
         else:
-            super(BatchForm, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
     def clean(self):
         """
         Cleans the batch form fields and checks whether at least one item
         had been selected.
         """
-        data = super(BatchForm, self).clean()
+        data = super().clean()
 
         post_data = self.request.POST
         self.ids = [
@@ -174,7 +168,10 @@ class BatchForm(forms.Form):
             warnings.warn(
                 "The batch form '%s.%s' is still using '_context'."
                 " Switch to using the new 'process' method now!"
-                % (self.__class__.__module__, self.__class__.__name__,),
+                % (
+                    self.__class__.__module__,
+                    self.__class__.__name__,
+                ),
                 DeprecationWarning,
             )
 
@@ -275,9 +272,7 @@ class SearchForm(forms.Form):
 
         request = kwargs.pop("request")
         self.original_data = data
-        super(SearchForm, self).__init__(
-            self.prepare_data(data, request), *args, **kwargs
-        )
+        super().__init__(self.prepare_data(data, request), *args, **kwargs)
         self.persist(request)
         self.post_init(request)
 
@@ -315,7 +310,9 @@ class SearchForm(forms.Form):
         isn't searching right now.
         """
 
-        session_key = "sf_%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        session_key = "sf_{}.{}".format(
+            self.__class__.__module__, self.__class__.__name__
+        )
 
         if "clear" in request.GET or "n" in request.GET:
             if session_key in request.session:
@@ -390,11 +387,7 @@ class SearchForm(forms.Form):
                 continue
 
             value = data.get(field)
-            if (
-                value
-                and hasattr(value, "__iter__")
-                and not isinstance(value, six.string_types)
-            ):
+            if value and hasattr(value, "__iter__") and not isinstance(value, str):
                 queryset = queryset.filter(**{"%s__in" % field: value})
             elif value or value is False:
                 queryset = queryset.filter(**{field: value})
@@ -507,7 +500,7 @@ class WarningsForm(forms.BaseForm):
     """
 
     def __init__(self, *args, **kwargs):
-        super(WarningsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["ignore_warnings"] = forms.BooleanField(
             label=_("Ignore warnings"), required=False
@@ -525,7 +518,7 @@ class WarningsForm(forms.BaseForm):
         ``is_valid()`` override which returns ``False`` for forms with warnings
         if these warnings haven't been explicitly ignored
         """
-        if not super(WarningsForm, self).is_valid():
+        if not super().is_valid():
             return False
 
         if self.warnings and not (
@@ -536,10 +529,10 @@ class WarningsForm(forms.BaseForm):
         return True
 
 
-class StrippedInputMixin(object):
+class StrippedInputMixin:
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             return value.strip()
         return value
 
@@ -634,7 +627,7 @@ class ModelAutocompleteWidget(forms.TextInput):
 
         self.url = url
         self.queryset = queryset
-        super(ModelAutocompleteWidget, self).__init__(attrs)
+        super().__init__(attrs)
 
     def render(self, name, value, attrs=None, choices=(), renderer=None):
         attrs = attrs or {}
@@ -671,35 +664,35 @@ class ModelAutocompleteWidget(forms.TextInput):
             ) + ("<input%s />" % flatatt(final_attrs))
 
         js = """<script type="text/javascript">
-$(function() {
-    $('#%(id)s_ac').autocomplete({
-        source: %(source)s,
-        focus: function(event, ui) {
-            $('#%(id)s_ac').val(ui.item.label);
+$(function() {{
+    $('#{id}_ac').autocomplete({{
+        source: {source},
+        focus: function(event, ui) {{
+            $('#{id}_ac').val(ui.item.label);
             return false;
-        },
-        select: function(event, ui) {
-            $('#%(id)s').val(ui.item.value).trigger('change');
-            $('#%(id)s_ac').val(ui.item.label);
+        }},
+        select: function(event, ui) {{
+            $('#{id}').val(ui.item.value).trigger('change');
+            $('#{id}_ac').val(ui.item.label);
             return false;
-        }
-    }).bind('focus', function() {
+        }}
+    }}).bind('focus', function() {{
         this.select();
-    }).bind('blur', function() {
+    }}).bind('blur', function() {{
         if (!this.value)
-            $('#%(id)s').val('');
-    });
-    $('#%(id)s_cl').click(function(){
-        $('#%(id)s, #%(id)s_ac').val('');
+            $('#{id}').val('');
+    }});
+    $('#{id}_cl').click(function(){{
+        $('#{id}, #{id}_ac').val('');
         return false;
-    });
-});
+    }});
+}});
 </script>
-""" % {
-            "id": attrs.get("id", name),
-            "source": self._source(),
+""".format(
+            id=attrs.get("id", name),
+            source=self._source(),
             # "name": name,
-        }
+        )
 
         return mark_safe(hidden + ac + js)
 
@@ -713,20 +706,20 @@ $(function() {
                 [{"label": force_str(o), "value": o.id} for o in self.queryset.all()]
             )
 
-            return """function (request, response) {
-    var data = %(data)s, ret = [], term = request.term.toLowerCase();
-    for (var i=0; i<data.length; ++i) {
+            return """function (request, response) {{
+    var data = {data}, ret = [], term = request.term.toLowerCase();
+    for (var i=0; i<data.length; ++i) {{
         if (data[i].label.toLowerCase().indexOf(term) != -1)
             ret.push(data[i]);
-    }
+    }}
     response(ret);
-}
-""" % {
-                "data": data
-            }
+}}
+""".format(
+                data=data
+            )
 
 
-class InvalidEntry(object):
+class InvalidEntry:
     pk = None
 
 
@@ -737,10 +730,10 @@ class MultipleAutocompletionWidget(forms.TextInput):
 
     def __init__(self, attrs=None, queryset=None):
         self.queryset = queryset
-        super(MultipleAutocompletionWidget, self).__init__(attrs)
+        super().__init__(attrs)
 
     def _possible(self):
-        return dict((force_str(o).lower(), o) for o in self.queryset._clone())
+        return {force_str(o).lower(): o for o in self.queryset._clone()}
 
     def render(self, name, value, attrs=None, choices=(), renderer=None):
         attrs = attrs or {}
@@ -754,36 +747,36 @@ class MultipleAutocompletionWidget(forms.TextInput):
             value = ", ".join(force_str(o) for o in self.queryset.filter(id__in=value))
 
         js = """<script type="text/javascript">
-$(function() {
-    function split( val ) {
+$(function() {{
+    function split( val ) {{
         return val.split( /,\\s*/ );
-    }
-    function extractLast( term ) {
+    }}
+    function extractLast( term ) {{
         return split( term ).pop();
-    }
+    }}
 
-    $( "#%(id)s" )
+    $( "#{id}" )
         // don't navigate away from the field on tab when selecting an item
-        .bind( "keydown", function( event ) {
+        .bind( "keydown", function( event ) {{
             if ( event.keyCode === $.ui.keyCode.TAB &&
-                    $( this ).data( "autocomplete" ).menu.active ) {
+                    $( this ).data( "autocomplete" ).menu.active ) {{
                 event.preventDefault();
-            }
-        })
-        .autocomplete({
-            source: %(source)s,
-            search: function() {
+            }}
+        }})
+        .autocomplete({{
+            source: {source},
+            search: function() {{
                 // custom minLength
                 var term = extractLast( this.value );
-                if ( term.length < 2 ) {
+                if ( term.length < 2 ) {{
                     return false;
-                }
-            },
-            focus: function() {
+                }}
+            }},
+            focus: function() {{
                 // prevent value inserted on focus
                 return false;
-            },
-            select: function( event, ui ) {
+            }},
+            select: function( event, ui ) {{
                 var terms = split( this.value );
                 // remove the current input
                 terms.pop();
@@ -793,19 +786,17 @@ $(function() {
                 terms.push( "" );
                 this.value = terms.join( ", " );
                 return false;
-            }
-    });
-});
+            }}
+    }});
+}});
 </script>
-""" % {
-            "id": final_attrs.get("id", name),
-            "source": self._source(),
+""".format(
+            id=final_attrs.get("id", name),
+            source=self._source(),
             # "name": name,
-        }
-
-        return mark_safe(
-            "<textarea%s>%s</textarea>" % (flatatt(final_attrs), value,) + js
         )
+
+        return mark_safe(f"<textarea{flatatt(final_attrs)}>{value}</textarea>" + js)
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
@@ -814,11 +805,11 @@ $(function() {
 
         possible = self._possible()
         values = [s for s in [s.strip() for s in value.lower().split(",")] if s]
-        return list(set(possible.get(s, InvalidEntry).pk for s in values))
+        return list({possible.get(s, InvalidEntry).pk for s in values})
 
     def _source(self):
-        return """function(request, response) {
-    response($.ui.autocomplete.filter(%(data)s, extractLast(request.term)));
-    }""" % {
-            "data": json.dumps([force_str(o) for o in self.queryset._clone()]),
-        }
+        return """function(request, response) {{
+    response($.ui.autocomplete.filter({data}, extractLast(request.term)));
+    }}""".format(
+            data=json.dumps([force_str(o) for o in self.queryset._clone()]),
+        )

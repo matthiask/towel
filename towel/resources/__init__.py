@@ -1,13 +1,13 @@
 # flake8: noqa
 from .base import (
-    ModelResourceView,
-    ListView,
-    DetailView,
-    FormView,
     AddView,
-    EditView,
-    LiveUpdateAfterEditMixin,
-    LiveFormView,
-    PickerView,
     DeleteView,
+    DetailView,
+    EditView,
+    FormView,
+    ListView,
+    LiveFormView,
+    LiveUpdateAfterEditMixin,
+    ModelResourceView,
+    PickerView,
 )

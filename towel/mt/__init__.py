@@ -39,8 +39,6 @@ Assumptions
   you are not required to use the backend.
 """
 
-from __future__ import absolute_import, unicode_literals
-
 
 def client_model():
     from django.apps import apps
@@ -56,7 +54,7 @@ def access_model():
     return apps.get_model(*settings.TOWEL_MT_ACCESS_MODEL.split("."))
 
 
-class AccessDecorator(object):
+class AccessDecorator:
     def __new__(cls):
         instance = object.__new__(cls)
         from towel import mt

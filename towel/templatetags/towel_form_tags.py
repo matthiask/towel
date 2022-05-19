@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 from django import forms, template
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -247,9 +245,7 @@ class DynamicFormsetNode(template.Node):
         context.pop()
 
         for idx, form in enumerate(formset.forms):
-            context.update(
-                {"empty": False, "form_id": "%s-%s" % (slug, idx), "form": form}
-            )
+            context.update({"empty": False, "form_id": f"{slug}-{idx}", "form": form})
             result.append(self.nodelist.render(context))
             context.pop()
 

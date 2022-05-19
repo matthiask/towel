@@ -1,13 +1,11 @@
-from __future__ import absolute_import, unicode_literals
-
-from django.conf.urls import url as _url
+from django.urls import re_path
 from django.urls import NoReverseMatch, reverse
 
 from towel import resources
 from towel.utils import app_model_label
 
 
-class _MRUHelper(object):
+class _MRUHelper:
     def __init__(self, viewname_pattern, kwargs):
         self.viewname_pattern = viewname_pattern
         self.kwargs = kwargs
@@ -46,7 +44,7 @@ def model_resource_urls(
     """
 
     def _dec(cls):
-        class _descriptor(object):
+        class _descriptor:
             def __get__(self, obj, objtype=None):
                 viewname_pattern = "%s_%s_%%s" % app_model_label(obj)
                 kwargs = {"kwargs": reverse_kwargs_fn(obj)}
@@ -118,7 +116,7 @@ def resource_url_fn(
         if _sentinel is not None:
             raise TypeError("name is the only non-keyword")
 
-        urlregex = r"^%s/%s/$" % (urlconf_detail_re, name) if url is None else url
+        urlregex = rf"^{urlconf_detail_re}/{name}/$" if url is None else url
 
         urlname = "%s_%s_%s" % (app_model_label(model) + (name,))
 
@@ -135,6 +133,6 @@ def resource_url_fn(
         for dec in reversed(decorators):
             view = dec(view)
 
-        return _url(urlregex, view, name=urlname)
+        return re_path(urlregex, view, name=urlname)
 
     return _fn

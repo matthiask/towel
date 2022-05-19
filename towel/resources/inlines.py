@@ -3,7 +3,6 @@ This is mostly equivalent with Django's inline formsets mechanism, but
 used together with editlive.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 import json
 
@@ -12,11 +11,11 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
-from towel.resources.base import DetailView, FormView, LiveFormView, DeleteView
+from towel.resources.base import DeleteView, DetailView, FormView, LiveFormView
 from towel.utils import changed_regions
 
 
-class ChildMixin(object):
+class ChildMixin:
     base_template = "modal.html"
     parent_attr = "parent"
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import re
 
 from django import template
@@ -20,7 +18,7 @@ def flatatt(attrs):
     XML-escaped.  If the passed dictionary is empty, then return an empty
     string.
     """
-    return "".join([' %s="%s"' % (k, conditional_escape(v)) for k, v in attrs.items()])
+    return "".join([f' {k}="{conditional_escape(v)}"' for k, v in attrs.items()])
 
 
 @register.tag
@@ -86,6 +84,8 @@ class RegionNode(template.Node):
 
         return mark_safe(
             "<{tag} {attrs}>{output}</{tag}>".format(
-                attrs=flatatt(kwargs), output=output, tag=tag,
+                attrs=flatatt(kwargs),
+                output=output,
+                tag=tag,
             )
         )

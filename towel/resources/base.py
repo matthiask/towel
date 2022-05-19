@@ -23,14 +23,13 @@ understand and follow.
 At least that's one of our goals here.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 import json
 
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.forms.models import modelform_factory, model_to_dict
+from django.forms.models import model_to_dict, modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import NoReverseMatch
@@ -40,7 +39,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
 from towel.forms import BatchForm, towel_formfield_callback
-from towel.paginator import Paginator, EmptyPage, InvalidPage
+from towel.paginator import EmptyPage, InvalidPage, Paginator
 from towel.utils import (
     app_model_label,
     changed_regions,
@@ -137,10 +136,10 @@ class ModelResourceView(TemplateView):
         - ``resources/object<template_name_suffix>.html
         """
         names = [
-            "{0}/{1}{2}.html".format(
+            "{}/{}{}.html".format(
                 *(app_model_label(self.model) + (self.template_name_suffix,))
             ),
-            "resources/object{0}.html".format(self.template_name_suffix),
+            f"resources/object{self.template_name_suffix}.html",
         ]
         if self.template_name:
             names.insert(0, self.template_name)
@@ -267,9 +266,7 @@ class ListView(ModelResourceView):
         Adds ``object_list`` to the context, and ``page`` and ``paginator``
         as well if paginating.
         """
-        context = super(ListView, self).get_context_data(
-            object_list=object_list, **kwargs
-        )
+        context = super().get_context_data(object_list=object_list, **kwargs)
 
         if object_list is not None:
             paginate_by = self.get_paginate_by(object_list)
@@ -308,7 +305,8 @@ class ListView(ModelResourceView):
                 messages.error(self.request, _("The search query was invalid."))
                 return HttpResponseRedirect("?clear=1")
             self.object_list = safe_queryset_and(
-                self.object_list, form.queryset(self.model),
+                self.object_list,
+                form.queryset(self.model),
             )
             context["search_form"] = form
 
@@ -343,7 +341,7 @@ class ListView(ModelResourceView):
                 elif result is not None:
                     # Not None, but cannot make sense of it either.
                     raise TypeError(
-                        "Return value %r of %s invalid." % (result, fn.__name__)
+                        f"Return value {result!r} of {fn.__name__} invalid."
                     )
 
                 return redirect(self.url("list"))
@@ -418,7 +416,7 @@ class ListView(ModelResourceView):
             [item.delete() for item in queryset]
             return
 
-        context = super(ListView, self).get_context_data(
+        context = super().get_context_data(
             title=_("Delete selected"),
             action_queryset=queryset,
             action_hidden_fields=self.batch_action_hidden_fields(
@@ -615,7 +613,7 @@ class EditView(FormView):
         return self.form_invalid(form)
 
 
-class LiveUpdateAfterEditMixin(object):
+class LiveUpdateAfterEditMixin:
     """
     Only uses the editlive mechanism for updating. The edit step happens
     inside a standard modal.

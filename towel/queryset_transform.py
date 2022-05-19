@@ -81,19 +81,18 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django.db import models
 
 
 class TransformQuerySet(models.query.QuerySet):
     def __init__(self, *args, **kwargs):
-        super(TransformQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._transform_fns = []
         self._orig_iterable_class = getattr(self, "_iterable_class", None)
 
     def _clone(self, *args, **kwargs):
-        c = super(TransformQuerySet, self)._clone(*args, **kwargs)
+        c = super()._clone(*args, **kwargs)
         c._transform_fns = self._transform_fns[:]
         return c
 
@@ -103,7 +102,7 @@ class TransformQuerySet(models.query.QuerySet):
         return c
 
     def _fetch_all(self):
-        super(TransformQuerySet, self)._fetch_all()
+        super()._fetch_all()
         if getattr(self, "_iterable_class", None) == self._orig_iterable_class:  # noqa
             for fn in self._transform_fns:
                 fn(self._result_cache)

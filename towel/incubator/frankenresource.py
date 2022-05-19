@@ -1,10 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 import httplib
-
 from django.contrib.messages.api import get_messages
 
-from towel.api import Resource, APIException
+from towel.api import APIException, Resource
 
 
 class FrankenResource(Resource):

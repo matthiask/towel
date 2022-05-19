@@ -5,11 +5,9 @@
 As long as you use this class, everything should just work (tm).
 """
 
-from __future__ import absolute_import, unicode_literals
-
-from towel import modelview as towel_modelview
 
 import towel.mt
+from towel import modelview as towel_modelview
 from towel.mt.forms import ModelForm
 
 

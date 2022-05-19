@@ -22,7 +22,6 @@ The defaults are as follows::
         }
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django.conf import settings
 from django.core import paginator
@@ -52,7 +51,7 @@ PAGINATION = getattr(
 def filter_adjacent(iterable):
     """Collapse identical adjacent values"""
     # Generate an object guaranteed to not exist inside the iterable
-    current = type(str("Marker"), (object,), {})
+    current = type("Marker", (object,), {})
 
     for item in iterable:
         if item != current:

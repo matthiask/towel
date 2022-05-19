@@ -3,7 +3,6 @@ Authentication backend which preloads access and client models
 ==============================================================
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth.models import User
 
@@ -27,7 +26,8 @@ class ModelBackend(_ModelBackend):
         Client = client_model()
         try:
             access = Access.objects.select_related(
-                "user", Client.__name__.lower(),
+                "user",
+                Client.__name__.lower(),
             ).get(user=user_id)
 
             # Ensure reverse accesses do not needlessly query the DB again.

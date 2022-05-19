@@ -31,7 +31,6 @@ deletion method for some reason too, you have to ensure that the threadlocal
 state is respected too.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from contextlib import contextmanager
 from threading import local
@@ -97,4 +96,4 @@ class Model(models.Model):
         """
         if getattr(_deletion, "mode", None) == PROTECT:
             return
-        super(Model, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)

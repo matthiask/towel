@@ -1,10 +1,11 @@
-from __future__ import absolute_import, unicode_literals
-
 import os
 
+
+DEBUG = True
 SITE_ID = 1
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -41,7 +42,7 @@ TEMPLATES = [
         },
     },
 ]
-MIDDLEWARE_CLASSES = MIDDLEWARE = (
+MIDDLEWARE = (
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

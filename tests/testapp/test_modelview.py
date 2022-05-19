@@ -1,10 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 from django.test import TestCase
-from django.utils.encoding import force_str
 from django.urls import reverse
-
-from testapp.models import Person, EmailAddress, Message
+from django.utils.encoding import force_str
+from testapp.models import EmailAddress, Message, Person
 
 
 class ModelViewTest(TestCase):
@@ -113,7 +110,7 @@ class ModelViewTest(TestCase):
         self.assertRedirects(
             self.client.get(person.urls["delete"]), person.urls["detail"]
         )
-        response = self.client.post(person.urls["delete"])
+        response = self.client.post(person.urls["delete"], follow=True)
         self.assertRedirects(response, person.urls["detail"])
         # Nothing has been deleted
         self.assertEqual(Person.objects.count(), 1)
@@ -122,7 +119,7 @@ class ModelViewTest(TestCase):
                 "Deletion not allowed: There are email addresses related"
                 " to this object."
             )
-            in str(response.cookies)
+            in str([str(m) for m in response.context["messages"]])
         )
 
         # Add another email address
@@ -196,7 +193,10 @@ class ModelViewTest(TestCase):
 
     def test_emailaddress_views(self):
         emailaddress = EmailAddress.objects.create(
-            person=Person.objects.create(given_name="Testa", family_name="Testi",),
+            person=Person.objects.create(
+                given_name="Testa",
+                family_name="Testi",
+            ),
             email="test@example.com",
         )
 
@@ -223,7 +223,9 @@ class ModelViewTest(TestCase):
         for i in range(10):
             EmailAddress.objects.create(
                 person=Person.objects.create(
-                    given_name="Testa", family_name="Testi", is_active=bool(i % 2),
+                    given_name="Testa",
+                    family_name="Testi",
+                    is_active=bool(i % 2),
                 ),
                 email="test%s@example.com" % i,
             )
@@ -231,7 +233,8 @@ class ModelViewTest(TestCase):
         # The EmailAddressSearchForm defaults to only showing email addresses
         # of active persons.
         self.assertContains(
-            self.client.get(list_url), "<span>1 - 5 / 6</span>",
+            self.client.get(list_url),
+            "<span>1 - 5 / 6</span>",
         )
         self.assertContains(
             self.client.get(list_url + "?person__is_active=1"),
@@ -254,7 +257,8 @@ class ModelViewTest(TestCase):
     def test_batchform(self):
         for i in range(20):
             Person.objects.create(
-                given_name="Given %s" % i, family_name="Family %s" % i,
+                given_name="Given %s" % i,
+                family_name="Family %s" % i,
             )
 
         self.assertContains(self.client.get("/persons/"), "<span>1 - 5 / 20</span>")
@@ -270,14 +274,15 @@ class ModelViewTest(TestCase):
         }
         for pk in Person.objects.values_list("id", flat=True)[:3]:
             data["batch_%s" % pk] = pk
-        response = self.client.post("/persons/", data)
+        response = self.client.post("/persons/", data, follow=True)
         self.assertRedirects(response, "/persons/")
 
-        cookies = str(response.cookies)
-        self.assertTrue("3 have been updated." in cookies)
-        self.assertTrue("Given 0 Family 0" in cookies)
-        self.assertTrue("Given 1 Family 1" in cookies)
-        self.assertTrue("Given 10 Family 10" in cookies)
+        messages = [str(m) for m in response.context["messages"]]
+        messages = str(messages)
+        self.assertTrue("3 have been updated." in messages)
+        self.assertTrue("Given 0 Family 0" in messages)
+        self.assertTrue("Given 1 Family 1" in messages)
+        self.assertTrue("Given 10 Family 10" in messages)
         self.assertEqual(Person.objects.filter(is_active=False).count(), 3)
 
     def test_automatic_get_absolute_url(self):
