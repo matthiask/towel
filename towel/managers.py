@@ -12,7 +12,7 @@ def normalize_query(
     normspace=re.compile(r"\s{2,}").sub,
 ):
     """
-    Splits the query string in invidual keywords, getting rid of unecessary
+    Splits the query string in individual keywords, getting rid of unnecessary
     spaces and grouping quoted words together.
 
     Example::

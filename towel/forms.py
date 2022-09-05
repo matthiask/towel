@@ -496,7 +496,7 @@ class WarningsForm(forms.BaseForm):
       warnings, if those warnings have not been explicitly ignored (by checking
       a checkbox or by passing ``ignore_warnings=True`` to ``is_valid()``.
     * An additional form field named ``ignore_warnings`` is available - this
-      field should only be displayed if ``WarningsForm.warnings`` is non-emtpy.
+      field should only be displayed if ``WarningsForm.warnings`` is non-empty.
     """
 
     def __init__(self, *args, **kwargs):

@@ -33,7 +33,7 @@ def region(parser, token):
     The identifier should be a short string which is unique for the whole
     project, or at least for a given view. It is used to identify the region
     when live-updating, it should therefore be usable as a part of a HTML
-    ``id`` attribute. The identifer should not start with an underscore,
+    ``id`` attribute. The identifier should not start with an underscore,
     those names are reserved for internal bookkeeping.
 
     ``fields`` is a comma-separated list of fields (or other identifiers)
