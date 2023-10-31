@@ -13,7 +13,7 @@ to all form fields with a ``queryset`` attribute.
 
 
 from django import forms
-from django.db.models import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 
 from towel import forms as towel_forms
 from towel.mt import client_model
