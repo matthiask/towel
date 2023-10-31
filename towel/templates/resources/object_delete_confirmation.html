@@ -1,0 +1,31 @@
+{% extends base_template|default:"base.html" %}
+
+{% load i18n towel_form_tags %}
+
+{% block title %}{{ title }} {{ object }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h2><a href="{{ object.get_absolute_url }}">{{ title }}: {{ object }}</a></h2>
+
+<p>{% blocktrans %}Do you really want to delete {{ object }}?{% endblocktrans %}</p>
+
+{% if collected_objects %}
+<p>{% trans "You are about to delete the following objects:" %}
+<ul>
+{% for opts, count in collected_objects %}
+    <li>{{ count }} {% if count == 1 %}{{ opts.verbose_name }}{% else %}{{ opts.verbose_name_plural }}{% endif %}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ request.get_full_path|default:"." }}">{% csrf_token %}
+    {% form_errors form %}
+    {% form_warnings form %}
+    {% form_items form %}
+    <div class="buttons cf">
+        <button type="submit">{% trans "delete"|capfirst %}</button>
+        <a href="{{ object.get_absolute_url }}" class="button">
+            {% trans "cancel"|capfirst %}</a>
+    </div>
+</form>
+{% endblock %}

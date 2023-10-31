@@ -1,0 +1,47 @@
+{% extends base_template|default:"base.html" %}
+
+{% load i18n towel_form_tags verbose_name_tags %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h2>
+    {% if object %}<a href="{{ object.get_absolute_url }}">{{ title }}: {{ object }}</a>
+    {% else %}{{ title }}
+    {% endif %}
+</h2>
+
+<form method="post" action="{{ request.get_full_path|default:"." }}" enctype="multipart/form-data">{% csrf_token %}
+
+{% form_errors form formsets %}
+{% form_warnings form formsets %}
+
+<fieldset>
+    {% for field in form %}{% form_item field %}{% endfor %}
+</fieldset>
+
+{% for key, formset in formsets.items %}
+<fieldset>
+    <legend>{{ formset|verbose_name_plural }}</legend>
+    {{ formset.management_form }}
+    {% dynamic_formset formset key %}
+        <div id="{{ form_id }}" class="{% if empty %}empty{% endif %}">
+            {% for field in form %}{% form_item field %}{% endfor %}
+        </div>
+    {% enddynamic_formset %}
+    <button type="button" class="add"
+            onclick="return towel_add_subform('{{ key }}')">
+        {{ formset|verbose_name }}
+    </button>
+</fieldset>
+{% endfor %}
+
+<div class="buttons">
+    <input type="submit" name="_save" value="{% trans "save"|capfirst %}">
+    <input type="submit" name="_continue" value="{% trans "Save and continue editing" %}">
+
+    <a href="../" class="button">{% trans "cancel"|capfirst %}</a>
+</div>
+
+</form>
+{% endblock %}

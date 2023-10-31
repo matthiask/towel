@@ -1,0 +1,82 @@
+{% extends base_template|default:"base.html" %}
+
+{% load i18n modelview_list towel_batch_tags towel_form_tags %}
+
+{% block title %}{{ verbose_name_plural }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+
+<div class="buttons">
+    {% if adding_allowed %}<a href="add/" class="button">
+        <span>{% blocktrans %}Add {{ verbose_name }}{% endblocktrans %}</span></a>{% endif %}
+</div>
+
+{% block search %}
+{% if search_form %}
+<div class="box searchbox {{ search_form.searching }}">
+    <a href="?clear=1" class="searching">reset</a>
+
+    <form id="filterform" method="get" action=".">
+        <input type="hidden" name="s" value="1" />
+        {% form_item_plain search_form.query %}
+        {% for field in search_form.fields_iterator %}
+            {% if forloop.first %}<table>{% endif %}
+            {% form_item field %}
+            {% if forloop.last %}</table>{% endif %}
+        {% endfor %}
+        <button type="submit"><span>{% trans "Search" %}</span></button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% if paginator %}{% pagination page paginator "top" %}{% endif %}
+
+{% if batch_form %}<form id="batchform" method="post" action="{{ request.get_full_path }}" enctype="multipart/form-data">{% csrf_token %}{% endif %}
+
+{% block objects %}
+<table class="objects">
+    <thead>
+        <tr>
+            {% if batch_form %}<td><input class="batch" type="checkbox"></td>{% endif %}
+            <th>{% trans "object"|capfirst %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for object in object_list %}
+        <tr>
+            {% if batch_form %}<td>{% batch_checkbox batch_form object.id %}</td>{% endif %}
+            <th><a href="{{ object.get_absolute_url }}">{{ object }}</a></th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% if paginator %}{% pagination page paginator "bottom" %}{% endif %}
+
+{% if batch_form %}
+    {% form_errors batch_form %}
+    <div class="box detail">
+        <h2>{% trans "Batch form" %}</h2>
+
+        <input type="hidden" name="batchform" value="1" />
+        <table>{% for field in batch_form %}{% form_item field %}{% endfor %}</table>
+
+        {% if batch_items %}
+            {% for item in batch_items %}
+                {{ item }}
+                <br />
+            {% endfor %}
+        {% endif %}
+
+        {% block batch_buttons %}
+        <div class="buttons">
+            <button type="submit" class="button right">{% trans "Submit" %}</button>
+        </div>
+        {% endblock %}
+    </div>
+</form>
+{% endif %}
+
+{% endblock %}
