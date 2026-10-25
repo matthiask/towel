@@ -4,6 +4,9 @@ Change log
 Next version
 ~~~~~~~~~~~~
 
+0.32 (2026-10-25)
+~~~~~~~~~~~~~~~~~
+
 - Updated the README and the installation docs with current installation
   instructions and supported Python and Django versions. (#11)
 - Moved the documentation to Read the Docs and fixed the docs build with
