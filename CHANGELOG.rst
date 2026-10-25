@@ -12,6 +12,8 @@ Next version
 - Replaced Travis CI with GitHub Actions. Added Python 3.9 to 3.15 and Django
   3.2, 4.2, 5.2, 6.0 and 6.1 to the CI matrix.
 - Started publishing releases to PyPI using trusted publishing.
+- Converted the packaging metadata to ``pyproject.toml`` and switched the
+  build backend to hatchling.
 
 
 `0.31`_ (2023-10-31)

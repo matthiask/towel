@@ -1,5 +1,5 @@
 """
 Towel - Keeping you DRY since 2010
 """
-VERSION = (0, 31, 0)
-__version__ = ".".join(map(str, VERSION))
+__version__ = "0.31.0"
+VERSION = tuple(map(int, __version__.split(".")))
