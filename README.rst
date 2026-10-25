@@ -11,3 +11,15 @@ you want to safely delete objects.
 
 * Towel on GitHub: https://github.com/matthiask/towel/
 * Documentation: https://towel.readthedocs.io/
+
+
+Installation
+============
+
+Towel requires Python 3 and Django 3.2 or newer. Install the latest
+stable release from PyPI::
+
+    pip install towel
+
+Add ``towel`` to ``INSTALLED_APPS`` if you want to use the bundled
+templates and template tags.
