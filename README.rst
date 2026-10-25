@@ -9,5 +9,5 @@ functionality helping you safely and easily create and update objects,
 and using Django's own proofed machinery to see what happens when
 you want to safely delete objects.
 
-* Towel on github: https://github.com/matthiask/towel/
-* Documentation: http://www.feinheit.ch/media/labs/towel/
+* Towel on GitHub: https://github.com/matthiask/towel/
+* Documentation: https://towel.readthedocs.io/
