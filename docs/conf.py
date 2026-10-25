@@ -213,9 +213,9 @@ latex_documents = [
 
 
 intersphinx_mapping = {
-    "http://docs.python.org/": None,
+    "python": ("https://docs.python.org/3/", None),
     "django": (
-        "http://docs.djangoproject.com/en/dev/",
-        "http://docs.djangoproject.com/en/dev/_objects/",
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
     ),
 }
